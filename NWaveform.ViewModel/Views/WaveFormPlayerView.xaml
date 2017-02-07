@@ -1,0 +1,199 @@
+﻿<UserControl x:Class="NWaveform.Views.WaveformPlayerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:cal="http://www.caliburnproject.org"
+             xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
+             xmlns:converter="clr-namespace:NWaveform.Converter"
+             xmlns:views="clr-namespace:NWaveform.Views"
+             xmlns:nWaveform="clr-namespace:NWaveform"
+             xmlns:viewModels="clr-namespace:NWaveform.ViewModels"
+             mc:Ignorable="d" d:DataContext="{d:DesignInstance viewModels:IWaveformPlayerViewModel}">
+
+    <UserControl.Resources>
+        <Style TargetType="TextBlock" x:Key="ErrorText">
+            <Setter Property="Foreground" Value="Red"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <converter:BooleanToVisibilityConverter x:Key="BoolToVisible" True="Visible" False="Collapsed"/>
+        <converter:BooleanToVisibilityConverter x:Key="InverseBoolToVisible" True="Collapsed" False="Visible"/>
+
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="DarkBlue"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4,0,4,0" />
+            <Setter Property="BorderBrush" Value="DarkBlue"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="4,0,4,0" />
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="FontFamily" Value="/FontAwesome.Sharp;component/fonts/#FontAwesome"/>
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Margin" Value="4" />
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="Foreground" Value="DeepSkyBlue"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="LightSkyBlue"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="ToggleButton">
+            <Setter Property="FontFamily" Value="/FontAwesome.Sharp;component/fonts/#FontAwesome"/>
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Margin" Value="4" />
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="Foreground" Value="DeepSkyBlue"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="LightSkyBlue"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ProminentButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="FontSize" Value="20" />
+        </Style>
+
+        <Style TargetType="StackPanel">
+            <Setter Property="Orientation" Value="Horizontal"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="4"/>
+        </Style>
+
+        <converter:SecondsToTimeConverter x:Key="SecondsToTime" />
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <StackPanel Visibility="{Binding Player.Error.HasException, Converter={StaticResource BoolToVisible}}"
+                Orientation="Vertical" >
+                <TextBlock Text="{Binding Player.Error.Message}" Style="{StaticResource ErrorText}"/>
+                <Expander Header="Details" IsExpanded="False">
+                    <TextBlock Text="{Binding Player.Error.Exception}" TextWrapping="Wrap"/>
+                </Expander>
+            </StackPanel>
+
+            <Grid Visibility="{Binding Player.Error.HasException, Converter={StaticResource InverseBoolToVisible}}" Margin="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- set margin so that the slider matches the waveform (Slider.Track.Thumb.Width = 2*5 = 10, it seems) -->
+                <views:PolygonWaveformView DataContext="{Binding Waveform}" Margin="5" 
+                                           Background="{DynamicResource {x:Static SystemColors.WindowBrush}}"/>
+
+                <!-- TODO: should probably move the position slider to the waveformview.
+                TODO Update: should probably merge both views. -->
+                <!--  -->
+                <nWaveform:FormattedSlider Grid.Row="1"
+                    IsEnabled="{Binding Player.HasDuration}" IsMoveToPointEnabled="True"
+                    Value="{Binding Player.Position}" Maximum="{Binding Player.Duration}"
+                    TickPlacement="BottomRight" TickFrequency="{Binding Waveform.TicksEach}"
+                    ToolTip="Seek"
+                    AutoToolTip="{Binding Player.Position, Converter={StaticResource SecondsToTime}}"           
+                    AutoToolTipPlacement="BottomRight"
+                    IsSelectionRangeEnabled="True" 
+                    SelectionStart="{Binding Waveform.Selection.Start}" 
+                    SelectionEnd="{Binding Waveform.Selection.End}">
+                    <!-- bind selection color also to slider, cf.:
+                    http://stackoverflow.com/questions/19123301/change-slider-bar-color -->
+                    <Slider.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" 
+                        Color="{Binding Waveform.SelectionBrush.Color}" />
+                    </Slider.Resources>
+                </nWaveform:FormattedSlider>
+            </Grid>
+        </Grid>
+
+        <StackPanel Grid.Row="1" DataContext="{Binding Path=Player}">
+
+            <Label ToolTip="Position">
+                <TextBlock>
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0} / {1}">
+                            <Binding Path="Position" Converter="{StaticResource SecondsToTime}"/>
+                            <Binding Path="Duration" Converter="{StaticResource SecondsToTime}"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </Label>
+
+            <Label ToolTip="Speed" Visibility="{Binding SupportsRate, Converter={StaticResource BoolToVisible}}">
+                <TextBlock Text="{Binding Rate, StringFormat={}{0:N2} x}"/>
+            </Label>
+
+            <Button cal:Message.Attach="Stop"
+                    Content="{fa:ToText Stop}" ToolTip="Stop" />
+
+            <ToggleButton cal:Message.Attach="ToggleLoop"
+                    Content="{fa:ToText Repeat}" ToolTip="Toggle Loop" IsThreeState="False" IsChecked="{Binding IsLooping,Mode=OneWay}" />
+
+            <StackPanel>
+                <Button cal:Message.Attach="Slower" 
+                        Visibility="{Binding SupportsRate, Converter={StaticResource BoolToVisible}}"
+                        Content="{fa:ToText AngleDoubleLeft}" ToolTip="Slower" />
+
+                <Button cal:Message.Attach="Play"
+                        Content="{fa:ToText Play}" ToolTip="Play" Style="{StaticResource ProminentButton}"
+                        Visibility="{Binding IsPlaying, Converter={StaticResource InverseBoolToVisible}}" />
+
+                <Button cal:Message.Attach="Pause"
+                        Content="{fa:ToText Pause}" ToolTip="Pause" Style="{StaticResource ProminentButton}"
+                        Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisible}}" />
+
+                <Button cal:Message.Attach="Faster"
+                        Visibility="{Binding SupportsRate, Converter={StaticResource BoolToVisible}}"
+                        Content="{fa:ToText AngleDoubleRight}" ToolTip="Faster" />
+            </StackPanel>
+
+            <StackPanel>
+                <Button cal:Message.Attach="Mute"
+                        Content="{fa:ToText VolumeOff}" ToolTip="Mute" 
+                        Visibility="{Binding CanMute, Converter={StaticResource BoolToVisible}}" />
+                <Button cal:Message.Attach="UnMute"
+                        Content="{fa:ToText VolumeUp}" ToolTip="Unmute"
+                        Visibility="{Binding CanMute, Converter={StaticResource InverseBoolToVisible}}" />
+
+                <nWaveform:FormattedSlider VerticalAlignment="Center" MinWidth="95"
+                    Value="{Binding Volume}" Minimum="0" Maximum="1" 
+                    TickFrequency="0.1" IsSnapToTickEnabled="True" TickPlacement="BottomRight"
+                    ToolTip="Volume"
+                    AutoToolTipFormat="{}{0:0%}" AutoToolTipPlacement="BottomRight" />
+            </StackPanel>
+
+            <StackPanel Visibility="{Binding SupportsBalance, Converter={StaticResource BoolToVisible}}">
+                <TextBlock Text="L"/>
+                <nWaveform:FormattedSlider VerticalAlignment="Center" MinWidth="95"
+                    Value="{Binding Balance}" Minimum="-1" Maximum="1" 
+                    TickFrequency="0.1" IsSnapToTickEnabled="True" TickPlacement="BottomRight"
+                    ToolTip="Balance"
+                    AutoToolTipFormat="{}{0:0%}" AutoToolTipPlacement="BottomRight" />
+                <TextBlock Text="R"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

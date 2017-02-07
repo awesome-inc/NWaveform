@@ -1,0 +1,175 @@
+﻿<UserControl x:Class="NWaveform.Views.PolygonWaveformView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:cal="http://www.caliburnproject.org"
+             xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
+    xmlns:converter="clr-namespace:NWaveform.Converter"
+    xmlns:viewModels="clr-namespace:NWaveform.ViewModels"
+    xmlns:nWaveform="clr-namespace:NWaveform"
+    Background="{Binding BackgroundBrush}" MinHeight="100"
+    mc:Ignorable="d" d:DesignHeight="150" d:DesignWidth="300"
+    d:DataContext="{d:DesignInstance viewModels:IWaveformViewModel, IsDesignTimeCreatable=False}">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="FaBrush" Color="DarkBlue"/>
+        <Style x:Key="ContextMenuIconStyle" TargetType="fa:IconImage">
+            <Setter Property="Width" Value="16"/>
+            <Setter Property="Height" Value="16"/>
+        </Style>
+        <fa:IconToImageConverter x:Key="IconToImage" 
+            Foreground="{StaticResource FaBrush}" ImageStyle="{StaticResource ContextMenuIconStyle}" />
+
+        <!-- Canvas: Make the canvas render logical coordinates in [0,duration] x [-1,1] space -->
+        <converter:ArithmeticConverter Operation="Division" x:Key="Divide" Operand="2"/>
+        <ScaleTransform x:Key="ToWaveformSpace"
+                ScaleY="{Binding ElementName=WaveformCanvas, Path=ActualHeight, Converter={StaticResource Divide}}" 
+                CenterY="-1">
+            <ScaleTransform.ScaleX>
+                <MultiBinding Converter="{StaticResource Divide}">
+                    <Binding ElementName="WaveformCanvas" Path="ActualWidth"/>
+                    <Binding Path="Duration"/>
+                </MultiBinding>
+            </ScaleTransform.ScaleX>
+        </ScaleTransform>
+
+        <!-- converters needed for Labels -->
+        <converter:ScalarTransformConverter x:Key="ToWaveformSpaceScalar" Transform="{StaticResource ToWaveformSpace}"/>
+        <nWaveform:BindingProxy x:Key="DurationProxy" Data="{Binding Duration}"/>
+
+        <!-- The attached properties Canvas.Left/.Top work only on direct children of Canvas so we
+                need to set Canvas as the panel template, cf.: 
+                http://stackoverflow.com/questions/1265364/setting-canvas-properties-in-an-itemscontrol-datatemplate
+            -->
+        <ItemsPanelTemplate x:Key="LabelPanelTemplate">
+            <Canvas IsItemsHost="True" />
+        </ItemsPanelTemplate>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <DataTemplate x:Key="LabelTemplate" DataType="viewModels:LabelVievModel">
+            <StackPanel Orientation="Horizontal" Margin="4" Background="{Binding Background}" 
+                cal:Message.Attach="[Event ContextMenuOpening] = [Action SuppressEmptyContextMenu($eventArgs)]"
+                ToolTip="{Binding Tooltip}" >
+                <StackPanel.ContextMenu>
+                    <!-- cf.: http://www.codeproject.com/Articles/162784/WPF-ContextMenu-Strikes-Again-DataContext-Not-Upda -->
+                    <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                    <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}"
+                        ItemsSource="{Binding Path=Menu.Items}">
+                        <ContextMenu.Resources>
+                            <Style TargetType="MenuItem" d:DataContext="{d:DesignInstance viewModels:MenuItemViewModel}">
+                                <Setter Property="Visibility" Value="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource BoolToVisibility}}" />
+                                <Setter Property="Header" Value="{Binding Header}" />
+                                <Setter Property="ToolTip" Value="{Binding Description}"/>
+                                <Setter Property="CommandParameter" Value="{Binding Path=DataContext.SelectedLabel, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                <Setter Property="Command" Value="{Binding Command}" />
+                                <Setter Property="ItemsSource" Value="{Binding Items}" />
+                                <Setter Property="Icon" Value="{Binding Icon, Converter={StaticResource IconToImage}}" />
+                            </Style>
+                        </ContextMenu.Resources>
+                    </ContextMenu>
+
+                </StackPanel.ContextMenu>
+                <fa:IconBlock Icon="{Binding Icon}" Foreground="{Binding Foreground}"
+                            Padding="4" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding Text}" Foreground="{Binding Foreground}" FontSize="{Binding FontSize}" FontWeight="{Binding FontWeight}"
+                            Padding="4" VerticalAlignment="Center"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <Style x:Key="LabelContainerStyle" TargetType="ListBoxItem">
+            <!-- We need Canvas.Left to be re-evaluated whenever any of the three values 
+                    "Label.Position", "Duration" or "Canvas.ActualWidth" changes. 
+                    Therefore we abuse a multi-binding for this, implicitly knowing that the
+                    ScalarTransformConverter uses the X-axis by default. -->
+            <Setter Property="Canvas.Left">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource ToWaveformSpaceScalar}">
+                        <Binding Path="Position"/>
+                        <Binding Source="{StaticResource DurationProxy}" Path="Data"/>
+                        <Binding ElementName="WaveformCanvas" Path="ActualWidth"/>
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
+            <!-- The same holds for Canvas.Top: It needs to be re-evaluated whenever
+                    "Label.Magnitude" or "Canvas.ActualHeight" changes. 
+                    Note that we use ConverterParameter="True" to use the Y-Axis. -->
+            <Setter Property="Canvas.Top">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource ToWaveformSpaceScalar}" ConverterParameter="True">
+                        <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                        <Binding Path="Magnitude"/>
+                        <Binding ElementName="WaveformCanvas" Path="ActualHeight"/>
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
+
+            <Setter Property="ContentTemplate" Value="{StaticResource LabelTemplate}"/>
+        </Style>
+
+    </UserControl.Resources>
+    <Grid>
+        <!-- waveforms and selection are presented in waveform-space -->
+        <Canvas x:Name="WaveformCanvas" Background="Transparent" RenderTransform="{StaticResource ToWaveformSpace}">
+
+            <!-- The waveform polygon -->
+            <!-- ReSharper disable UnusedMember.Global -->
+            <Polygon x:Name="LeftPolygon" Points="{Binding LeftChannel}" Fill="{Binding LeftBrush}" />
+            <Polygon x:Name="RightPolygon" Points="{Binding RightChannel}" Fill="{Binding RightBrush}" />
+
+            <Polyline x:Name="UserPolyline" Points="{Binding UserChannel}" Fill="{Binding UserBrush}" />
+            <Polyline x:Name="SeparationLeftPolyline" Points="{Binding SeparationLeftChannel}" Fill="{Binding SeparationLeftBrush}" />
+            <Polyline x:Name="SeparationRightPolyline" Points="{Binding SeparationRightChannel}" Fill="{Binding SeparationRightBrush}" />
+            <!-- ReSharper restore UnusedMember.Global -->
+
+            <!-- Optional tick marks -->
+
+            <!-- The current marker / selection -->
+            <Rectangle x:Name="SelectionRectangle"
+                Canvas.Left="{Binding Selection.Start}" Canvas.Top="{Binding Selection.Top}" 
+                Width="{Binding Selection.Duration}" Height="{Binding Selection.Height}" 
+                Fill="{Binding SelectionBrush}" IsHitTestVisible="True">
+                <Rectangle.ContextMenu>
+                    <!-- cf.: http://www.codeproject.com/Articles/162784/WPF-ContextMenu-Strikes-Again-DataContext-Not-Upda -->
+                    <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                    <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}"
+                        ItemsSource="{Binding Path=SelectionMenu.Items}">
+                        <ContextMenu.Resources>
+                            <Style TargetType="MenuItem" d:DataContext="{d:DesignInstance viewModels:MenuItemViewModel}">
+                                <Setter Property="Header" Value="{Binding Header}" />
+                                <Setter Property="ToolTip" Value="{Binding Description}"/>
+                                <Setter Property="CommandParameter" Value="{Binding Path=DataContext.Selection, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                <Setter Property="Command" Value="{Binding Command}" />
+                                <!--<Setter Property="Visibility" Value="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource BoolToVisibility}}" />-->
+                                <Setter Property="ItemsSource" Value="{Binding Items}" />
+                                <Setter Property="Icon" Value="{Binding Icon, Converter={StaticResource IconToImage}}" />
+                            </Style>
+                        </ContextMenu.Resources>
+                    </ContextMenu>
+                </Rectangle.ContextMenu>
+            </Rectangle>
+        </Canvas>
+
+        <!-- the audio labels -->
+        <ListBox ItemsSource="{Binding Labels}" SelectedItem="{Binding SelectedLabel}"
+                 Background="Transparent"
+                 ItemsPanel="{StaticResource LabelPanelTemplate}"
+                 ItemContainerStyle="{StaticResource LabelContainerStyle}"/>
+
+        <Canvas>
+            <!-- The current position marker -->
+            <Rectangle x:Name="PositionLine" Canvas.Top="0" Width="2" 
+                Height="{Binding ActualHeight, ElementName=WaveformCanvas}"
+                Fill="{Binding PositionBrush}">
+                <Canvas.Left>
+                    <MultiBinding Converter="{StaticResource ToWaveformSpaceScalar}">
+                        <Binding Path="Position"/>
+                        <Binding Source="{StaticResource DurationProxy}" Path="Data"/>
+                        <Binding ElementName="WaveformCanvas" Path="ActualWidth"/>
+                    </MultiBinding>
+                </Canvas.Left>
+            </Rectangle>
+
+        </Canvas>
+    </Grid>
+</UserControl>
