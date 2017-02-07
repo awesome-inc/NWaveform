@@ -6,7 +6,6 @@
              xmlns:cal="http://www.caliburnproject.org"
              xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
              xmlns:converter="clr-namespace:NWaveform.Converter"
-             xmlns:views="clr-namespace:NWaveform.Views"
              xmlns:nWaveform="clr-namespace:NWaveform"
              xmlns:viewModels="clr-namespace:NWaveform.ViewModels"
              mc:Ignorable="d" d:DataContext="{d:DesignInstance viewModels:IWaveformPlayerViewModel}">
@@ -103,8 +102,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- set margin so that the slider matches the waveform (Slider.Track.Thumb.Width = 2*5 = 10, it seems) -->
-                <views:PolygonWaveformView DataContext="{Binding Waveform}" Margin="5" 
-                                           Background="{DynamicResource {x:Static SystemColors.WindowBrush}}"/>
+                <ContentControl x:Name="Waveform" Margin="5" Background="{DynamicResource {x:Static SystemColors.WindowBrush}}"/>
 
                 <!-- TODO: should probably move the position slider to the waveformview.
                 TODO Update: should probably merge both views. -->

@@ -6,13 +6,12 @@ using Autofac;
 using Autofac.Core;
 using Caliburn.Micro;
 using NWaveform.Default;
+using NWaveform.Extender;
 using NWaveform.Interfaces;
 using NWaveform.NAudio;
 using NWaveform.Serializer;
 using NWaveform.ViewModels;
 using NWaveform.Views;
-
-// ReSharper disable once RedundantUsingDirective
 
 namespace NWaveform.App
 {
@@ -38,13 +37,13 @@ namespace NWaveform.App
             builder.RegisterType<MainViewModel>().AsSelf().InstancePerLifetimeScope();
 
             builder.RegisterType<WaveformPlayerViewModel>().As<IWaveformPlayerViewModel>();
+            builder.RegisterType<PolygonWaveformViewModel>().As<IWaveformViewModel>();
+            builder.RegisterType<AudioSelectionMenuProvider>().As<IAudioSelectionMenuProvider>().SingleInstance();
 
             AssemblySource.Instance.Add(typeof(WaveformPlayerView).Assembly);
 
-            //builder.RegisterType<WindowsMediaPlayer>().As<IMediaPlayer>().SingleInstance();
-            builder.RegisterType<NAudioPlayer>().As<IMediaPlayer>().SingleInstance();
-            //new VlcConfiguration().VerifyVlcPresent();
-            //builder.RegisterType<VlcMediaPlayer>().As<IMediaPlayer>().SingleInstance();
+            builder.RegisterType<WindowsMediaPlayer>().As<IMediaPlayer>().SingleInstance();
+            //builder.RegisterType<NAudioPlayer>().As<IMediaPlayer>().SingleInstance();
 
 
             builder.RegisterType<CachedWaveFormRepository>().As<IWaveFormRepository>().SingleInstance();

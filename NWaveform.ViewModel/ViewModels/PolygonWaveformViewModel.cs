@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Caliburn.Micro;
 using NWaveform.Interfaces;
 using NWaveform.Model;
+using NWaveform.Views;
 
 namespace NWaveform.ViewModels
 {
-    public class PolygonWaveformViewModel : IWaveformViewModel
+    public class PolygonWaveformViewModel : Screen, IWaveformViewModel
     {
         private readonly IMediaPlayer _positionProvider;
         private PointCollection _leftChannel;
@@ -40,6 +40,8 @@ namespace NWaveform.ViewModels
         private PointCollection _separationLeftChannel;
         private PointCollection _separationRightChannel;
 
+        private readonly WriteableBitmap _waveformImage = BitmapFactory.New(1920, 1080);
+
         public PolygonWaveformViewModel(IMediaPlayer positionProvider,
             WaveformSettings waveformSettings = null)
         {
@@ -67,20 +69,23 @@ namespace NWaveform.ViewModels
                     // Position if a direct reference to _positionProvider whereby Duration caches the value in this instance
                     switch (e.PropertyName)
                     {
-                        case "Position":
-                            // ReSharper disable once ExplicitCallerInfoArgument
-                            OnPropertyChanged(e.PropertyName);
+                        case nameof(Position):
+                            NotifyOfPropertyChange(e.PropertyName);
                             break;
-                        case "Duration":
+                        case nameof(Duration):
                             Duration = _positionProvider.Duration;
                             break;
-                        // ReSharper disable once RedundantEmptyDefaultSwitchBranch
-                        default:
-                            // ReSharper disable once EmptyStatement
-                            ; break;
                     }
                 };
         }
+
+        protected override void OnViewLoaded(object view)
+        {
+            var myView = view as PolygonWaveformView;
+            if (myView != null)
+                myView.WaveformImage.ImageSource = _waveformImage;
+        }
+
 
         public double Position
         {
@@ -88,9 +93,9 @@ namespace NWaveform.ViewModels
             set
             {
                 var pos = Position;
-                if (Math.Abs(pos - value) < Double.Epsilon) return;
+                if (Math.Abs(pos - value) < double.Epsilon) return;
                 _positionProvider.Position = value;
-                OnPropertyChanged();
+                NotifyOfPropertyChange();
             }
         }
 
@@ -101,13 +106,12 @@ namespace NWaveform.ViewModels
             {
                 if (Math.Abs(_duration - value) < double.Epsilon) return;
                 _duration = value;
-                OnPropertyChanged();
-                // ReSharper disable once ExplicitCallerInfoArgument
-                OnPropertyChanged("HasDuration");
+                NotifyOfPropertyChange();
+                NotifyOfPropertyChange(nameof(HasDuration));
             }
         }
 
-        public bool HasDuration { get { return Duration > 0.0; } }
+        public bool HasDuration => Duration > 0.0;
 
         public IAudioSelectionViewModel Selection
         {
@@ -117,20 +121,20 @@ namespace NWaveform.ViewModels
                 _selection = value;
                 // TODO: channel from top/height?!
                 _positionProvider.AudioSelection = new AudioSelection(0, _selection.Start, _selection.End);
-                OnPropertyChanged();
+                NotifyOfPropertyChange();
             }
         }
 
         public IMenuViewModel SelectionMenu
         {
             get { return _selectionMenu; }
-            set { _selectionMenu = value; OnPropertyChanged(); }
+            set { _selectionMenu = value; NotifyOfPropertyChange(); }
         }
 
         public double TicksEach
         {
             get { return _ticksEach; }
-            set { _ticksEach = value; OnPropertyChanged(); }
+            set { _ticksEach = value; NotifyOfPropertyChange(); }
         }
 
         public IList<ILabelVievModel> Labels
@@ -147,91 +151,91 @@ namespace NWaveform.ViewModels
         public ILabelVievModel SelectedLabel
         {
             get { return _selectedLabel; }
-            set { _selectedLabel = value; OnPropertyChanged(); }
+            set { _selectedLabel = value; NotifyOfPropertyChange(); }
         }
 
         public SolidColorBrush BackgroundBrush
         {
             get { return _backgroundBrush; }
-            set { _backgroundBrush = value; OnPropertyChanged(); }
+            set { _backgroundBrush = value; NotifyOfPropertyChange(); }
         }
 
         public SolidColorBrush LeftBrush
         {
             get { return _leftBrush; }
-            set { _leftBrush = value; OnPropertyChanged(); }
+            set { _leftBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
         public SolidColorBrush RightBrush
         {
             get { return _rightBrush; }
-            set { _rightBrush = value; OnPropertyChanged(); }
+            set { _rightBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
         public SolidColorBrush UserBrush
         {
             get { return _userBrush; }
-            set { _userBrush = value; OnPropertyChanged(); }
+            set { _userBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
         public SolidColorBrush SeparationLeftBrush
         {
             get { return _separationLeftBrush; }
-            set { _separationLeftBrush = value; OnPropertyChanged(); }
+            set { _separationLeftBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
         public SolidColorBrush SeparationRightBrush
         {
             get { return _separationRightBrush; }
-            set { _separationRightBrush = value; OnPropertyChanged(); }
+            set { _separationRightBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
         
         public SolidColorBrush UserTextBrush
         {
             get { return _userTextBrush; }
-            set { _userTextBrush = value; OnPropertyChanged(); }
+            set { _userTextBrush = value; NotifyOfPropertyChange(); }
         }
 
         public SolidColorBrush PositionBrush
         {
             get { return _positionBrush; }
-            set { _positionBrush = value; OnPropertyChanged(); }
+            set { _positionBrush = value; NotifyOfPropertyChange(); }
         }
 
         public SolidColorBrush SelectionBrush
         {
             get { return _selectionBrush; }
-            set { _selectionBrush = value; OnPropertyChanged(); }
+            set { _selectionBrush = value; NotifyOfPropertyChange(); }
         }
 
         public PointCollection LeftChannel
         {
             get { return _leftChannel; }
-            private set { _leftChannel = value; OnPropertyChanged(); }
+            private set { _leftChannel = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
         public PointCollection RightChannel
         {
             get { return _rightChannel; }
-            private set { _rightChannel = value; OnPropertyChanged(); }
+            private set { _rightChannel = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
         public PointCollection UserChannel
         {
             get { return _userChannel; }
-            set { _userChannel = value; OnPropertyChanged(); }
+            set { _userChannel = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
         public PointCollection SeparationLeftChannel
         {
             get { return _separationLeftChannel; }
-            set { _separationLeftChannel = value; OnPropertyChanged(); }
+            set { _separationLeftChannel = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
         public PointCollection SeparationRightChannel
         {
             get { return _separationRightChannel; }
-            set { _separationRightChannel = value; OnPropertyChanged(); }
+            set { _separationRightChannel = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
         public void SetWaveform(WaveformData waveform)
@@ -253,9 +257,59 @@ namespace NWaveform.ViewModels
                 ? GetPoints(channels[1].Samples, duration, false)
                 : leftPoints.Scaled(1, -1); // mono? --> Y-flipped duplicate of left channel
 
+            Duration = duration;
+
             LeftChannel = new PointCollection(leftPoints);
             RightChannel = new PointCollection(rightPoints);
-            Duration = duration;
+        }
+
+        private void RenderWaveform()
+        {
+            _waveformImage.Clear(BackgroundBrush.Color);
+
+            Render(LeftChannel, LeftBrush.Color);
+            Render(RightChannel, RightBrush.Color);
+            Render(SeparationLeftChannel, SeparationLeftBrush.Color, ShapeMode.Bars);
+            Render(SeparationRightChannel, SeparationRightBrush.Color, ShapeMode.Bars);
+            Render(UserChannel, UserBrush.Color, ShapeMode.Bars);
+        }
+
+        enum ShapeMode { Polyline, Bars };
+
+        private void Render(PointCollection points, Color color, ShapeMode shapeMode = ShapeMode.Polyline)
+        {
+            if (points == null || points.Count < 4) return;
+            var sx = _waveformImage.Width / Duration;
+            var h2 = (int)(0.5 * _waveformImage.Height);
+
+            var pts = new int[points.Count * 2];
+            for (int i = 0; i < points.Count; i++)
+            {
+                var p = points[i];
+                pts[2*i] = (int) (p.X * sx);
+                pts[2*i+1] = (int)(h2 * (1 + p.Y));
+            }
+            switch (shapeMode)
+            {
+                case ShapeMode.Bars: RenderBars(pts, color); break;
+                default: RenderPolyline(pts, color); break;
+            }
+        }
+
+        private void RenderPolyline(int[] points, Color color)
+        {
+            _waveformImage.DrawPolyline(points, color);
+        }
+
+        private void RenderBars(int[] points, Color color)
+        {
+            var c = WriteableBitmapExtensions.ConvertColor(color);
+            for (var i = 0; i < points.Length - 4; i += 8)
+            {
+                //_waveformImage.FillQuad(points[i], points[i+1], points[i+2], points[i+3], 
+                //    points[i + 4], points[i + 5], points[i + 6], points[i + 7], color);
+                _waveformImage.FillRectangle(points[i], points[i + 1], points[i + 4], points[i + 5], c, true);
+            }
         }
 
         private IList<Point> GetPoints(IList<float> samples, double duration, bool flipY)
@@ -272,13 +326,6 @@ namespace NWaveform.ViewModels
             points = points.Scaled(duration, flipY ? -_maxMagnitude : _maxMagnitude);
 
             return points;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged = delegate { };
-
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

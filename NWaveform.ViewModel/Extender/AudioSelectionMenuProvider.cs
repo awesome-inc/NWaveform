@@ -4,7 +4,6 @@ using NWaveform.ViewModels;
 
 namespace NWaveform.Extender
 {
-    // ReSharper disable once ClassNeverInstantiated.Global
     public class AudioSelectionMenuProvider : IAudioSelectionMenuProvider
     {
         private readonly IEnumerable<IAudioSelectionMenuExtender> _allMenuItems;

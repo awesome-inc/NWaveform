@@ -8,22 +8,9 @@ using NWaveform.Model;
 
 namespace NWaveform.ViewModels
 {
-    // ReSharper disable once ClassNeverInstantiated.Global
     public class WaveformPlayerViewModel : IWaveformPlayerViewModel
     {
-        // TODO: cleanup design so we can inject waveform without a dependency to the player. 
-        // The problem here is the 3-way binding for Player <--> "Position" <--> Waveform
-        // ReSharper disable once UnusedMember.Global
         public WaveformPlayerViewModel(
-            IMediaPlayer player,
-            IWaveFormRepository waveforms,
-            IAudioSelectionMenuProvider audioSelectionMenuProvider = null)
-            : this(player, waveforms, new PolygonWaveformViewModel(player), audioSelectionMenuProvider)
-        {
-        }
-
-        // to make it testable we add this internal constructor here!
-        internal WaveformPlayerViewModel(
             IMediaPlayer player,
             IWaveFormRepository waveforms,
             IWaveformViewModel waveform,

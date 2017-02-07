@@ -109,17 +109,20 @@
 
     </UserControl.Resources>
     <Grid>
-        <!-- waveforms and selection are presented in waveform-space -->
-        <Canvas x:Name="WaveformCanvas" Background="Transparent" RenderTransform="{StaticResource ToWaveformSpace}">
-
+        <Grid.Background>
             <!-- The waveform polygon -->
+            <ImageBrush x:Name="WaveformImage" Stretch="Fill"/>
+        </Grid.Background>
+        
+        <!-- waveforms and selection are presented in waveform-space -->
+        <Canvas x:Name="WaveformCanvas" RenderTransform="{StaticResource ToWaveformSpace}">
             <!-- ReSharper disable UnusedMember.Global -->
-            <Polygon x:Name="LeftPolygon" Points="{Binding LeftChannel}" Fill="{Binding LeftBrush}" />
+            <!--<Polygon x:Name="LeftPolygon" Points="{Binding LeftChannel}" Fill="{Binding LeftBrush}" />
             <Polygon x:Name="RightPolygon" Points="{Binding RightChannel}" Fill="{Binding RightBrush}" />
 
             <Polyline x:Name="UserPolyline" Points="{Binding UserChannel}" Fill="{Binding UserBrush}" />
             <Polyline x:Name="SeparationLeftPolyline" Points="{Binding SeparationLeftChannel}" Fill="{Binding SeparationLeftBrush}" />
-            <Polyline x:Name="SeparationRightPolyline" Points="{Binding SeparationRightChannel}" Fill="{Binding SeparationRightBrush}" />
+            <Polyline x:Name="SeparationRightPolyline" Points="{Binding SeparationRightChannel}" Fill="{Binding SeparationRightBrush}" />-->
             <!-- ReSharper restore UnusedMember.Global -->
 
             <!-- Optional tick marks -->
