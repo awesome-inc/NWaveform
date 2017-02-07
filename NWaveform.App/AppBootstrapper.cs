@@ -42,9 +42,9 @@ namespace NWaveform.App
 
             AssemblySource.Instance.Add(typeof(WaveformPlayerView).Assembly);
 
-            builder.RegisterType<WindowsMediaPlayer>().As<IMediaPlayer>().SingleInstance();
-            //builder.RegisterType<NAudioPlayer>().As<IMediaPlayer>().SingleInstance();
-
+            //builder.RegisterModule<WindowsMediaPlayerModule>();
+            builder.RegisterModule<NAudioModule>();
+            //builder.RegisterModule<VlcModule>();
 
             builder.RegisterType<CachedWaveFormRepository>().As<IWaveFormRepository>().SingleInstance();
             builder.RegisterType<NAudioWaveFormGenerator>().As<IWaveFormGenerator>().SingleInstance();

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>NWaveform.Vlc</id>
+    <version>$Version$</version>
+    <title>NWaveform</title>
+		<authors>Awesome Incremented and Contributors</authors>
+		<owners>Awesome Incremented and Contributors</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Vlc support for NWaveform</description>
+    <summary>Vlc support for NWaveform</summary>
+    <releaseNotes>Revision: $Revision$</releaseNotes>
+    <projectUrl>https://github.com/awesome-inc/NWaveform</projectUrl>
+    <copyright>Awesome Incremented</copyright>
+    <dependencies>
+      <dependency id="NWaveform" version="$Version$" />
+      <dependency id="nVLC" version="2.1.0.3" />
+      <dependency id="VLC.Native" version="2.2.0.1" />
+      <dependency id="NAudio" version="1.8.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\NWaveform.Vlc.*" target="lib\net45"/>
+  </files>
+</package>
