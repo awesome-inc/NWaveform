@@ -7,9 +7,9 @@ using NWaveform.Interfaces;
 
 namespace NWaveform.ViewModels
 {
-    [TestFixtureFor(typeof (PolygonWaveformViewModel))]
+    [TestFixtureFor(typeof (WaveformViewModel))]
     // ReSharper disable InconsistentNaming
-    internal class PolygonWaveformViewModel_Should
+    internal class WaveformViewModel_Should
     {
         [Test(Description = "verify duration change on player is handles because of media stream")]
         public void Handle_Position_Changed_Event_From_MediaPlayer_If_Changed()
@@ -17,7 +17,7 @@ namespace NWaveform.ViewModels
             var positionPovider = Substitute.For<IMediaPlayer>();
             positionPovider.Duration.ReturnsForAnyArgs(2);
 
-            var sut = new PolygonWaveformViewModel(positionPovider);
+            var sut = new WaveformViewModel(positionPovider);
             sut.MonitorEvents();
 
             positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(), new PropertyChangedEventArgs("Position"));
@@ -31,7 +31,7 @@ namespace NWaveform.ViewModels
             var positionPovider = Substitute.For<IMediaPlayer>();
             positionPovider.Duration.ReturnsForAnyArgs(expectedDuration);
 
-            var sut = new PolygonWaveformViewModel(positionPovider);
+            var sut = new WaveformViewModel(positionPovider);
             sut.MonitorEvents();
 
             positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(), new PropertyChangedEventArgs("Duration"));
@@ -48,7 +48,7 @@ namespace NWaveform.ViewModels
             var positionPovider = Substitute.For<IMediaPlayer>();
             positionPovider.Duration.ReturnsForAnyArgs(4);
 
-            var sut = new PolygonWaveformViewModel(positionPovider) { Duration = 4 };
+            var sut = new WaveformViewModel(positionPovider) { Duration = 4 };
             sut.MonitorEvents();
 
             positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(), new PropertyChangedEventArgs("Duration"));
@@ -64,7 +64,7 @@ namespace NWaveform.ViewModels
             var position = 42.0;
             var positionPovider = Substitute.For<IMediaPlayer>();
             positionPovider.Position.Returns(position);
-            var sut = new PolygonWaveformViewModel(positionPovider);
+            var sut = new WaveformViewModel(positionPovider);
 
             sut.Position.Should().Be(42);
 

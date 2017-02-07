@@ -106,7 +106,7 @@
     <Compile Include="ViewModels\MenuExtensions_Should.cs" />
     <Compile Include="ViewModels\MenuItemViewModel.cs" />
     <Compile Include="ViewModels\MenuViewModel.cs" />
-    <Compile Include="ViewModels\PolygonWaveformViewModel_Should.cs" />
+    <Compile Include="ViewModels\WaveformViewModel_Should.cs" />
     <Compile Include="ViewModels\WaveformPlayerViewModel_Should.cs" />
     <Compile Include="ViewModels\AudioSelectionViewModel.cs" />
     <Compile Include="ViewModels\IAudioSelectionViewModel.cs" />
@@ -116,19 +116,19 @@
     <Compile Include="ViewModels\IWaveformPlayerViewModel.cs" />
     <Compile Include="ViewModels\IWaveformViewModel.cs" />
     <Compile Include="ViewModels\LabelVievModel.cs" />
-    <Compile Include="ViewModels\PolygonWaveformViewModel.cs" />
+    <Compile Include="ViewModels\WaveformViewModel.cs" />
     <Compile Include="ViewModels\PolylineHelper.cs" />
     <Compile Include="ViewModels\WaveformPlayerViewModel.cs" />
     <Compile Include="ViewModels\WaveformSettings.cs" />
-    <Compile Include="Views\PolygonWaveformView.xaml.cs">
-      <DependentUpon>PolygonWaveformView.xaml</DependentUpon>
+    <Compile Include="Views\WaveformView.xaml.cs">
+      <DependentUpon>WaveformView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\WaveFormPlayerView.xaml.cs">
       <DependentUpon>WaveFormPlayerView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Views\PolygonWaveformView.xaml">
+    <Page Include="Views\WaveformView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -6,14 +6,14 @@ using NWaveform.ViewModels;
 
 namespace NWaveform.Views
 {
-    public partial class PolygonWaveformView
+    public partial class WaveformView
     {
         private Point _mouseDownPoint;
         private Point _currentPoint;
         private IWaveformViewModel _viewModel;
         private bool _isMouseDown;
 
-        public PolygonWaveformView()
+        public WaveformView()
         {
             InitializeComponent();
 

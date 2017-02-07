@@ -10,7 +10,7 @@ using NWaveform.Views;
 
 namespace NWaveform.ViewModels
 {
-    public class PolygonWaveformViewModel : Screen, IWaveformViewModel
+    public class WaveformViewModel : Screen, IWaveformViewModel
     {
         private readonly IMediaPlayer _positionProvider;
         private PointCollection _leftChannel;
@@ -28,7 +28,6 @@ namespace NWaveform.ViewModels
         private SolidColorBrush _positionBrush;
         private SolidColorBrush _selectionBrush;
 
-
         private readonly BindableCollection<ILabelVievModel> _labels = new BindableCollection<ILabelVievModel>();
         private ILabelVievModel _selectedLabel;
         private IMenuViewModel _selectionMenu;
@@ -42,7 +41,7 @@ namespace NWaveform.ViewModels
 
         private readonly WriteableBitmap _waveformImage = BitmapFactory.New(1920, 1080);
 
-        public PolygonWaveformViewModel(IMediaPlayer positionProvider,
+        public WaveformViewModel(IMediaPlayer positionProvider,
             WaveformSettings waveformSettings = null)
         {
             if (positionProvider == null) throw new ArgumentNullException(nameof(positionProvider));
@@ -81,7 +80,7 @@ namespace NWaveform.ViewModels
 
         protected override void OnViewLoaded(object view)
         {
-            var myView = view as PolygonWaveformView;
+            var myView = view as WaveformView;
             if (myView != null)
                 myView.WaveformImage.ImageSource = _waveformImage;
         }
@@ -298,18 +297,18 @@ namespace NWaveform.ViewModels
 
         private void RenderPolyline(int[] points, Color color)
         {
-            _waveformImage.DrawPolyline(points, color);
+            //_waveformImage.DrawPolyline(points, color);
+
+            var h2 = (int)(0.5 * _waveformImage.Height);
+            for (var i = 0; i < points.Length - 2; i += 2)
+                _waveformImage.FillQuad(points[i], h2, points[i], points[i + 1], points[i + 2], points[i + 3], points[i + 2], h2, color);
         }
 
         private void RenderBars(int[] points, Color color)
         {
             var c = WriteableBitmapExtensions.ConvertColor(color);
             for (var i = 0; i < points.Length - 4; i += 8)
-            {
-                //_waveformImage.FillQuad(points[i], points[i+1], points[i+2], points[i+3], 
-                //    points[i + 4], points[i + 5], points[i + 6], points[i + 7], color);
                 _waveformImage.FillRectangle(points[i], points[i + 1], points[i + 4], points[i + 5], c, true);
-            }
         }
 
         private IList<Point> GetPoints(IList<float> samples, double duration, bool flipY)

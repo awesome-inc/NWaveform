@@ -37,7 +37,7 @@ namespace NWaveform.App
             builder.RegisterType<MainViewModel>().AsSelf().InstancePerLifetimeScope();
 
             builder.RegisterType<WaveformPlayerViewModel>().As<IWaveformPlayerViewModel>();
-            builder.RegisterType<PolygonWaveformViewModel>().As<IWaveformViewModel>();
+            builder.RegisterType<WaveformViewModel>().As<IWaveformViewModel>();
             builder.RegisterType<AudioSelectionMenuProvider>().As<IAudioSelectionMenuProvider>().SingleInstance();
 
             AssemblySource.Instance.Add(typeof(WaveformPlayerView).Assembly);
