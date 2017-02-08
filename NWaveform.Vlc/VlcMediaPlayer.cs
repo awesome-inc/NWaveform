@@ -473,7 +473,7 @@ namespace NWaveform.Vlc
             catch (Exception ex)
             {
                 Trace.TraceWarning("Could not open source \"{0}\": {1}", source, ex);
-                throw new AudioNotFoundException(String.Format(CultureInfo.CurrentCulture, "Could not open audio \"{0}\"", source), ex);
+                throw new AudioNotFoundException(string.Format(CultureInfo.CurrentCulture, "Could not open audio \"{0}\"", source), ex);
             }
         }
 

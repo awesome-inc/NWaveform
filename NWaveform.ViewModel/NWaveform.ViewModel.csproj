@@ -93,6 +93,7 @@
     <Compile Include="Converter\SecondsToTimeConverter.cs" />
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="DelegateCommand_Should.cs" />
+    <Compile Include="Events\SamplesReceivedEvent.cs" />
     <Compile Include="Extender\AudioSelectionMenuProvider.cs" />
     <Compile Include="Extender\IAudioSelectionMenuProvider.cs" />
     <Compile Include="Extender\IAudioSelectionMenuExtender.cs" />

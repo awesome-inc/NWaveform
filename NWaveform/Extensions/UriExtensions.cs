@@ -18,7 +18,7 @@ namespace NWaveform.Extensions
                 if (verifyAccess) VerifyFileExists(fileName);
                 return fileName;
             }
-            return String.Empty;
+            return string.Empty;
         }
 
         public static void VerifyUriExists(this Uri uri, TimeSpan timeOut)

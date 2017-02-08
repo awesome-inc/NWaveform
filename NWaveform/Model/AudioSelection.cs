@@ -63,14 +63,14 @@ namespace NWaveform.Model
 
         public override string ToString()
         {
-            return String.Format(CultureInfo.CurrentCulture, "{{Start: {0}, End: {1}, Channel: {2}}}",
+            return string.Format(CultureInfo.CurrentCulture, "{{Start: {0}, End: {1}, Channel: {2}}}",
                 FormatString(Start), FormatString(End), Channel);
         }
 
         private static string FormatString(double value)
         {
             var ts = TimeSpan.FromSeconds(value);
-            return String.Format(CultureInfo.CurrentCulture, "{0:00}:{1:00}:{2:00}.{3:0}",
+            return string.Format(CultureInfo.CurrentCulture, "{0:00}:{1:00}:{2:00}.{3:0}",
                 ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 100);
         }
     }

@@ -47,7 +47,7 @@ namespace NWaveform.Serializer
         public string GetWaveFormUri(string strUri)
         {
             // NOTE: Methods from System.IO.Path will not work here!
-            if (String.IsNullOrEmpty(strUri))
+            if (string.IsNullOrEmpty(strUri))
                 throw new ArgumentNullException(nameof(strUri));
 
             var p = strUri.LastIndexOf('.');
@@ -86,7 +86,7 @@ namespace NWaveform.Serializer
                 var fileExt = Path.GetExtension(source);
                 for (int i = 0; i < ext.Length; i++)
                 {
-                    if (String.Equals(fileExt, ext[i], StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(fileExt, ext[i], StringComparison.OrdinalIgnoreCase))
                         return i;
                 }
             }
@@ -102,7 +102,7 @@ namespace NWaveform.Serializer
             var waveForm = new WaveformData
             {
                 Source = reader.ReadString(),
-                Description = reader.ReadBoolean() ? reader.ReadString() : String.Empty,
+                Description = reader.ReadBoolean() ? reader.ReadString() : string.Empty,
                 Duration = TimeSpan.FromSeconds(reader.ReadDouble()),
                 SampleRate = reader.ReadInt32(),
                 Channels = new Channel[reader.ReadByte()]
@@ -122,8 +122,8 @@ namespace NWaveform.Serializer
         private static void Write(BinaryWriter writer, WaveformData waveformData)
         {
             writer.Write(waveformData.Source);
-            var description = waveformData.Description ?? String.Empty;
-            writer.Write(!String.IsNullOrEmpty(description));
+            var description = waveformData.Description ?? string.Empty;
+            writer.Write(!string.IsNullOrEmpty(description));
             writer.Write(description);
             writer.Write(waveformData.Duration.TotalSeconds);
             writer.Write(waveformData.SampleRate);
@@ -137,7 +137,7 @@ namespace NWaveform.Serializer
         {
             var uri = new Uri(source);
             var fileName = uri.GetFileName(true);
-            if (!String.IsNullOrEmpty(fileName))
+            if (!string.IsNullOrEmpty(fileName))
             {
                 var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
                 return new ZipArchive(fileStream);

@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
+using NWaveform.Events;
 using NWaveform.Interfaces;
 using NWaveform.Model;
 using NWaveform.Views;
@@ -11,6 +12,8 @@ using NWaveform.Views;
 namespace NWaveform.ViewModels
 {
     public class WaveformViewModel : Screen, IWaveformViewModel
+        , IHandle<SamplesReceivedEvent>
+        , IHandle<PointsReceivedEvent>
     {
         private readonly IMediaPlayer _positionProvider;
         private PointCollection _leftChannel;
@@ -39,7 +42,7 @@ namespace NWaveform.ViewModels
         private PointCollection _separationLeftChannel;
         private PointCollection _separationRightChannel;
 
-        private readonly WriteableBitmap _waveformImage = BitmapFactory.New(1920, 1080);
+        internal readonly WriteableBitmap WaveformImage = BitmapFactory.New(1920, 1080);
 
         public WaveformViewModel(IMediaPlayer positionProvider,
             WaveformSettings waveformSettings = null)
@@ -76,13 +79,15 @@ namespace NWaveform.ViewModels
                             break;
                     }
                 };
+
+            WaveformImage.Clear(BackgroundBrush.Color);
         }
 
         protected override void OnViewLoaded(object view)
         {
             var myView = view as WaveformView;
             if (myView != null)
-                myView.WaveformImage.ImageSource = _waveformImage;
+                myView.WaveformImage.ImageSource = WaveformImage;
         }
 
 
@@ -262,9 +267,25 @@ namespace NWaveform.ViewModels
             RightChannel = new PointCollection(rightPoints);
         }
 
+        public void Handle(SamplesReceivedEvent message)
+        {
+            Handle(message.ToPoints(Duration, WaveformImage.Width, WaveformImage.Height));
+            //var leftPoints = GetPoints(channels[0].Samples, Duration, true);
+            //var rightPoints = waveform.Channels.Length == 2
+            //    ? GetPoints(channels[1].Samples, duration, false)
+            //    : leftPoints.Scaled(1, -1); // mono? --> Y-flipped duplicate of left channel
+
+            //RenderPolyline(points, LeftBrush.Color);
+        }
+
+        public void Handle(PointsReceivedEvent message)
+        {
+            RenderPolyline(message.LeftPoints, LeftBrush.Color);
+        }
+
         private void RenderWaveform()
         {
-            _waveformImage.Clear(BackgroundBrush.Color);
+            WaveformImage.Clear(BackgroundBrush.Color);
 
             Render(LeftChannel, LeftBrush.Color);
             Render(RightChannel, RightBrush.Color);
@@ -278,8 +299,8 @@ namespace NWaveform.ViewModels
         private void Render(PointCollection points, Color color, ShapeMode shapeMode = ShapeMode.Polyline)
         {
             if (points == null || points.Count < 4) return;
-            var sx = _waveformImage.Width / Duration;
-            var h2 = (int)(0.5 * _waveformImage.Height);
+            var sx = WaveformImage.Width / Duration;
+            var h2 = (int)(0.5 * WaveformImage.Height);
 
             var pts = new int[points.Count * 2];
             for (int i = 0; i < points.Count; i++)
@@ -299,16 +320,16 @@ namespace NWaveform.ViewModels
         {
             //_waveformImage.DrawPolyline(points, color);
 
-            var h2 = (int)(0.5 * _waveformImage.Height);
+            var h2 = (int)(0.5 * WaveformImage.Height);
             for (var i = 0; i < points.Length - 2; i += 2)
-                _waveformImage.FillQuad(points[i], h2, points[i], points[i + 1], points[i + 2], points[i + 3], points[i + 2], h2, color);
+                WaveformImage.FillQuad(points[i], h2, points[i], points[i + 1], points[i + 2], points[i + 3], points[i + 2], h2, color);
         }
 
         private void RenderBars(int[] points, Color color)
         {
             var c = WriteableBitmapExtensions.ConvertColor(color);
             for (var i = 0; i < points.Length - 4; i += 8)
-                _waveformImage.FillRectangle(points[i], points[i + 1], points[i + 4], points[i + 5], c, true);
+                WaveformImage.FillRectangle(points[i], points[i + 1], points[i + 4], points[i + 5], c, true);
         }
 
         private IList<Point> GetPoints(IList<float> samples, double duration, bool flipY)

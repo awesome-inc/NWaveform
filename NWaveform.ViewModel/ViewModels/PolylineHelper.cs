@@ -114,7 +114,7 @@ namespace NWaveform.ViewModels
 
             // special case for a (numerically) closed loop
             // Somewhat adhoc, just calculate euclidian distances to the crossing point
-            if (c2 < Double.Epsilon)
+            if (c2 < double.Epsilon)
             {
                 for (var i = start + 1; i < end; i++)
                 {

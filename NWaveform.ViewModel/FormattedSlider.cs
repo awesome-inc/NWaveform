@@ -54,9 +54,9 @@ namespace NWaveform
             if (_autoToolTip == null)
                 _autoToolTip = GetAutoToolTip(this);
             if (_autoToolTip == null) return;
-            _autoToolTip.Content = String.IsNullOrEmpty(AutoToolTipFormat) 
+            _autoToolTip.Content = string.IsNullOrEmpty(AutoToolTipFormat) 
                 ? AutoToolTip 
-                : String.Format(CultureInfo.CurrentCulture, AutoToolTipFormat, Value);
+                : string.Format(CultureInfo.CurrentCulture, AutoToolTipFormat, Value);
         }
 
         private static ToolTip GetAutoToolTip(Slider slider)
