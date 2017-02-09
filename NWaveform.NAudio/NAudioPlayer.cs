@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Windows.Threading;
 using NAudio.Wave;
 using NWaveform.Exceptions;
-using NWaveform.Extensions;
 using NWaveform.Interfaces;
 using NWaveform.Model;
 
@@ -13,6 +12,7 @@ namespace NWaveform.NAudio
 {
     public class NAudioPlayer : IMediaPlayer, IDisposable
     {
+        private readonly IWaveProviderFactory _factory;
         public double MaxRate => 4;
         public double MinRate => 0.25;
         public double RateDelta => 0.25;
@@ -20,14 +20,14 @@ namespace NWaveform.NAudio
         private const double DefaultVolume = 0.5;
         private Uri _source;
         private readonly IWavePlayer _player;
-        private WaveProviderEx _waveProvider;
+        private IWaveProviderEx _waveProvider;
         private readonly DispatcherTimer _positionTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle);
         private bool _isPlaying;
         private bool _isPaused;
         private bool _isStopped;
         private double _restoreVolume = DefaultVolume;
 
-        public NAudioPlayer(IWavePlayer wavePlayer = null)
+        public NAudioPlayer(IWavePlayer wavePlayer = null, IWaveProviderFactory factory = null)
         {
             // as a default player DirectSoundOut seems to be the least problematic,
             //  - WaveOut may stutter if doing parallel work on the UI thread since it is UI-synchronuous
@@ -35,9 +35,11 @@ namespace NWaveform.NAudio
             // see also: http://mark-dot-net.blogspot.de/2011/05/naudio-audio-output-devices.html
             _player = wavePlayer ?? new DirectSoundOut(200);
             _player.PlaybackStopped += OnStopped;
-
             _positionTimer.Interval = TimeSpan.FromMilliseconds(250);
             _positionTimer.Tick += PositionTimerTick;
+
+            _factory = factory ?? new WaveProviderFactory();
+
 
             Error = AudioError.NoError;
         }
@@ -168,8 +170,7 @@ namespace NWaveform.NAudio
             {
                 if (uri != null)
                 {
-                    uri.VerifyUriExists();
-                    _waveProvider = new WaveProviderEx(uri);
+                    _waveProvider = _factory.Create(uri);
                     _player.Init(_waveProvider);
                 }
                 Error.Exception = null;
@@ -232,7 +233,7 @@ namespace NWaveform.NAudio
             }
         }
 
-        public bool SupportsBalance => true;
+        public bool SupportsBalance => _waveProvider.SupportsPanning;
         public double Balance
         {
             get { return _waveProvider?.Pan ?? 0.0; }

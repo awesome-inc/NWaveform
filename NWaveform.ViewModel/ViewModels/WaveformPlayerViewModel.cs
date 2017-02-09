@@ -1,6 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using Caliburn.Micro;
 using NWaveform.Default;
 using NWaveform.Extender;
 using NWaveform.Interfaces;
@@ -8,7 +7,7 @@ using NWaveform.Model;
 
 namespace NWaveform.ViewModels
 {
-    public class WaveformPlayerViewModel : IWaveformPlayerViewModel
+    public class WaveformPlayerViewModel : Screen, IWaveformPlayerViewModel
     {
         public WaveformPlayerViewModel(
             IMediaPlayer player,
@@ -28,9 +27,9 @@ namespace NWaveform.ViewModels
             if (menu != null) Waveform.SelectionMenu = menu;
         }
 
-        public IMediaPlayer Player { get; private set; }
-        public IWaveFormRepository Waveforms { get; private set; }
-        public IWaveformViewModel Waveform { get; private set; }
+        public IMediaPlayer Player { get; }
+        public IWaveFormRepository Waveforms { get; }
+        public IWaveformViewModel Waveform { get; }
 
         public Uri Source
         {
@@ -39,7 +38,7 @@ namespace NWaveform.ViewModels
             {
                 if (Player.Source == value) return;
                 Player.Source = value;
-                OnPropertyChanged();
+                NotifyOfPropertyChange();
                 Waveform.SetWaveform(GetWaveform());
             }
         }
@@ -52,13 +51,6 @@ namespace NWaveform.ViewModels
             if (waveform.Duration == TimeSpan.Zero && Player.HasDuration)
                 waveform.Duration = TimeSpan.FromSeconds(Player.Duration);
             return waveform;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged = delegate { };
-
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

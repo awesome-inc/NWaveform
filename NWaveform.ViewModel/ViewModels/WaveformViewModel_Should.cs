@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;

@@ -4,11 +4,12 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Caliburn.Micro;
 using FontAwesome.Sharp;
 
 namespace NWaveform.ViewModels
 {
-    public class LabelVievModel : ILabelVievModel
+    public class LabelVievModel : PropertyChangedBase, ILabelVievModel
     {
         private string _text;
         private double _position;
@@ -25,74 +26,67 @@ namespace NWaveform.ViewModels
         public string Text
         {
             get { return _text; }
-            set { _text = value; OnPropertyChanged(); }
+            set { _text = value; NotifyOfPropertyChange(); }
         }
 
         public string Tooltip
         {
             get { return _tooltip; }
-            set { _tooltip = value; OnPropertyChanged(); }
+            set { _tooltip = value; NotifyOfPropertyChange(); }
         }
 
         public double Position
         {
             get { return _position; }
-            set { _position = value; OnPropertyChanged(); }
+            set { _position = value; NotifyOfPropertyChange(); }
         }
 
         public double Magnitude
         {
             get { return _magnitude; }
-            set { _magnitude = value; OnPropertyChanged(); }
+            set { _magnitude = value; NotifyOfPropertyChange(); }
         }
 
         public IconChar Icon
         {
             get { return _icon; }
-            set { _icon = value; OnPropertyChanged(); }
+            set { _icon = value; NotifyOfPropertyChange(); }
         }
 
         public Brush Background
         {
             get { return _background; }
-            set { _background = value; OnPropertyChanged(); }
+            set { _background = value; NotifyOfPropertyChange(); }
         }
 
         public Brush Foreground
         {
             get { return _foreground; }
-            set { _foreground = value; OnPropertyChanged(); }
+            set { _foreground = value; NotifyOfPropertyChange(); }
         }
 
         public IMenuViewModel Menu
         {
             get { return _menu; }
-            set { _menu = value; OnPropertyChanged(); }
+            set { _menu = value; NotifyOfPropertyChange(); }
         }
 
         public IAudioSelectionViewModel Selection
         {
             get { return _selection; }
-            set { _selection = value; OnPropertyChanged(); }
+            set { _selection = value; NotifyOfPropertyChange(); }
         }
 
         public int FontSize
         {
             get { return _fontSize; }
-            set { _fontSize = value; OnPropertyChanged(); }
+            set { _fontSize = value; NotifyOfPropertyChange(); }
         }
 
         public FontWeight FontWeight
         {
             get { return _fontWeight; }
-            set { _fontWeight = value; OnPropertyChanged(); }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged = delegate { };
-
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            set { _fontWeight = value; NotifyOfPropertyChange(); }
         }
 
         // ReSharper disable once UnusedMember.Global

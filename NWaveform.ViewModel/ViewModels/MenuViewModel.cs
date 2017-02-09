@@ -5,7 +5,7 @@ using NEdifis.Attributes;
 namespace NWaveform.ViewModels
 {
     [ExcludeFromConventions("DTO")]
-    public class MenuViewModel : IMenuViewModel
+    public class MenuViewModel : PropertyChangedBase, IMenuViewModel
     {
         public IEnumerable<IMenuItemViewModel> Items { get; }
 

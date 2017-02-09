@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using FontAwesome.Sharp;
 using NEdifis.Attributes;
@@ -9,7 +7,7 @@ using NEdifis.Attributes;
 namespace NWaveform.ViewModels
 {
     [ExcludeFromConventions("DTO")]
-    public class MenuItemViewModel : MenuViewModel, IMenuItemViewModel, INotifyPropertyChanged
+    public class MenuItemViewModel : MenuViewModel, IMenuItemViewModel
     {
         private string _header;
         private ICommand _command;
@@ -29,7 +27,7 @@ namespace NWaveform.ViewModels
             {
                 if (_header == value) return;
                 _header = value;
-                OnPropertyChanged();
+                NotifyOfPropertyChange();
             }
         }
 
@@ -41,7 +39,7 @@ namespace NWaveform.ViewModels
                 if (_command == value) return;
                 _command = value;
                 GuessCommandProperties();
-                OnPropertyChanged();
+                NotifyOfPropertyChange();
             }
         }
 
@@ -60,7 +58,7 @@ namespace NWaveform.ViewModels
             {
                 if (_icon == value) return;
                 _icon = value;
-                OnPropertyChanged();
+                NotifyOfPropertyChange();
             }
         }
 
@@ -71,7 +69,7 @@ namespace NWaveform.ViewModels
             {
                 if (_description == value) return;
                 _description = value;
-                OnPropertyChanged();
+                NotifyOfPropertyChange();
             }
         }
 
@@ -82,15 +80,8 @@ namespace NWaveform.ViewModels
             {
                 if (Equals(_helpLink, value)) return;
                 _helpLink = value;
-                OnPropertyChanged();
+                NotifyOfPropertyChange();
             }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged = delegate { };
-
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

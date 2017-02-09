@@ -35,21 +35,21 @@ namespace NWaveform.ViewModels
             };
 
             sut.Start = 1.0;
-            map["Start"].Should().Be(1);
-            map["Duration"].Should().Be(1);
+            map[nameof(sut.Start)].Should().Be(1);
+            map[nameof(sut.Duration)].Should().Be(1);
             sut.Start.Should().Be(1.0);
 
             sut.End = 2.0;
-            map["End"].Should().Be(1);
-            map["Duration"].Should().Be(2);
+            map[nameof(sut.End)].Should().Be(1);
+            map[nameof(sut.Duration)].Should().Be(2);
             sut.End.Should().Be(2.0);
 
             sut.Top = 0.2;
-            map["Top"].Should().Be(1);
+            map[nameof(sut.Top)].Should().Be(1);
             sut.Top.Should().Be(0.2);
 
             sut.Height = 1.0;
-            map["Height"].Should().Be(1);
+            map[nameof(sut.Height)].Should().Be(1);
             sut.Height.Should().Be(1.0);
 
             var menu = new MenuViewModel();

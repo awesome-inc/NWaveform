@@ -1,10 +1,9 @@
 using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using Caliburn.Micro;
 
 namespace NWaveform.ViewModels
 {
-    public class AudioSelectionViewModel : IAudioSelectionViewModel
+    public class AudioSelectionViewModel : PropertyChangedBase, IAudioSelectionViewModel
     {
         private double _start;
         private double _end;
@@ -19,9 +18,8 @@ namespace NWaveform.ViewModels
             {
                 if (Math.Abs(_start - value) < double.Epsilon) return;
                 _start = value;
-                OnPropertyChanged();
-                // ReSharper disable once ExplicitCallerInfoArgument
-                OnPropertyChanged("Duration");
+                NotifyOfPropertyChange();
+                NotifyOfPropertyChange(nameof(Duration));
             }
         }
 
@@ -32,37 +30,29 @@ namespace NWaveform.ViewModels
             {
                 if (Math.Abs(_end - value) < double.Epsilon) return;
                 _end = value;
-                OnPropertyChanged();
-                // ReSharper disable once ExplicitCallerInfoArgument
-                OnPropertyChanged("Duration");
+                NotifyOfPropertyChange();
+                NotifyOfPropertyChange(nameof(Duration));
             }
         }
 
-        public double Duration { get { return End - Start; } }
+        public double Duration => End - Start;
 
         public double Top
         {
             get { return _top; }
-            set { _top = value; OnPropertyChanged(); }
+            set { _top = value; NotifyOfPropertyChange(); }
         }
 
         public double Height
         {
             get { return _height; }
-            set { _height = value; OnPropertyChanged(); }
+            set { _height = value; NotifyOfPropertyChange(); }
         }
 
         public IMenuViewModel Menu
         {
             get { return _menu; }
-            set { _menu = value; OnPropertyChanged(); }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged = delegate { };
-
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            set { _menu = value; NotifyOfPropertyChange(); }
         }
     }
 }
