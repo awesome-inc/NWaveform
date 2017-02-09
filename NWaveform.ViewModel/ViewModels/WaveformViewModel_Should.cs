@@ -1,4 +1,9 @@
 ﻿using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
 using FluentAssertions;
@@ -11,7 +16,7 @@ using NWaveform.Interfaces;
 
 namespace NWaveform.ViewModels
 {
-    [TestFixtureFor(typeof (WaveformViewModel))]
+    [TestFixtureFor(typeof(WaveformViewModel))]
     // ReSharper disable InconsistentNaming
     internal class WaveformViewModel_Should
     {
@@ -87,23 +92,52 @@ namespace NWaveform.ViewModels
             var sut = ctx.BuildSut();
 
             sut.Should().BeAssignableTo<IHandle<SamplesReceivedEvent>>();
-            sut.Duration = 2.0;
 
-            var e = new SamplesReceivedEvent(0, 2, new []{ 1f, 1f, 0f});
+            // |----------         |
+            // |-------------------|
+            // |          ---------|   
+            sut.WaveformImage = BitmapFactory.New(20, 20);
+            sut.LeftBrush = new SolidColorBrush(Colors.Red);
+            sut.RightBrush = new SolidColorBrush(Colors.Blue);
+            sut.BackgroundBrush = new SolidColorBrush(Colors.Black);
+            var w2 = (int)(sut.WaveformImage.Width / 2);
+            var h2 = (int)(sut.WaveformImage.Height / 2);
+
+            var samples = Enumerable.Repeat(1f, 2 * w2).Concat(Enumerable.Repeat(0f, 2 * w2)).ToArray();
+            var e = new SamplesReceivedEvent(0, 2, samples, samples.Reverse().ToArray());
+            sut.Duration = e.End;
             sut.Handle(e);
 
-            var b = sut.WaveformImage;
-            var w2 = (int) (b.Width / 2);
-            var h2 = (int)(b.Height / 2);
+            RectShouldHaveColor(sut.WaveformImage, 1, 1, w2, h2, sut.LeftBrush.Color);
+            RectShouldHaveColor(sut.WaveformImage, w2 + 1, h2 + 1, 2 * w2, 2 * h2, sut.RightBrush.Color);
+            RectShouldHaveColor(sut.WaveformImage, 1, h2 + 1, w2 - 1, 2*h2-1, sut.BackgroundBrush.Color);
+            RectShouldHaveColor(sut.WaveformImage, w2 + 1, 1, 2*w2, h2, sut.BackgroundBrush.Color);
+        }
 
-            var color = b.GetPixel(1, 1);
-            color.Should().Be(sut.LeftBrush.Color);
+        private static unsafe void RectShouldHaveColor(WriteableBitmap b, int x0, int y0, int x1, int y1, Color color, [CallerMemberName]string test = null)
+        {
+            var expectedColor = WriteableBitmapExtensions.ConvertColor(color);
+            var expectedColorName = GetColorName(color);
+            using (var c = b.GetBitmapContext(ReadWriteMode.ReadOnly))
+            {
+                for (var y = y0; y < y1; y++)
+                    for (var x = x0; x < x1; x++)
+                    {
+                        var actualColor = c.Pixels[y * c.Width + x];
+                        if (actualColor != expectedColor)
+                        {
+                            var actualColorName = GetColorName(b.GetPixel(x,y));
+                            Assert.Fail($"Pixel at ({x},{y}) should be '{expectedColorName}' but is '{actualColorName}'");
+                        }
+                    }
+            }
+        }
 
-            color = b.GetPixel(w2-1, h2-1);
-            color.Should().Be(sut.LeftBrush.Color);
-
-            color = b.GetPixel(2*w2 - 1, h2 - 1);
-            color.Should().Be(sut.BackgroundBrush.Color);
+        private static string GetColorName(Color col)
+        {
+            var colorProperty = typeof(Colors).GetProperties()
+                .FirstOrDefault(p => Color.AreClose((Color)p.GetValue(null), col));
+            return colorProperty != null ? colorProperty.Name : col.ToString();
         }
     }
 }

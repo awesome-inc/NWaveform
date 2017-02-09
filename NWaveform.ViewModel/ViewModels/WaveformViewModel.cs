@@ -42,7 +42,7 @@ namespace NWaveform.ViewModels
         private PointCollection _separationLeftChannel;
         private PointCollection _separationRightChannel;
 
-        internal readonly WriteableBitmap WaveformImage = BitmapFactory.New(1920, 1080);
+        internal WriteableBitmap WaveformImage { get; set; } = BitmapFactory.New(1920, 1080);
 
         public WaveformViewModel(IMediaPlayer positionProvider,
             WaveformSettings waveformSettings = null)
@@ -161,7 +161,7 @@ namespace NWaveform.ViewModels
         public SolidColorBrush BackgroundBrush
         {
             get { return _backgroundBrush; }
-            set { _backgroundBrush = value; NotifyOfPropertyChange(); }
+            set { _backgroundBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
         public SolidColorBrush LeftBrush
@@ -281,6 +281,7 @@ namespace NWaveform.ViewModels
         public void Handle(PointsReceivedEvent message)
         {
             RenderPolyline(message.LeftPoints, LeftBrush.Color);
+            RenderPolyline(message.RightPoints, RightBrush.Color);
         }
 
         private void RenderWaveform()
@@ -322,7 +323,12 @@ namespace NWaveform.ViewModels
 
             var h2 = (int)(0.5 * WaveformImage.Height);
             for (var i = 0; i < points.Length - 2; i += 2)
-                WaveformImage.FillQuad(points[i], h2, points[i], points[i + 1], points[i + 2], points[i + 3], points[i + 2], h2, color);
+                WaveformImage.FillQuad(
+                    points[i], h2, 
+                    points[i], points[i + 1], 
+                    points[i + 2], points[i + 3], 
+                    points[i + 2], h2, 
+                    color);
         }
 
         private void RenderBars(int[] points, Color color)
