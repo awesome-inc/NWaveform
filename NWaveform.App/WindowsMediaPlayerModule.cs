@@ -8,7 +8,7 @@ namespace NWaveform.App
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<WindowsMediaPlayer>().As<IMediaPlayer>().SingleInstance();
+            builder.RegisterType<WindowsMediaPlayer>().As<IMediaPlayer>();
         }
     }
 }

@@ -22,6 +22,7 @@ namespace NWaveform.ViewModels
             Player = player;
             Waveforms = waveforms;
             Waveform = waveform;
+            Waveform.PositionProvider = player;
 
             var menu = audioSelectionMenuProvider?.Menu;
             if (menu != null) Waveform.SelectionMenu = menu;

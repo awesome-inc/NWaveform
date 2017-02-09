@@ -1,8 +1,8 @@
 ﻿namespace NWaveform.App
 {
-    public partial class MainView
+    public partial class PlayerView
     {
-        public MainView()
+        public PlayerView()
         {
             InitializeComponent();
         }

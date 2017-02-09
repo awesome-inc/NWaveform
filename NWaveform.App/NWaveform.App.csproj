@@ -96,13 +96,22 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AppView.xaml.cs">
+      <DependentUpon>AppView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AppViewModel.cs" />
+    <Compile Include="IPlayerViewModel.cs" />
     <Compile Include="NAudioModule.cs" />
     <Compile Include="VlcModule.cs" />
     <Compile Include="WaypointLabelViewModel.cs" />
     <Compile Include="WaypointLabelViewModel_Should.cs" />
     <Compile Include="TestData.cs" />
     <Compile Include="WindowsMediaPlayerModule.cs" />
-    <Page Include="MainView.xaml">
+    <Page Include="AppView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PlayerView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -111,9 +120,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AppBootstrapper.cs" />
-    <Compile Include="MainViewModel.cs" />
-    <Compile Include="MainView.xaml.cs">
-      <DependentUpon>MainView.xaml</DependentUpon>
+    <Compile Include="PlayerViewModel.cs" />
+    <Compile Include="PlayerView.xaml.cs">
+      <DependentUpon>PlayerView.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

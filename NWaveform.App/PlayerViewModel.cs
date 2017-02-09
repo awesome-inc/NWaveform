@@ -10,17 +10,21 @@ using NWaveform.ViewModels;
 namespace NWaveform.App
 {
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class MainViewModel : Screen
+    public class PlayerViewModel : Screen, IPlayerViewModel
     {
         private readonly MenuViewModel _labelMenu;
 
-        public MainViewModel(IWaveformPlayerViewModel audioPlayer)
+        public string ToolTip => DisplayName;
+
+        public PlayerViewModel(IWaveformPlayerViewModel audioPlayer)
         {
             if (audioPlayer == null) throw new ArgumentNullException(nameof(audioPlayer));
             AudioPlayer = audioPlayer;
 
-            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
-            DisplayName = "Audio.App";
+            // ReSharper disable VirtualMemberCallInConstructor
+            DisplayName = "Player";
+            NotifyOfPropertyChange(nameof(ToolTip));
+            // ReSharper restore VirtualMemberCallInConstructor
 
             _labelMenu = new MenuViewModel(new[]
             {
@@ -29,7 +33,7 @@ namespace NWaveform.App
                     Icon = IconChar.Pencil,
                     Command = new DelegateCommand<ILabelVievModel>(EditLabel)
                     {
-                        Title = "Edit...", 
+                        Title = "Edit...",
                         Description = "Edit label"
                     }
                 },
@@ -38,13 +42,13 @@ namespace NWaveform.App
                     Icon = IconChar.Times,
                     Command = new DelegateCommand<ILabelVievModel>(RemoveLabel)
                     {
-                        Title = "Remove", 
+                        Title = "Remove",
                         Description = "Remove label"
                     }
                 }
             });
 
-            MenuViewModel selectionMenu = new MenuViewModel(new[]
+            var selectionMenu = new MenuViewModel(new[]
             {
                 new MenuItemViewModel
                 {
@@ -54,10 +58,16 @@ namespace NWaveform.App
                         Title = "Assign WP to...",
                         Description = "Assign a WP from the selection to..."
                     }
-                } 
+                }
             });
 
             AudioPlayer.Waveform.SelectionMenu = selectionMenu;
+        }
+
+        protected override void OnDeactivate(bool close)
+        {
+            AudioPlayer?.Player?.Pause();
+            base.OnDeactivate(close);
         }
 
         private bool CanSelectWaypoint(IAudioSelectionViewModel selection)
@@ -109,11 +119,15 @@ namespace NWaveform.App
             {
                 AudioPlayer.Source = new Uri(url);
                 AddRandomProperties();
+                DisplayName = url;
+                NotifyOfPropertyChange(nameof(ToolTip));
             }
             catch (Exception ex)
             {
                 Trace.TraceWarning("Could not open url: {0}", ex);
                 MessageBox.Show("Could not open url: " + ex.Message);
+                DisplayName = "Player";
+                NotifyOfPropertyChange(nameof(ToolTip));
             }
         }
 
@@ -134,7 +148,8 @@ namespace NWaveform.App
                 End = Math.Max(a, b),
             };
 
-            AudioPlayer.Waveform.UserChannel = TestData.GetRandomWaypoints(r, duration, (int)(0.2 * duration), 0.5, 0.85);
+            AudioPlayer.Waveform.UserChannel = TestData.GetRandomWaypoints(r, duration, (int) (0.2 * duration), 0.5,
+                0.85);
 
             AudioPlayer.Waveform.SeparationLeftChannel = TestData.GetSeparationTop(r, duration, 10);
             AudioPlayer.Waveform.SeparationRightChannel = TestData.GetSeparationBottom(r, duration, 8);
@@ -146,7 +161,7 @@ namespace NWaveform.App
                     Background = AudioPlayer.Waveform.UserBrush,
                     Foreground = AudioPlayer.Waveform.UserTextBrush,
                     Text = "Waypoint",
-                    Icon = IconChar.LocationArrow, 
+                    Icon = IconChar.LocationArrow,
                     Menu = _labelMenu
                 }
             };

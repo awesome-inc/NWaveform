@@ -1,12 +1,15 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Media;
+using NWaveform.Interfaces;
 using NWaveform.Model;
 
 namespace NWaveform.ViewModels
 {
     public interface IWaveformViewModel : INotifyPropertyChanged
     {
+        IPositionProvider PositionProvider { get; set; }
+
         void SetWaveform(WaveformData waveform);
 
         double Position { get; set; }

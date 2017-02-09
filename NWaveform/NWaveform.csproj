@@ -65,6 +65,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\MediaPlayerExtensions.cs" />
+    <Compile Include="Interfaces\EmptyPositionProvider.cs" />
+    <Compile Include="Interfaces\IPositionProvider.cs" />
     <Compile Include="Serializer\WaveFormSerializer.cs" />
     <Compile Include="Default\CachedWaveFormRepository_Should.cs" />
     <Compile Include="Default\EmptyWaveformGenerator_Should.cs" />

@@ -233,7 +233,8 @@ namespace NWaveform.NAudio
             }
         }
 
-        public bool SupportsBalance => _waveProvider.SupportsPanning;
+        public bool SupportsBalance => _waveProvider != null && _waveProvider.SupportsPanning;
+
         public double Balance
         {
             get { return _waveProvider?.Pan ?? 0.0; }

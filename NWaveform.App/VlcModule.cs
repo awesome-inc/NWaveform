@@ -11,7 +11,7 @@ namespace NWaveform.App
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<VlcMediaPlayer>().As<IMediaPlayer>().SingleInstance();
+            builder.RegisterType<VlcMediaPlayer>().As<IMediaPlayer>();
 
             new VlcConfiguration().VerifyVlcPresent();
 

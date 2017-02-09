@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -15,7 +16,6 @@ namespace NWaveform.ViewModels
         , IHandle<SamplesReceivedEvent>
         , IHandle<PointsReceivedEvent>
     {
-        private readonly IMediaPlayer _positionProvider;
         private PointCollection _leftChannel;
         private PointCollection _rightChannel;
         private double _duration;
@@ -41,13 +41,12 @@ namespace NWaveform.ViewModels
         private SolidColorBrush _userTextBrush;
         private PointCollection _separationLeftChannel;
         private PointCollection _separationRightChannel;
+        private IPositionProvider _positionProvider = new EmptyPositionProvider();
 
         internal WriteableBitmap WaveformImage { get; set; } = BitmapFactory.New(1920, 1080);
 
-        public WaveformViewModel(IMediaPlayer positionProvider,
-            WaveformSettings waveformSettings = null)
+        public WaveformViewModel(IEventAggregator events, WaveformSettings waveformSettings = null)
         {
-            if (positionProvider == null) throw new ArgumentNullException(nameof(positionProvider));
             var settings = waveformSettings ?? new WaveformSettings();
 
             _maxMagnitude = settings.MaxMagnitude;
@@ -63,24 +62,36 @@ namespace NWaveform.ViewModels
             _separationRightBrush = new SolidColorBrush(settings.SeparationRightColor);
             _userTextBrush = new SolidColorBrush(settings.UserTextColor);
 
-            _positionProvider = positionProvider;
-
-            // hook up into player's position changed event to fake-notify our view that our own virtual position has changed!
-            _positionProvider.PropertyChanged += (s, e) =>
-                {
-                    // Position if a direct reference to _positionProvider whereby Duration caches the value in this instance
-                    switch (e.PropertyName)
-                    {
-                        case nameof(Position):
-                            NotifyOfPropertyChange(e.PropertyName);
-                            break;
-                        case nameof(Duration):
-                            Duration = _positionProvider.Duration;
-                            break;
-                    }
-                };
-
             WaveformImage.Clear(BackgroundBrush.Color);
+            events.Subscribe(this);
+        }
+
+        public IPositionProvider PositionProvider
+        {
+            get { return _positionProvider; }
+            set
+            {
+                if (Equals(value, _positionProvider)) return;
+                _positionProvider.PropertyChanged -= PositionProviderOnPropertyChanged;
+                _positionProvider = value ?? new EmptyPositionProvider();
+                _positionProvider.PropertyChanged += PositionProviderOnPropertyChanged;
+                NotifyOfPropertyChange();
+                NotifyOfPropertyChange(nameof(Position));
+            }
+        }
+
+        private void PositionProviderOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // Position if a direct reference to _positionProvider whereby Duration caches the value in this instance
+            switch (e.PropertyName)
+            {
+                case nameof(Position):
+                    NotifyOfPropertyChange(nameof(Position));
+                    break;
+                case nameof(Duration):
+                    Duration = PositionProvider.Duration;
+                    break;
+            }
         }
 
         protected override void OnViewLoaded(object view)
@@ -93,12 +104,12 @@ namespace NWaveform.ViewModels
 
         public double Position
         {
-            get { return _positionProvider.Position; }
+            get { return PositionProvider.Position; }
             set
             {
                 var pos = Position;
                 if (Math.Abs(pos - value) < double.Epsilon) return;
-                _positionProvider.Position = value;
+                PositionProvider.Position = value;
                 NotifyOfPropertyChange();
             }
         }
@@ -124,7 +135,7 @@ namespace NWaveform.ViewModels
             {
                 _selection = value;
                 // TODO: channel from top/height?!
-                _positionProvider.AudioSelection = new AudioSelection(0, _selection.Start, _selection.End);
+                PositionProvider.AudioSelection = new AudioSelection(0, _selection.Start, _selection.End);
                 NotifyOfPropertyChange();
             }
         }

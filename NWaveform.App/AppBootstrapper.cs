@@ -26,7 +26,7 @@ namespace NWaveform.App
 
         protected override void OnStartup(object sender, StartupEventArgs e)
         {
-            DisplayRootViewFor<MainViewModel>();
+            DisplayRootViewFor<AppViewModel>();
         }
 
         protected override void Configure()
@@ -34,10 +34,15 @@ namespace NWaveform.App
             var builder = new ContainerBuilder();
 
             builder.RegisterType<WindowManager>().As<IWindowManager>().SingleInstance();
-            builder.RegisterType<MainViewModel>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<EventAggregator>().As<IEventAggregator>().SingleInstance();
+
+            builder.RegisterType<AppViewModel>().AsSelf().SingleInstance();
+
+            builder.RegisterType<PlayerViewModel>().As<IPlayerViewModel>();
 
             builder.RegisterType<WaveformPlayerViewModel>().As<IWaveformPlayerViewModel>();
             builder.RegisterType<WaveformViewModel>().As<IWaveformViewModel>();
+
             builder.RegisterType<AudioSelectionMenuProvider>().As<IAudioSelectionMenuProvider>().SingleInstance();
 
             AssemblySource.Instance.Add(typeof(WaveformPlayerView).Assembly);
@@ -74,7 +79,7 @@ namespace NWaveform.App
 
         protected override IEnumerable<object> GetAllInstances(Type service)
         {
-            return _container.Resolve(typeof(IEnumerable<>).MakeGenericType(new[] { service })) as IEnumerable<object>;
+            return _container.Resolve(typeof(IEnumerable<>).MakeGenericType(service)) as IEnumerable<object>;
         }
 
         protected override void BuildUp(object instance)

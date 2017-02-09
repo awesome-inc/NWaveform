@@ -1,10 +1,8 @@
 ﻿using System;
-using System.ComponentModel;
-using NWaveform.Model;
 
 namespace NWaveform.Interfaces
 {
-    public interface IMediaPlayer : INotifyPropertyChanged
+    public interface IMediaPlayer : IPositionProvider
     {
         /// <summary>Gets the media error.</summary>
         /// <returns>The media error.</returns>
@@ -56,14 +54,6 @@ namespace NWaveform.Interfaces
         /// <returns>The current media System.Uri.</returns>
         Uri Source { get; set; }
 
-        /// <summary>Gets or sets the current position of the media in seconds.</summary>
-        /// <returns>The current position of the media (in seconds).</returns>
-        double Position { get; set; }
-
-        /// <summary>Gets the duration of the media.</summary>
-        /// <returns>The duration of the media (in seconds). O if unknown like for e.g. continuous network streams.</returns>
-        double Duration { get; }
-
         /// <summary>Gets a value that indicates whether the media has a known duration.</summary>
         /// <returns>true if the media has a known duration; otherwise, false.</returns>
         bool HasDuration { get; }
@@ -97,9 +87,6 @@ namespace NWaveform.Interfaces
         /// <summary>Gets or sets the balance between the left and right speaker volumes.</summary>
         /// <returns>The ratio of volume across the left and right speakers in a range between -1 and 1. The default is 0.</returns>
         double Balance { get; set; }
-
-        /// <summary> Gets or sets the audio selection. </summary>
-        AudioSelection AudioSelection { get; set; }
 
         /// <summary> Gets a value indicating whether this instance can loop. </summary>
         bool CanLoop { get; }

@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
@@ -24,7 +23,9 @@ namespace NWaveform.ViewModels
             var positionPovider = Substitute.For<IMediaPlayer>();
             positionPovider.Duration.ReturnsForAnyArgs(2);
 
-            var sut = new WaveformViewModel(positionPovider);
+            var ctx = new ContextFor<WaveformViewModel>();
+            var sut = ctx.BuildSut();
+            sut.PositionProvider = positionPovider;
             sut.MonitorEvents();
 
             positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(), new PropertyChangedEventArgs(nameof(sut.Position)));
@@ -38,7 +39,9 @@ namespace NWaveform.ViewModels
             var positionPovider = Substitute.For<IMediaPlayer>();
             positionPovider.Duration.ReturnsForAnyArgs(expectedDuration);
 
-            var sut = new WaveformViewModel(positionPovider);
+            var ctx = new ContextFor<WaveformViewModel>();
+            var sut = ctx.BuildSut();
+            sut.PositionProvider = positionPovider;
             sut.MonitorEvents();
 
             positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(), new PropertyChangedEventArgs(nameof(sut.Duration)));
@@ -55,7 +58,10 @@ namespace NWaveform.ViewModels
             var positionPovider = Substitute.For<IMediaPlayer>();
             positionPovider.Duration.ReturnsForAnyArgs(4);
 
-            var sut = new WaveformViewModel(positionPovider) { Duration = 4 };
+            var ctx = new ContextFor<WaveformViewModel>();
+            var sut = ctx.BuildSut();
+            sut.Duration = 4.0;
+            sut.PositionProvider = positionPovider;
             sut.MonitorEvents();
 
             positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(), new PropertyChangedEventArgs(nameof(sut.Duration)));
@@ -71,7 +77,11 @@ namespace NWaveform.ViewModels
             var position = 42.0;
             var positionPovider = Substitute.For<IMediaPlayer>();
             positionPovider.Position.Returns(position);
-            var sut = new WaveformViewModel(positionPovider);
+
+            var ctx = new ContextFor<WaveformViewModel>();
+            var sut = ctx.BuildSut();
+            sut.PositionProvider = positionPovider;
+            sut.MonitorEvents();
 
             sut.Position.Should().Be(42);
 
@@ -90,6 +100,8 @@ namespace NWaveform.ViewModels
             var sut = ctx.BuildSut();
 
             sut.Should().BeAssignableTo<IHandle<SamplesReceivedEvent>>();
+            sut.Should().BeAssignableTo<IHandle<PointsReceivedEvent>>();
+            ctx.For<IEventAggregator>().Received().Subscribe(sut);
 
             // |----------         |
             // |-------------------|
@@ -112,7 +124,7 @@ namespace NWaveform.ViewModels
             RectShouldHaveColor(sut.WaveformImage, w2 + 1, 1, 2*w2, h2, sut.BackgroundBrush.Color);
         }
 
-        private static unsafe void RectShouldHaveColor(WriteableBitmap b, int x0, int y0, int x1, int y1, Color color, [CallerMemberName]string test = null)
+        private static unsafe void RectShouldHaveColor(WriteableBitmap b, int x0, int y0, int x1, int y1, Color color)
         {
             var expectedColor = WriteableBitmapExtensions.ConvertColor(color);
             var expectedColorName = GetColorName(color);
