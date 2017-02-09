@@ -100,8 +100,13 @@
       <DependentUpon>AppView.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppViewModel.cs" />
+    <Compile Include="EndlessFileLoopChannel.cs" />
     <Compile Include="IPlayerViewModel.cs" />
+    <Compile Include="IStreamingAudioChannel.cs" />
     <Compile Include="NAudioModule.cs" />
+    <Compile Include="StreamingAudioChannel.cs" />
+    <Compile Include="StreamingModule.cs" />
+    <Compile Include="StreamingWaveProviderFactory.cs" />
     <Compile Include="VlcModule.cs" />
     <Compile Include="WaypointLabelViewModel.cs" />
     <Compile Include="WaypointLabelViewModel_Should.cs" />
@@ -155,6 +160,11 @@
       <Project>{5646ff5b-c8a1-4e26-9317-67de96175f19}</Project>
       <Name>NWaveform</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\Pulp_Fiction_Jimmys_Coffee.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

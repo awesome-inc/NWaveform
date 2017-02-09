@@ -108,7 +108,7 @@ namespace NWaveform.App
         // ReSharper disable once UnusedMember.Global
         public void OpenUrl()
         {
-            var url = Interaction.InputBox("Url", "Open Url", string.Empty);
+            var url = Interaction.InputBox("Url", "Open Url", "channel://1/");
             if (!string.IsNullOrEmpty(url))
                 OpenUrl(url);
         }

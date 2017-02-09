@@ -9,6 +9,8 @@ namespace NWaveform.App
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<NAudioPlayer>().As<IMediaPlayer>();
+
+            builder.RegisterModule<StreamingModule>();
         }
     }
 }
