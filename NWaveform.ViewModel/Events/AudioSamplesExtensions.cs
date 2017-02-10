@@ -2,7 +2,7 @@
 {
     public static class AudioSamplesExtensions
     {
-        public static PointsReceivedEvent ToPoints(this SamplesReceivedEvent e, double duration, double width, double height)
+        public static PointsReceivedEvent ToPoints(this PeaksReceivedEvent e, double duration, double width, double height)
         {
             var sx = width / duration;
             var sy = height / 2.0d;
@@ -14,7 +14,7 @@
             var leftPoints = new int[2*n];
             var rightPoints = new int[2*n];
 
-            var st = e.LeftPeaks.Length / (e.End - e.Start);
+            var st = e.Peaks.Length / (e.End - e.Start);
 
             for (var i = 0; i < n; i++)
             {
@@ -22,14 +22,14 @@
                 leftPoints[2 * i] = rightPoints[2 * i] = x;
 
                 var j = (int)(st * x / sx - e.Start * st);
-                var yl = (int) (sy * (1 - e.LeftPeaks[j]));
-                var yr = (int) (sy * (1 + e.RightPeaks[j]));
+                var yl = (int) (sy * (1 - e.Peaks[j].Max));
+                var yr = (int) (sy * (1 - e.Peaks[j].Min));
 
                 leftPoints[2 * i + 1] = yl;
                 rightPoints[2 * i + 1] = yr;
             }
 
-            return new PointsReceivedEvent(leftPoints, rightPoints);
+            return new PointsReceivedEvent(e.Source, leftPoints, rightPoints);
         }
     }
 }

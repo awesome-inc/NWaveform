@@ -6,7 +6,7 @@ namespace NWaveform.NAudio
     public class SeekableCircularBuffer
     {
         private readonly byte[] _buffer;
-        private readonly object _lockObject;
+        private readonly object _lockObject = new object();
         private int _writePosition;
         private int _byteCount;
         private int _readPosition;
@@ -14,13 +14,18 @@ namespace NWaveform.NAudio
         public int ReadPosition
         {
             get { return _readPosition; }
-            set { _readPosition = value; }
+            set
+            {
+                lock (_lockObject)
+                {
+                    _readPosition = Math.Min(value, _buffer.Length);
+                }
+            }
         }
 
         public SeekableCircularBuffer(int size)
         {
             _buffer = new byte[size];
-            _lockObject = new object();
         }
 
         public int Write(byte[] data, int offset, int count)
@@ -59,8 +64,8 @@ namespace NWaveform.NAudio
                 {
                     count = _byteCount;
                 }
-                int bytesRead = 0;
-                int readToEnd = Math.Min(_buffer.Length - _readPosition, count);
+                var bytesRead = 0;
+                var readToEnd = Math.Min(_buffer.Length - _readPosition, count);
                 Array.Copy(_buffer, _readPosition, data, offset, readToEnd);
                 bytesRead += readToEnd;
                 _readPosition += readToEnd;

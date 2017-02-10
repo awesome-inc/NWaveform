@@ -3,12 +3,15 @@ using NAudio.Wave;
 
 namespace NWaveform.NAudio
 {
-    internal class WaveProviderEx : WaveChannel32, IWaveProviderEx
+    public class WaveProviderEx : WaveChannel32, IWaveProviderEx
     {
         public WaveProviderEx(Uri source)
-            : base(new AudioStream(source))
+            : this(new AudioStream(source))
         {
         }
+
+        public WaveProviderEx(WaveStream stream) : base(stream)
+        {}
 
         public bool SupportsPanning { get; } = true;
     }

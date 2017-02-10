@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Caliburn.Micro;
 using NAudio.Wave;
 using NWaveform.NAudio;
 
@@ -9,16 +10,21 @@ namespace NWaveform.App
 {
     internal class EndlessFileLoopChannel : IStreamingAudioChannel, IDisposable
     {
+        private readonly IEventAggregator _events;
         public string Name { get; }
-        public IWaveProviderEx Stream => _bufferedStream;
+        public IWaveProviderEx Stream => _waveProvider;
 
         private readonly WaveStream _audioStream;
         private readonly BufferedWaveStream _bufferedStream;
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
         private readonly Task _task;
+        private readonly WaveProviderEx _waveProvider;
 
-        public EndlessFileLoopChannel(string name, string fileName, TimeSpan bufferSize)
+        public EndlessFileLoopChannel(IEventAggregator events, string name, string fileName, TimeSpan bufferSize)
         {
+            if (events == null) throw new ArgumentNullException(nameof(events));
+            _events = events;
+
             Name = name;
             _audioStream = new AudioFileReader(fileName);
             _bufferedStream = new BufferedWaveStream(_audioStream.WaveFormat, bufferSize)
@@ -26,6 +32,7 @@ namespace NWaveform.App
                 DiscardOnBufferOverflow = true,
                 ReadFully = true,
             };
+            _waveProvider = new WaveProviderEx(_bufferedStream);
 
             _task = Task.Factory.StartNew(PublishFromStream);
         }
@@ -33,38 +40,33 @@ namespace NWaveform.App
         private void PublishFromStream()
         {
             var buffer = new byte[_bufferedStream.WaveFormat.AverageBytesPerSecond * 1];
-            var streamTimeStart = _audioStream.CurrentTime;
-            var start = DateTime.UtcNow;
-            var realTimeStart = start;
+
+            var streamTime = TimeSpan.Zero;
             var loops = 0;
 
             while (!_tokenSource.IsCancellationRequested)
             {
+                var timeBeforeRead = _audioStream.CurrentTime;
                 var bytesRead = _audioStream.Read(buffer, 0, buffer.Length);
+                var timeAfterRead = _audioStream.CurrentTime;
+                var timeDelta = timeAfterRead - timeBeforeRead;
+                streamTime += timeDelta;
+
                 if (bytesRead < buffer.Length)
                 {
                     // if we have reached the end, reset stream to start
                     _audioStream.CurrentTime = TimeSpan.Zero;
-                    streamTimeStart = _audioStream.CurrentTime;
-                    realTimeStart = DateTime.UtcNow;
                     loops++;
                     if (bytesRead == 0) continue;
                 }
 
                 _bufferedStream.AddSamples(buffer, 0, bytesRead);
 
+                Trace.WriteLine($"Buffered '{Name}' ({loops}, {timeAfterRead} / {streamTime})...");
 
-                var streamTimePassed = _audioStream.CurrentTime - streamTimeStart;
-                var now = DateTime.UtcNow;
-                var passed = now - start;
-                var realTimePassed = now - realTimeStart;
-                var timeDifference = Math.Max(0, (streamTimePassed - realTimePassed).TotalMilliseconds);
+                _events.PublishOnCurrentThread(new SamplesReceivedEvent(Name, streamTime, _bufferedStream.WaveFormat, buffer, bytesRead));
 
-                Trace.WriteLine($"Buffered '{Name}' ({loops}, {passed}, {realTimePassed})...");
-
-                // TODO: _eventAggregator.Publish(samples);
-
-                Thread.Sleep((int) timeDifference);
+                Thread.Sleep(timeDelta);
             }
         }
 

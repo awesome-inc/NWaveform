@@ -104,7 +104,7 @@
     <Compile Include="IPlayerViewModel.cs" />
     <Compile Include="IStreamingAudioChannel.cs" />
     <Compile Include="NAudioModule.cs" />
-    <Compile Include="StreamingAudioChannel.cs" />
+    <Compile Include="SamplesHandlerPeakPublisher.cs" />
     <Compile Include="StreamingModule.cs" />
     <Compile Include="StreamingWaveProviderFactory.cs" />
     <Compile Include="VlcModule.cs" />

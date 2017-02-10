@@ -97,7 +97,7 @@
     <Compile Include="DelegateCommand_Should.cs" />
     <Compile Include="Events\AudioSamplesExtensions.cs" />
     <Compile Include="Events\PointsReceivedEvent.cs" />
-    <Compile Include="Events\SamplesReceivedEvent.cs" />
+    <Compile Include="Events\PeaksReceivedEvent.cs" />
     <Compile Include="Extender\AudioSelectionMenuProvider.cs" />
     <Compile Include="Extender\IAudioSelectionMenuProvider.cs" />
     <Compile Include="Extender\IAudioSelectionMenuExtender.cs" />

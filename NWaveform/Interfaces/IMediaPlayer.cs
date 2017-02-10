@@ -50,10 +50,6 @@ namespace NWaveform.Interfaces
         /// <summary>Unmutes the media, i.e. restores the playback volume to the volume before muting.</summary>
         void UnMute();
 
-        /// <summary>Gets the media System.Uri.</summary>
-        /// <returns>The current media System.Uri.</returns>
-        Uri Source { get; set; }
-
         /// <summary>Gets a value that indicates whether the media has a known duration.</summary>
         /// <returns>true if the media has a known duration; otherwise, false.</returns>
         bool HasDuration { get; }

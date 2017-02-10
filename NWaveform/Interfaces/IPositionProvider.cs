@@ -1,10 +1,15 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using NWaveform.Model;
 
 namespace NWaveform.Interfaces
 {
     public interface IPositionProvider : INotifyPropertyChanged
     {
+        /// <summary>Gets the media source (uri).</summary>
+        /// <returns>The current media source.</returns>
+        Uri Source { get; set; }
+
         /// <summary>Gets or sets the current position of the media in seconds.</summary>
         /// <returns>The current position of the media (in seconds).</returns>
         double Position { get; set; }

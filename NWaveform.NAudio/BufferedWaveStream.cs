@@ -3,7 +3,7 @@ using NAudio.Wave;
 
 namespace NWaveform.NAudio
 {
-    public class BufferedWaveStream : WaveStream, IWaveProviderEx
+    public class BufferedWaveStream : WaveStream
     {
         public override WaveFormat WaveFormat { get; }
         private readonly SeekableCircularBuffer _circularBuffer;
@@ -19,15 +19,13 @@ namespace NWaveform.NAudio
         public override long Length => BufferLength;
         public override long Position {
             get { return _circularBuffer.ReadPosition; }
-            set { _circularBuffer.ReadPosition = (int) value;}
+            set
+            {
+                value = Math.Min(value, Length);
+                value -= value % WaveFormat.BlockAlign;
+                _circularBuffer.ReadPosition = (int) value;
+            }
         }
-        #endregion
-
-        #region IWaveProviderEx
-        public override TimeSpan TotalTime => BufferDuration;
-        public float Volume { get; set; }
-        public float Pan { get; set; }
-        public bool SupportsPanning => false;
         #endregion
 
         #region Reimplementation of BufferedWaveProvider
@@ -60,11 +58,7 @@ namespace NWaveform.NAudio
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            int read = 0;
-            if (_circularBuffer != null) // not yet created
-            {
-                read = _circularBuffer.Read(buffer, offset, count);
-            }
+            var read = _circularBuffer.Read(buffer, offset, count);
             if (ReadFully && read < count)
             {
                 // zero the end of the buffer

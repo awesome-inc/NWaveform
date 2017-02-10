@@ -160,6 +160,7 @@ namespace NWaveform.NAudio
                 OnPropertyChanged(nameof(Volume));
                 OnPropertyChanged(nameof(CanMute));
                 OnPropertyChanged(nameof(CanUnMute));
+                OnPropertyChanged(nameof(SupportsBalance));
                 // ReSharper restore ExplicitCallerInfoArgument
             }
         }

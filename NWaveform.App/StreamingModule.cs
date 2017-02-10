@@ -1,5 +1,6 @@
 using System;
 using Autofac;
+using Caliburn.Micro;
 using NWaveform.NAudio;
 
 namespace NWaveform.App
@@ -10,10 +11,18 @@ namespace NWaveform.App
         {
             builder.RegisterType<StreamingWaveProviderFactory>().As<IWaveProviderFactory>().SingleInstance();
 
-            var channel1 = new EndlessFileLoopChannel("channel://1/", @"Data\Pulp_Fiction_Jimmys_Coffee.mp3", TimeSpan.FromMinutes(5));
-            var channel2 = new EndlessFileLoopChannel("channel://2/", @"Data\Pulp_Fiction_Jimmys_Coffee.mp3", TimeSpan.FromMinutes(2));
-            builder.RegisterInstance((IStreamingAudioChannel) channel1);
-            builder.RegisterInstance((IStreamingAudioChannel) channel2);
+            builder.Register(c => RegisterChannel(c, "channel://1/", TimeSpan.FromMinutes(2))).As<IStreamingAudioChannel>();
+            builder.Register(c => RegisterChannel(c, "channel://2/", TimeSpan.FromMinutes(5))).As<IStreamingAudioChannel>();
+
+            builder.RegisterType<SamplesHandlerPeakPublisher>().AsSelf().AutoActivate();
+            builder.RegisterType<PeakProvider>().As<IPeakProvider>();
+        }
+
+        private static EndlessFileLoopChannel RegisterChannel(IComponentContext c, string name, TimeSpan bufferSize)
+        {
+            var events = c.Resolve<IEventAggregator>();
+            const string fileName = @"Data\Pulp_Fiction_Jimmys_Coffee.mp3";
+            return new EndlessFileLoopChannel(events, name, fileName, bufferSize);
         }
     }
 }

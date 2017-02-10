@@ -13,7 +13,7 @@ using NWaveform.Views;
 namespace NWaveform.ViewModels
 {
     public class WaveformViewModel : Screen, IWaveformViewModel
-        , IHandle<SamplesReceivedEvent>
+        , IHandle<PeaksReceivedEvent>
         , IHandle<PointsReceivedEvent>
     {
         private PointCollection _leftChannel;
@@ -278,8 +278,10 @@ namespace NWaveform.ViewModels
             RightChannel = new PointCollection(rightPoints);
         }
 
-        public void Handle(SamplesReceivedEvent message)
+        public void Handle(PeaksReceivedEvent message)
         {
+            if (!SameSource(message)) return;
+
             Handle(message.ToPoints(Duration, WaveformImage.Width, WaveformImage.Height));
             //var leftPoints = GetPoints(channels[0].Samples, Duration, true);
             //var rightPoints = waveform.Channels.Length == 2
@@ -293,6 +295,11 @@ namespace NWaveform.ViewModels
         {
             RenderPolyline(message.LeftPoints, LeftBrush.Color);
             RenderPolyline(message.RightPoints, RightBrush.Color);
+        }
+
+        private bool SameSource(PeaksReceivedEvent message)
+        {
+            return PositionProvider?.Source != null && message.Source == PositionProvider?.Source.ToString();
         }
 
         private void RenderWaveform()

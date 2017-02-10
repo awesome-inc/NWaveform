@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -10,6 +11,7 @@ using NSubstitute;
 using NUnit.Framework;
 using NWaveform.Events;
 using NWaveform.Interfaces;
+using NWaveform.Model;
 
 namespace NWaveform.ViewModels
 {
@@ -99,7 +101,7 @@ namespace NWaveform.ViewModels
             var ctx = new ContextFor<WaveformViewModel>();
             var sut = ctx.BuildSut();
 
-            sut.Should().BeAssignableTo<IHandle<SamplesReceivedEvent>>();
+            sut.Should().BeAssignableTo<IHandle<PeaksReceivedEvent>>();
             sut.Should().BeAssignableTo<IHandle<PointsReceivedEvent>>();
             ctx.For<IEventAggregator>().Received().Subscribe(sut);
 
@@ -113,8 +115,10 @@ namespace NWaveform.ViewModels
             var w2 = (int)(sut.WaveformImage.Width / 2);
             var h2 = (int)(sut.WaveformImage.Height / 2);
 
-            var samples = Enumerable.Repeat(1f, 2 * w2).Concat(Enumerable.Repeat(0f, 2 * w2)).ToArray();
-            var e = new SamplesReceivedEvent(0, 2, samples, samples.Reverse().ToArray());
+            var peaks = Enumerable.Repeat(1f, 2 * w2).Concat(Enumerable.Repeat(0f, 2 * w2))
+                .Select(m => new PeakInfo(m-1f, m)).ToArray();
+            var e = new PeaksReceivedEvent("source://test/", 0, 2, peaks);
+            sut.PositionProvider.Source = new Uri(e.Source);
             sut.Duration = e.End;
             sut.Handle(e);
 
@@ -123,6 +127,22 @@ namespace NWaveform.ViewModels
             RectShouldHaveColor(sut.WaveformImage, 1, h2 + 1, w2 - 1, 2*h2-1, sut.BackgroundBrush.Color);
             RectShouldHaveColor(sut.WaveformImage, w2 + 1, 1, 2*w2, h2, sut.BackgroundBrush.Color);
         }
+
+        [Test]
+        public void Only_Handle_events_for_same_source()
+        {
+            var ctx = new ContextFor<WaveformViewModel>();
+            var sut = ctx.BuildSut();
+
+            sut.WaveformImage = BitmapFactory.New(20, 20);
+            sut.BackgroundBrush = new SolidColorBrush(Colors.Black);
+            var e = new PeaksReceivedEvent("source://test/", 0, 1, new PeakInfo[0]);
+            sut.PositionProvider.Source = new Uri("outher://source/");
+            sut.Handle(e);
+            RectShouldHaveColor(sut.WaveformImage, 0, 0, 20, 20, sut.BackgroundBrush.Color);
+        }
+
+
 
         private static unsafe void RectShouldHaveColor(WriteableBitmap b, int x0, int y0, int x1, int y1, Color color)
         {
