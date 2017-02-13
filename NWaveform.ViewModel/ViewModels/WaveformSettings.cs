@@ -5,7 +5,6 @@ namespace NWaveform.ViewModels
     public class WaveformSettings
     {
         public double MaxMagnitude { get; set; }
-        public double MaxError { get; set; }
         public double TicksEach { get; set; }
 
         public Color BackgroundColor { get; set; }
@@ -21,7 +20,6 @@ namespace NWaveform.ViewModels
         public WaveformSettings()
         {
             MaxMagnitude = 1.0;
-            MaxError = 0.0;
             TicksEach = 5.0;
 
             BackgroundColor = Colors.DimGray;

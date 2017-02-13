@@ -50,7 +50,6 @@ namespace NWaveform.App
                 var bytesRead = _audioStream.Read(buffer, 0, buffer.Length);
                 var timeAfterRead = _audioStream.CurrentTime;
                 var timeDelta = timeAfterRead - timeBeforeRead;
-                streamTime += timeDelta;
 
                 if (bytesRead < buffer.Length)
                 {
@@ -62,9 +61,9 @@ namespace NWaveform.App
 
                 _bufferedStream.AddSamples(buffer, 0, bytesRead);
 
-                Trace.WriteLine($"Buffered '{Name}' ({loops}, {timeAfterRead} / {streamTime})...");
-
                 _events.PublishOnCurrentThread(new SamplesReceivedEvent(Name, streamTime, _bufferedStream.WaveFormat, buffer, bytesRead));
+                Trace.WriteLine($"Buffered '{Name}' ({loops}, {timeAfterRead} / {streamTime})...");
+                streamTime += timeDelta;
 
                 Thread.Sleep(timeDelta);
             }

@@ -33,13 +33,11 @@ namespace NWaveform.ViewModels
         SolidColorBrush SeparationRightBrush { get; }
         SolidColorBrush UserTextBrush { get; set; }
 
-        // ReSharper disable ReturnTypeCanBeEnumerable.Global
-        PointCollection LeftChannel { get; }
-        PointCollection RightChannel { get; }
+        int[] LeftChannel { get; }
+        int[] RightChannel { get; }
         PointCollection UserChannel { get; set; }
         PointCollection SeparationLeftChannel { get; set; }
         PointCollection SeparationRightChannel { get; set; }
-        // ReSharper restore ReturnTypeCanBeEnumerable.Global
 
     }
 }

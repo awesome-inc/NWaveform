@@ -101,17 +101,16 @@ namespace NWaveform.ViewModels
             var ctx = new ContextFor<WaveformViewModel>();
             var sut = ctx.BuildSut();
 
-            sut.Should().BeAssignableTo<IHandle<PeaksReceivedEvent>>();
-            sut.Should().BeAssignableTo<IHandle<PointsReceivedEvent>>();
+            sut.Should().BeAssignableTo<IHandleWithTask<PeaksReceivedEvent>>();
             ctx.For<IEventAggregator>().Received().Subscribe(sut);
 
             // |----------         |
             // |-------------------|
             // |          ---------|   
-            sut.WaveformImage = BitmapFactory.New(20, 20);
+            sut.BackgroundBrush = new SolidColorBrush(Colors.Black);
             sut.LeftBrush = new SolidColorBrush(Colors.Red);
             sut.RightBrush = new SolidColorBrush(Colors.Blue);
-            sut.BackgroundBrush = new SolidColorBrush(Colors.Black);
+            sut.WaveformImage = BitmapFactory.New(20, 20);
             var w2 = (int)(sut.WaveformImage.Width / 2);
             var h2 = (int)(sut.WaveformImage.Height / 2);
 
@@ -120,12 +119,19 @@ namespace NWaveform.ViewModels
             var e = new PeaksReceivedEvent("source://test/", 0, 2, peaks);
             sut.PositionProvider.Source = new Uri(e.Source);
             sut.Duration = e.End;
-            sut.Handle(e);
+            sut.HandlePeaks(e);
 
+            // assert the image rendered
             RectShouldHaveColor(sut.WaveformImage, 1, 1, w2, h2, sut.LeftBrush.Color);
             RectShouldHaveColor(sut.WaveformImage, w2 + 1, h2 + 1, 2 * w2, 2 * h2, sut.RightBrush.Color);
             RectShouldHaveColor(sut.WaveformImage, 1, h2 + 1, w2 - 1, 2*h2-1, sut.BackgroundBrush.Color);
             RectShouldHaveColor(sut.WaveformImage, w2 + 1, 1, 2*w2, h2, sut.BackgroundBrush.Color);
+
+            // assert the points are filled
+            sut.LeftChannel.Take(10).ShouldAllBeEquivalentTo(0);
+            sut.RightChannel.Take(10).ShouldAllBeEquivalentTo(h2);
+            sut.LeftChannel.Skip(10).Take(10).ShouldAllBeEquivalentTo(h2);
+            sut.RightChannel.Skip(10).Take(10).ShouldAllBeEquivalentTo(2*h2);
         }
 
         [Test]
@@ -134,11 +140,11 @@ namespace NWaveform.ViewModels
             var ctx = new ContextFor<WaveformViewModel>();
             var sut = ctx.BuildSut();
 
-            sut.WaveformImage = BitmapFactory.New(20, 20);
             sut.BackgroundBrush = new SolidColorBrush(Colors.Black);
+            sut.WaveformImage = BitmapFactory.New(20, 20);
             var e = new PeaksReceivedEvent("source://test/", 0, 1, new PeakInfo[0]);
             sut.PositionProvider.Source = new Uri("outher://source/");
-            sut.Handle(e);
+            sut.Handle(e).Wait();
             RectShouldHaveColor(sut.WaveformImage, 0, 0, 20, 20, sut.BackgroundBrush.Color);
         }
 

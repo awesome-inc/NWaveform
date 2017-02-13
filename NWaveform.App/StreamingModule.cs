@@ -14,7 +14,7 @@ namespace NWaveform.App
             builder.Register(c => RegisterChannel(c, "channel://1/", TimeSpan.FromMinutes(2))).As<IStreamingAudioChannel>();
             builder.Register(c => RegisterChannel(c, "channel://2/", TimeSpan.FromMinutes(5))).As<IStreamingAudioChannel>();
 
-            builder.RegisterType<SamplesHandlerPeakPublisher>().AsSelf().AutoActivate();
+            builder.RegisterType<SamplesHandlerPeakPublisher>().AsSelf().AutoActivate().SingleInstance();
             builder.RegisterType<PeakProvider>().As<IPeakProvider>();
         }
 
