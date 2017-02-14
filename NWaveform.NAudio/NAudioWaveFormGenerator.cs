@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
-using NWaveform.Extensions;
 using NWaveform.Interfaces;
 using NWaveform.Model;
 using StreamVolumeEventArgs = NWaveform.Events.StreamVolumeEventArgs;
@@ -12,20 +11,23 @@ namespace NWaveform.NAudio
 {
     public sealed class NAudioWaveFormGenerator : IWaveFormGenerator
     {
+        private readonly IWaveProviderFactory _waveProviderFactory;
+
+        public NAudioWaveFormGenerator(IWaveProviderFactory waveProviderFactory = null)
+        {
+            _waveProviderFactory = waveProviderFactory ?? new WaveProviderFactory();
+        }
+
         public WaveformData Generate(string source, Action<StreamVolumeEventArgs> onProgress = null,
             int sampleRate = 20, int maxNumSamples = -1)
         {
-            var fileName = new Uri(source).GetFileName(true);
-            if (string.IsNullOrEmpty(fileName))
-                throw new NotSupportedException("Remote Uris are not supported");
-
-            using (var audioStream = new AudioFileReader(fileName))
-            {
+            var uri = new Uri(source);
+            var audioStream = _waveProviderFactory.Create(uri);
+            using (audioStream as IDisposable)
                 return Generate(audioStream, source, onProgress, sampleRate, maxNumSamples);
-            }
         }
 
-        private static WaveformData Generate(WaveStream audioStream, string originalSource, Action<StreamVolumeEventArgs> onProgress, int sampleRate, int maxNumSamples)
+        private static WaveformData Generate(IWaveProviderEx audioStream, string originalSource, Action<StreamVolumeEventArgs> onProgress, int sampleRate, int maxNumSamples)
         {
             var numChannels = audioStream.WaveFormat.Channels;
 
@@ -52,6 +54,7 @@ namespace NWaveform.NAudio
 
             var waveForm = CreateWaveformData(audioStream, originalSource, rate);
 
+            audioStream.CurrentTime = TimeSpan.Zero;
             var sampleStream = new SampleChannel(audioStream);
 
             // report 0%
@@ -71,21 +74,20 @@ namespace NWaveform.NAudio
         }
 
         private static float[] CreateSamples(
-            WaveStream audioStream, Action<StreamVolumeEventArgs> onProgress, int numChannels,
+            IWaveProviderEx audioStream, Action<StreamVolumeEventArgs> onProgress, int numChannels,
             ISampleProvider sampleStream, int samplesPerNotification, IList<List<float>> samples)
         {
             var bufsize = numChannels * 8192;
             var buffer = new float[bufsize];
-            int samplesRead;
             var sampleCount = 0;
             var maxSamples = new float[numChannels];
 
-            do
+            var duration = audioStream.TotalTime.TotalSeconds;
+            var t0 = audioStream.CurrentTime.TotalSeconds;
+            var samplesRead = sampleStream.Read(buffer, 0, bufsize);
+            var t1 = audioStream.CurrentTime.TotalSeconds; // save time after read
+            while (samplesRead > 0 && t1 < duration)
             {
-                var t0 = audioStream.CurrentTime.TotalSeconds; // save time before read
-                samplesRead = sampleStream.Read(buffer, 0, bufsize);
-                var t1 = audioStream.CurrentTime.TotalSeconds; // save time after read
-
                 for (var channelIndex = 0; channelIndex + numChannels <= samplesRead; channelIndex += numChannels)
                 {
                     // channel samples are interleaved, so just loop through and take the maximum
@@ -103,7 +105,7 @@ namespace NWaveform.NAudio
                     // calculate normalized position by lerping between t0 and t1 width t=i/samplesRead
                     var t = (double)channelIndex / samplesRead; // normalize w.r.t #samples
                     t = t0 + t * (t1 - t0); // lerp
-                    t /= audioStream.TotalTime.TotalSeconds; // normalize by stream duration
+                    t /= duration; // normalize by stream duration
 
                     for (var sampleIndex = 0; sampleIndex < maxSamples.Length; sampleIndex++)
                         samples[sampleIndex].Add(maxSamples[sampleIndex]);
@@ -112,12 +114,17 @@ namespace NWaveform.NAudio
                     onProgress?.Invoke(new StreamVolumeEventArgs((float)t, (float[])maxSamples.Clone()));
 
                     Array.Clear(maxSamples, 0, maxSamples.Length); // reset max values to 0
+
+                    t0 = t1;
+                    samplesRead = sampleStream.Read(buffer, 0, bufsize);
+                    t1 = audioStream.CurrentTime.TotalSeconds; // save time after read
                 }
-            } while (samplesRead > 0);
+            }
+
             return maxSamples;
         }
 
-        private static WaveformData CreateWaveformData(WaveStream audioStream, string originalSource, int rate)
+        private static WaveformData CreateWaveformData(IWaveProviderEx audioStream, string originalSource, int rate)
         {
             var waveForm = new WaveformData
             {

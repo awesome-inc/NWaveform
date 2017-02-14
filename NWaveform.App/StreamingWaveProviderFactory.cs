@@ -12,7 +12,6 @@ namespace NWaveform.App
         {
             foreach(var channel in channels)
                 _channels.Add(channel.Name, channel.Stream);
-            
         }
 
         public override IWaveProviderEx Create(Uri source)

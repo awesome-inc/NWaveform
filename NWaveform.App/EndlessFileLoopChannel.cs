@@ -32,7 +32,7 @@ namespace NWaveform.App
                 DiscardOnBufferOverflow = true,
                 ReadFully = true,
             };
-            _waveProvider = new WaveProviderEx(_bufferedStream);
+            _waveProvider = new WaveProviderEx(_bufferedStream) {Closeable = false};
 
             _task = Task.Factory.StartNew(PublishFromStream);
         }
@@ -77,8 +77,9 @@ namespace NWaveform.App
                 _task.Wait();
             }
             _tokenSource.Dispose();
-            _audioStream?.Dispose();
+            _waveProvider?.ExplicitClose();
             _bufferedStream?.Dispose();
+            _audioStream?.Dispose();
         }
     }
 }

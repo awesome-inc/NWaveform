@@ -64,6 +64,7 @@
     <Reference Include="PresentationCore" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Default\GeneratingWaveFormRepository.cs" />
     <Compile Include="Extensions\MediaPlayerExtensions.cs" />
     <Compile Include="Interfaces\EmptyPositionProvider.cs" />
     <Compile Include="Interfaces\IPositionProvider.cs" />

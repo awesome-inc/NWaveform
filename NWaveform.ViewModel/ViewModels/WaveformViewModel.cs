@@ -47,29 +47,6 @@ namespace NWaveform.ViewModels
         private int _width;
         private int _halfHeight;
 
-        internal WriteableBitmap WaveformImage
-        {
-            get { return _waveformImage; }
-            set
-            {
-                if (value == null) throw new ArgumentNullException();
-                _waveformImage = value;
-                _waveformImage.Clear(BackgroundBrush.Color);
-                _halfHeight = (int) (_waveformImage.Height / 2.0);
-                _width = (int) _waveformImage.Width;
-                if (_leftChannel == null) _leftChannel = new int[_width]; else Array.Resize(ref _leftChannel, _width);
-                if (_rightChannel == null) _rightChannel = new int[_width]; else Array.Resize(ref _rightChannel, _width);
-                Zero(_leftChannel);
-                Zero(_rightChannel);
-                WaveformImage.Clear(BackgroundBrush.Color);
-            }
-        }
-
-        private void Zero(int[] channel)
-        {
-            for (int i = 0; i < channel.Length; i++) channel[i] = _halfHeight;
-        }
-
         public WaveformViewModel(IEventAggregator events, WaveformSettings waveformSettings = null)
         {
             var settings = waveformSettings ?? new WaveformSettings();
@@ -103,6 +80,29 @@ namespace NWaveform.ViewModels
                 NotifyOfPropertyChange();
                 NotifyOfPropertyChange(nameof(Position));
             }
+        }
+
+        internal WriteableBitmap WaveformImage
+        {
+            get { return _waveformImage; }
+            set
+            {
+                if (value == null) throw new ArgumentNullException();
+                _waveformImage = value;
+                _waveformImage.Clear(BackgroundBrush.Color);
+                _halfHeight = (int)(_waveformImage.Height / 2.0);
+                _width = (int)_waveformImage.Width;
+                if (_leftChannel == null) _leftChannel = new int[_width]; else Array.Resize(ref _leftChannel, _width);
+                if (_rightChannel == null) _rightChannel = new int[_width]; else Array.Resize(ref _rightChannel, _width);
+                Zero(_leftChannel);
+                Zero(_rightChannel);
+                WaveformImage.Clear(BackgroundBrush.Color);
+            }
+        }
+
+        private void Zero(int[] channel)
+        {
+            for (int i = 0; i < channel.Length; i++) channel[i] = _halfHeight;
         }
 
         private void PositionProviderOnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -291,22 +291,22 @@ namespace NWaveform.ViewModels
                 ? GetPoints(channels[1].Samples, duration, false)
                 : leftPoints.Scaled(1, -1); // mono? --> Y-flipped duplicate of left channel
 
-            var sy = _waveformImage.Height / 2.0;
-            ResampleChannel(duration, sy, leftPoints, _leftChannel);
-            ResampleChannel(duration, sy, rightPoints, _rightChannel);
+            ResampleChannel(_halfHeight, leftPoints, _leftChannel);
+            ResampleChannel(_halfHeight, rightPoints, _rightChannel);
             Duration = duration;
         }
 
-        private static void ResampleChannel(double duration, double sy, ICollection<Point> points, IList<int> channel)
+        private static void ResampleChannel(double sy, IList<Point> points, IList<int> channel)
         {
             if (points.Count < 3) return;
-
-            var sx = channel.Count / duration;
-            foreach (var point in points)
+            var toT = (double)(points.Count-1) / (channel.Count - 1);
+            for (var x = 0; x < channel.Count; x++)
             {
-                var x = (int)(sx * point.X);
-                x = Math.Max(0, Math.Min(x, channel.Count - 1));
-                var y = (int)(sy * (1 - point.Y));
+                var t = (int) (x * toT);
+                t = Math.Max(0, Math.Min(t, points.Count - 1));
+
+                var point = points[t];
+                var y = (int)(sy * (1 + point.Y));
                 channel[x] = y;
             }
         }

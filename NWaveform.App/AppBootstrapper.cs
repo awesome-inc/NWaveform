@@ -54,7 +54,8 @@ namespace NWaveform.App
             builder.RegisterModule<NAudioModule>();
             //builder.RegisterModule<VlcModule>();
 
-            builder.RegisterType<CachedWaveFormRepository>().As<IWaveFormRepository>().SingleInstance();
+            //builder.RegisterType<CachedWaveFormRepository>().As<IWaveFormRepository>().SingleInstance();
+            builder.RegisterType<GeneratingWaveFormRepository>().As<IWaveFormRepository>().SingleInstance();
             builder.RegisterType<NAudioWaveFormGenerator>().As<IWaveFormGenerator>().SingleInstance();
             builder.RegisterType<WaveFormSerializer>().As<IWaveFormSerializer>().SingleInstance();
 

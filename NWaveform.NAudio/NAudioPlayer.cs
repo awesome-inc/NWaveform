@@ -173,6 +173,7 @@ namespace NWaveform.NAudio
                 {
                     _waveProvider = _factory.Create(uri);
                     _player.Init(_waveProvider);
+                    Stop();
                 }
                 Error.Exception = null;
             }

@@ -5,6 +5,7 @@ namespace NWaveform.NAudio
 {
     public class BufferedWaveStream : WaveStream
     {
+        private readonly bool _closeable;
         public override WaveFormat WaveFormat { get; }
         private readonly SeekableCircularBuffer _circularBuffer;
 

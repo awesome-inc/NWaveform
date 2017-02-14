@@ -82,7 +82,7 @@ namespace NWaveform.Default
             try
             {
                 using (var stream = StreamFor(destination)) _serializer.Save(stream, waveformData);
-                Trace.WriteLine("waveform cached to {0}".FormatWith(destination));
+                Trace.WriteLine("Waveform cached to {0}".FormatWith(destination));
 
             }
             catch (Exception ex)

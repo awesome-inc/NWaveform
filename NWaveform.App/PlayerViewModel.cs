@@ -133,7 +133,7 @@ namespace NWaveform.App
 
         private void AddRandomProperties()
         {
-            var duration = AudioPlayer.Waveform.Duration;
+            var duration = AudioPlayer.Player.Duration;
             var r = new Random();
 
             // randomly set position

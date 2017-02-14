@@ -22,7 +22,7 @@ namespace NWaveform.ViewModels
             MaxMagnitude = 1.0;
             TicksEach = 5.0;
 
-            BackgroundColor = Colors.DimGray;
+            BackgroundColor = Colors.Transparent; //Colors.DimGray;
             LeftColor = Colors.IndianRed;
             RightColor = Colors.RoyalBlue;
             PositionColor = Color.FromArgb(255, 192, 192, 0);// Colors.Yellow *0.8
