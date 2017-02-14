@@ -116,6 +116,13 @@
         
         <!-- waveforms and selection are presented in waveform-space -->
         <Canvas x:Name="WaveformCanvas" RenderTransform="{StaticResource ToWaveformSpace}">
+
+            <!-- ReSharper disable UnusedMember.Global -->
+            <Polyline x:Name="UserPolyline" Points="{Binding UserChannel}" Fill="{Binding UserBrush}" />
+            <Polyline x:Name="SeparationLeftPolyline" Points="{Binding SeparationLeftChannel}" Fill="{Binding SeparationLeftBrush}" />
+            <Polyline x:Name="SeparationRightPolyline" Points="{Binding SeparationRightChannel}" Fill="{Binding SeparationRightBrush}" />
+            <!-- ReSharper restore UnusedMember.Global -->
+            
             <!-- The current marker / selection -->
             <Rectangle x:Name="SelectionRectangle"
                 Canvas.Left="{Binding Selection.Start}" Canvas.Top="{Binding Selection.Top}" 

@@ -68,10 +68,12 @@
     <Compile Include="NAudioPlayer.cs" />
     <Compile Include="NAudioWaveFormGenerator.cs" />
     <Compile Include="PeakProvider.cs" />
+    <Compile Include="PeakProvider_Should.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NAudioPlayer_Should.cs" />
     <Compile Include="SamplesReceivedEvent.cs" />
     <Compile Include="SeekableCircularBuffer.cs" />
+    <Compile Include="SeekableCircularBuffer_Should.cs" />
     <Compile Include="WaveProviderEx.cs" />
     <Compile Include="WaveProviderFactory.cs" />
   </ItemGroup>

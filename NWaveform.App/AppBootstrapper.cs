@@ -38,7 +38,10 @@ namespace NWaveform.App
 
             builder.RegisterType<AppViewModel>().AsSelf().SingleInstance();
 
-            builder.RegisterType<PlayerViewModel>().As<IPlayerViewModel>();
+            builder.Register(c => RegisterPlayer(c, "Player 1")).As<IPlayerViewModel>();
+            builder.Register(c => RegisterPlayer(c, "Player 2")).As<IPlayerViewModel>();
+            builder.Register(c => RegisterPlayer(c, "Player 3")).As<IPlayerViewModel>();
+            builder.Register(c => RegisterPlayer(c, "Player 4")).As<IPlayerViewModel>();
 
             builder.RegisterType<WaveformPlayerViewModel>().As<IWaveformPlayerViewModel>();
             builder.RegisterType<WaveformViewModel>().As<IWaveformViewModel>();
@@ -56,6 +59,11 @@ namespace NWaveform.App
             builder.RegisterType<WaveFormSerializer>().As<IWaveFormSerializer>().SingleInstance();
 
             _container = builder.Build();
+        }
+
+        private static IPlayerViewModel RegisterPlayer(IComponentContext c, string name)
+        {
+            return new PlayerViewModel(c.Resolve<IWaveformPlayerViewModel>()) { DisplayName = name };
         }
 
         protected override object GetInstance(Type service, string key)

@@ -1,4 +1,6 @@
-﻿namespace NWaveform.Events
+﻿using System;
+
+namespace NWaveform.Events
 {
     public static class AudioSamplesExtensions
     {
@@ -20,8 +22,9 @@
             {
                 var x = x0 + i;
                 var j = (int)(st * x / sx - e.Start * st);
-                var yl = (int) (sy * (1 - e.Peaks[j].Max));
-                var yr = (int) (sy * (1 - e.Peaks[j].Min));
+                j = Math.Max(0, Math.Min(j, e.Peaks.Length - 1));
+                var yl = (int)(sy * (1 - e.Peaks[j].Max));
+                var yr = (int)(sy * (1 - e.Peaks[j].Min));
                 leftPoints[i] = yl;
                 rightPoints[i] = yr;
             }

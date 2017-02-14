@@ -40,10 +40,12 @@ namespace NWaveform.ViewModels
         private SolidColorBrush _separationRightBrush;
         private SolidColorBrush _userTextBrush;
         private IPositionProvider _positionProvider = new EmptyPositionProvider();
-        private WriteableBitmap _waveformImage = BitmapFactory.New(1920, 1080);
 
-        int[] _leftChannel = new int[1920];
-        int[] _rightChannel = new int[1920];
+        private WriteableBitmap _waveformImage;
+        int[] _leftChannel;
+        int[] _rightChannel;
+        private int _width;
+        private int _halfHeight;
 
         internal WriteableBitmap WaveformImage
         {
@@ -53,11 +55,19 @@ namespace NWaveform.ViewModels
                 if (value == null) throw new ArgumentNullException();
                 _waveformImage = value;
                 _waveformImage.Clear(BackgroundBrush.Color);
-                Array.Resize(ref _leftChannel, (int)_waveformImage.Width);
-                Array.Resize(ref _rightChannel, (int)_waveformImage.Height);
-                Array.Clear(_leftChannel, 0, _leftChannel.Length);
-                Array.Clear(_rightChannel, 0, _rightChannel.Length);
+                _halfHeight = (int) (_waveformImage.Height / 2.0);
+                _width = (int) _waveformImage.Width;
+                if (_leftChannel == null) _leftChannel = new int[_width]; else Array.Resize(ref _leftChannel, _width);
+                if (_rightChannel == null) _rightChannel = new int[_width]; else Array.Resize(ref _rightChannel, _width);
+                Zero(_leftChannel);
+                Zero(_rightChannel);
+                WaveformImage.Clear(BackgroundBrush.Color);
             }
+        }
+
+        private void Zero(int[] channel)
+        {
+            for (int i = 0; i < channel.Length; i++) channel[i] = _halfHeight;
         }
 
         public WaveformViewModel(IEventAggregator events, WaveformSettings waveformSettings = null)
@@ -76,7 +86,7 @@ namespace NWaveform.ViewModels
             _separationRightBrush = new SolidColorBrush(settings.SeparationRightColor);
             _userTextBrush = new SolidColorBrush(settings.UserTextColor);
 
-            WaveformImage.Clear(BackgroundBrush.Color);
+            WaveformImage = BitmapFactory.New(1920, 1080);
 
             events.Subscribe(this);
         }
@@ -223,7 +233,7 @@ namespace NWaveform.ViewModels
             get { return _separationRightBrush; }
             set { _separationRightBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
-        
+
         public SolidColorBrush UserTextBrush
         {
             get { return _userTextBrush; }
@@ -265,8 +275,8 @@ namespace NWaveform.ViewModels
 
         public void SetWaveform(WaveformData waveform)
         {
-            Array.Clear(_leftChannel, 0, _leftChannel.Length);
-            Array.Clear(_rightChannel, 0, _rightChannel.Length);
+            Zero(_leftChannel);
+            Zero(_rightChannel);
 
             if (waveform == null) return;
 
@@ -281,23 +291,24 @@ namespace NWaveform.ViewModels
                 ? GetPoints(channels[1].Samples, duration, false)
                 : leftPoints.Scaled(1, -1); // mono? --> Y-flipped duplicate of left channel
 
-            var sx = _leftChannel.Length / duration;
             var sy = _waveformImage.Height / 2.0;
-            foreach (var point in leftPoints)
-            {
-                var x = (int)(sx * point.X);
-                var y = (int) (sy * (1 - point.Y));
-                _leftChannel[x] = y;
-            }
-            sx = (_rightChannel.Length - 1) / duration;
-            foreach (var point in rightPoints)
-            {
-                var x = (int)(sx * point.X);
-                var y = (int)(sy * (1 - point.Y));
-                _rightChannel[x] = y;
-            }
-
+            ResampleChannel(duration, sy, leftPoints, _leftChannel);
+            ResampleChannel(duration, sy, rightPoints, _rightChannel);
             Duration = duration;
+        }
+
+        private static void ResampleChannel(double duration, double sy, ICollection<Point> points, IList<int> channel)
+        {
+            if (points.Count < 3) return;
+
+            var sx = channel.Count / duration;
+            foreach (var point in points)
+            {
+                var x = (int)(sx * point.X);
+                x = Math.Max(0, Math.Min(x, channel.Count - 1));
+                var y = (int)(sy * (1 - point.Y));
+                channel[x] = y;
+            }
         }
 
         public Task Handle(PeaksReceivedEvent message)
@@ -314,10 +325,20 @@ namespace NWaveform.ViewModels
 
         private void Handle(PointsReceivedEvent message)
         {
-            for (int i = 0; i < message.LeftPoints.Length; i++) LeftChannel[message.XOffset + i] = message.LeftPoints[i];
-            for (int i = 0; i < message.RightPoints.Length; i++) RightChannel[message.XOffset + i] = message.RightPoints[i];
+            AddPoints(message.XOffset, message.LeftPoints, _leftChannel);
+            AddPoints(message.XOffset, message.RightPoints, _rightChannel);
             RenderPolyline(message.XOffset, message.LeftPoints, LeftBrush.Color);
             RenderPolyline(message.XOffset, message.RightPoints, RightBrush.Color);
+        }
+
+        private static void AddPoints(int xOffset, int[] sourcePoints, int[] destPoints)
+        {
+            if (xOffset < 0) return;
+            for (int i = 0; i < sourcePoints.Length; i++)
+            {
+                if (xOffset + i >= destPoints.Length) break;
+                destPoints[xOffset + i] = sourcePoints[i];
+            }
         }
 
         private bool SameSource(PeaksReceivedEvent message)
@@ -330,11 +351,7 @@ namespace NWaveform.ViewModels
             WaveformImage.Clear(BackgroundBrush.Color);
             RenderPolyline(0, LeftChannel, LeftBrush.Color);
             RenderPolyline(0, RightChannel, RightBrush.Color);
-            //Render(SeparationLeftChannel, SeparationLeftBrush.Color, ShapeMode.Bars);
-            //Render(SeparationRightChannel, SeparationRightBrush.Color, ShapeMode.Bars);
-            //Render(UserChannel, UserBrush.Color, ShapeMode.Bars);
         }
-
 
         private void RenderPolyline(int x0, int[] points, Color color)
         {
@@ -349,25 +366,6 @@ namespace NWaveform.ViewModels
                 for (var i = 0; i < points.Length; i++)
                     WriteableBitmapExtensions.DrawLine(ctx, w, h, x0 + i, h2, x0 + i, points[i], c);
             }
-        }
-
-        private void RenderBars(PointCollection points, Color color)
-        {
-            if (points == null || points.Count < 4) return;
-            var sx = WaveformImage.Width / Duration;
-            var h2 = (int)(0.5 * WaveformImage.Height);
-
-            var pts = new int[points.Count];
-            for (int i = 0; i < points.Count; i++)
-            {
-                var p = points[i];
-                pts[2*i] = (int) (p.X * sx);
-                pts[2*i+1] = (int)(h2 * (1 + p.Y));
-            }
-
-            var c = WriteableBitmapExtensions.ConvertColor(color);
-            for (var i = 0; i < pts.Length - 4; i += 8)
-                WaveformImage.FillRectangle(pts[i], pts[i + 1], pts[i + 4], pts[i + 5], c, true);
         }
 
         private IList<Point> GetPoints(IList<float> samples, double duration, bool flipY)
