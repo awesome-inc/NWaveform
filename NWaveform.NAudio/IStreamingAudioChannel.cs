@@ -1,6 +1,4 @@
-using NWaveform.NAudio;
-
-namespace NWaveform.App
+namespace NWaveform.NAudio
 {
     public interface IStreamingAudioChannel
     {

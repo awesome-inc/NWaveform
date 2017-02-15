@@ -8,39 +8,30 @@ using NWaveform.NAudio;
 
 namespace NWaveform.App
 {
-    internal class EndlessFileLoopChannel : IStreamingAudioChannel, IDisposable
+    internal class EndlessFileLoopChannel : BufferedStreamingChannel
     {
         private readonly IEventAggregator _events;
-        public string Name { get; }
-        public IWaveProviderEx Stream => _waveProvider;
-
         private readonly WaveStream _audioStream;
-        private readonly BufferedWaveStream _bufferedStream;
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
         private readonly Task _task;
-        private readonly WaveProviderEx _waveProvider;
 
-        public EndlessFileLoopChannel(IEventAggregator events, string name, string fileName, TimeSpan bufferSize)
+        public EndlessFileLoopChannel(IEventAggregator events, string name, WaveStream audioStream, TimeSpan bufferSize)
+            : base(name, audioStream.WaveFormat, bufferSize)
         {
             if (events == null) throw new ArgumentNullException(nameof(events));
             _events = events;
-
-            Name = name;
-            _audioStream = new AudioFileReader(fileName);
-            _bufferedStream = new BufferedWaveStream(_audioStream.WaveFormat, bufferSize)
-            {
-                DiscardOnBufferOverflow = true,
-                ReadFully = true,
-            };
-            _waveProvider = new WaveProviderEx(_bufferedStream) {Closeable = false};
-
+            _audioStream = audioStream;
             _task = Task.Factory.StartNew(PublishFromStream);
+        }
+
+        public EndlessFileLoopChannel(IEventAggregator events, string name, string fileName, TimeSpan bufferSize)
+            : this(events, name, new AudioFileReader(fileName), bufferSize)
+        {
         }
 
         private void PublishFromStream()
         {
-            var buffer = new byte[_bufferedStream.WaveFormat.AverageBytesPerSecond * 1];
-
+            var buffer = new byte[Stream.WaveFormat.AverageBytesPerSecond * 1];
             var streamTime = TimeSpan.Zero;
             var loops = 0;
 
@@ -59,9 +50,8 @@ namespace NWaveform.App
                     if (bytesRead == 0) continue;
                 }
 
-                _bufferedStream.AddSamples(buffer, 0, bytesRead);
-
-                _events.PublishOnCurrentThread(new SamplesReceivedEvent(Name, streamTime, _bufferedStream.WaveFormat, buffer, bytesRead));
+                AddSamples(streamTime, buffer, bytesRead);
+                _events.PublishOnCurrentThread(new SamplesReceivedEvent(Name, streamTime, Stream.WaveFormat, buffer, bytesRead));
                 Trace.WriteLine($"Buffered '{Name}' ({loops}, {timeAfterRead} / {streamTime})...");
                 streamTime += timeDelta;
 
@@ -69,7 +59,7 @@ namespace NWaveform.App
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             if (_task.Status == TaskStatus.Running)
             {
@@ -77,9 +67,10 @@ namespace NWaveform.App
                 _task.Wait();
             }
             _tokenSource.Dispose();
-            _waveProvider?.ExplicitClose();
-            _bufferedStream?.Dispose();
+
             _audioStream?.Dispose();
+
+            base.Dispose();
         }
     }
 }

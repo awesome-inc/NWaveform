@@ -61,8 +61,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AudioStream.cs" />
+    <Compile Include="BufferedStreamingChannel.cs" />
+    <Compile Include="BufferedStreamingChannel_Should.cs" />
     <Compile Include="BufferedWaveStream.cs" />
     <Compile Include="IPeakProvider.cs" />
+    <Compile Include="IStreamingAudioChannel.cs" />
     <Compile Include="IWaveProviderEx.cs" />
     <Compile Include="IWaveProviderFactory.cs" />
     <Compile Include="NAudioPlayer.cs" />
@@ -74,6 +77,7 @@
     <Compile Include="SamplesReceivedEvent.cs" />
     <Compile Include="SeekableCircularBuffer.cs" />
     <Compile Include="SeekableCircularBuffer_Should.cs" />
+    <Compile Include="TestExtensions.cs" />
     <Compile Include="WaveProviderEx.cs" />
     <Compile Include="WaveProviderFactory.cs" />
   </ItemGroup>

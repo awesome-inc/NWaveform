@@ -102,7 +102,6 @@
     <Compile Include="AppViewModel.cs" />
     <Compile Include="EndlessFileLoopChannel.cs" />
     <Compile Include="IPlayerViewModel.cs" />
-    <Compile Include="IStreamingAudioChannel.cs" />
     <Compile Include="NAudioModule.cs" />
     <Compile Include="SamplesHandlerPeakPublisher.cs" />
     <Compile Include="StreamingModule.cs" />

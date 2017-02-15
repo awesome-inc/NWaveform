@@ -38,14 +38,8 @@ namespace NWaveform.NAudio
         public TimeSpan BufferedDuration => TimeSpan.FromSeconds((double)BufferedBytes / WaveFormat.AverageBytesPerSecond);
         public TimeSpan BufferDuration
         {
-            get
-            {
-                return TimeSpan.FromSeconds((double)BufferLength / WaveFormat.AverageBytesPerSecond);
-            }
-            private set
-            {
-                BufferLength = (int)(value.TotalSeconds * WaveFormat.AverageBytesPerSecond);
-            }
+            get { return TimeSpan.FromSeconds((double)BufferLength / WaveFormat.AverageBytesPerSecond); }
+            private set { BufferLength = (int)(value.TotalSeconds * WaveFormat.AverageBytesPerSecond); }
         }
 
         public void AddSamples(byte[] buffer, int offset, int count)

@@ -24,10 +24,7 @@ namespace NWaveform.NAudio
             var sut = ctx.BuildSut();
 
             var waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(rate, channels);
-            var sampleProvider = new SignalGenerator(rate, channels) { Frequency = 1, Type = SignalGeneratorType.Sin };
-            var waveProvider = new SampleToWaveProvider(sampleProvider);
-            var data = new byte[waveFormat.AverageBytesPerSecond];
-            waveProvider.Read(data, 0, data.Length);
+            var data = waveFormat.Generate(TimeSpan.FromSeconds(1), SignalGeneratorType.Sin, 1.0);
 
             sut.Filter = PeakProvider.AvgFilter;
             var peaks = sut.Sample(waveFormat, data);
