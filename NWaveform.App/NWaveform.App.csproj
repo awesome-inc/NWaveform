@@ -62,7 +62,9 @@
       <HintPath>..\packages\FontAwesome.Sharp.4.7.0\lib\net40\FontAwesome.Sharp.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="NAudio, Version=1.8.0.0, Culture=neutral, PublicKeyToken=null" />
+    <Reference Include="NAudio, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.1.8.0\lib\net35\NAudio.dll</HintPath>
+    </Reference>
     <Reference Include="NEdifis">
       <HintPath>..\packages\NEdifis.0.7.0\lib\net45\NEdifis.dll</HintPath>
     </Reference>
