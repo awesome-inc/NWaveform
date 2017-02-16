@@ -9,6 +9,7 @@ using NEdifis;
 using NEdifis.Attributes;
 using NSubstitute;
 using NUnit.Framework;
+using NWaveform.Default;
 using NWaveform.Events;
 using NWaveform.Interfaces;
 using NWaveform.Model;
@@ -116,8 +117,8 @@ namespace NWaveform.ViewModels
 
             var peaks = Enumerable.Repeat(1f, 2 * w2).Concat(Enumerable.Repeat(0f, 2 * w2))
                 .Select(m => new PeakInfo(m-1f, m)).ToArray();
-            var e = new PeaksReceivedEvent("source://test/", 0, 2, peaks);
-            sut.PositionProvider.Source = new Uri(e.Source);
+            var e = new PeaksReceivedEvent(new Uri("source://test/"), 0, 2, peaks);
+            sut.PositionProvider.Source = e.Source;
             sut.Duration = e.End;
             sut.HandlePeaks(e);
 
@@ -142,13 +143,23 @@ namespace NWaveform.ViewModels
 
             sut.BackgroundBrush = new SolidColorBrush(Colors.Black);
             sut.WaveformImage = BitmapFactory.New(20, 20);
-            var e = new PeaksReceivedEvent("source://test/", 0, 1, new PeakInfo[0]);
-            sut.PositionProvider.Source = new Uri("outher://source/");
+            var e = new PeaksReceivedEvent(new Uri("source://test/"), 0, 1, new PeakInfo[0]);
+            sut.PositionProvider.Source = new Uri("other://source/");
             sut.Handle(e).Wait();
             RectShouldHaveColor(sut.WaveformImage, 0, 0, 20, 20, sut.BackgroundBrush.Color);
         }
 
+        [Test(Description = "Refreshing the waveform is used by wrap arounds")]
+        public void Notify_position_on_waveform_refresh()
+        {
+            var ctx = new ContextFor<WaveformViewModel>();
+            var sut = ctx.BuildSut();
 
+            sut.MonitorEvents();
+            var waveForm = EmptyWaveFormGenerator.CreateEmpty(1.0);
+            sut.SetWaveform(waveForm);
+            sut.ShouldRaisePropertyChangeFor(x => x.Position);
+        }
 
         private static unsafe void RectShouldHaveColor(WriteableBitmap b, int x0, int y0, int x1, int y1, Color color)
         {

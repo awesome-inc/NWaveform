@@ -5,7 +5,6 @@ namespace NWaveform.NAudio
 {
     public class BufferedWaveStream : WaveStream
     {
-        private readonly bool _closeable;
         public override WaveFormat WaveFormat { get; }
         private readonly SeekableCircularBuffer _circularBuffer;
 
@@ -24,10 +23,14 @@ namespace NWaveform.NAudio
             {
                 value = Math.Min(value, Length);
                 value -= value % WaveFormat.BlockAlign;
+                value = Math.Max(0, value);
                 _circularBuffer.ReadPosition = (int) value;
             }
         }
         #endregion
+
+        public long WritePosition => _circularBuffer.WritePosition;
+        public TimeSpan CurrentWriteTime => TimeSpan.FromSeconds((double)WritePosition / WaveFormat.AverageBytesPerSecond);
 
         #region Reimplementation of BufferedWaveProvider
         public bool DiscardOnBufferOverflow { get; set; }
@@ -65,9 +68,8 @@ namespace NWaveform.NAudio
 
         public void ClearBuffer()
         {
-            _circularBuffer?.Reset();
+            _circularBuffer?.Clear();
         }
-
         #endregion
     }
 }

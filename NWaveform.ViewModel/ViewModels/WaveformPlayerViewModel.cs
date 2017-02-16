@@ -1,20 +1,26 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Caliburn.Micro;
 using NWaveform.Default;
+using NWaveform.Events;
 using NWaveform.Extender;
 using NWaveform.Interfaces;
 using NWaveform.Model;
 
 namespace NWaveform.ViewModels
 {
-    public class WaveformPlayerViewModel : Screen, IWaveformPlayerViewModel
+    public class WaveformPlayerViewModel : Screen
+        , IWaveformPlayerViewModel
+        , IHandleWithTask<RefreshWaveformEvent>
+
     {
-        public WaveformPlayerViewModel(
+        public WaveformPlayerViewModel(IEventAggregator events,
             IMediaPlayer player,
             IWaveFormRepository waveforms,
             IWaveformViewModel waveform,
             IAudioSelectionMenuProvider audioSelectionMenuProvider)
         {
+            if (events == null) throw new ArgumentNullException(nameof(events));
             if (player == null) throw new ArgumentNullException(nameof(player));
             if (waveforms == null) throw new ArgumentNullException(nameof(waveforms));
             if (waveform == null) throw new ArgumentNullException(nameof(waveform));
@@ -26,6 +32,8 @@ namespace NWaveform.ViewModels
 
             var menu = audioSelectionMenuProvider?.Menu;
             if (menu != null) Waveform.SelectionMenu = menu;
+
+            events.Subscribe(this);
         }
 
         public IMediaPlayer Player { get; }
@@ -40,7 +48,7 @@ namespace NWaveform.ViewModels
                 if (Player.Source == value) return;
                 Player.Source = value;
                 NotifyOfPropertyChange();
-                Waveform.SetWaveform(GetWaveform());
+                RefreshWaveform();
             }
         }
 
@@ -52,6 +60,17 @@ namespace NWaveform.ViewModels
             if (waveform.Duration == TimeSpan.Zero && Player.HasDuration)
                 waveform.Duration = TimeSpan.FromSeconds(Player.Duration);
             return waveform;
+        }
+
+        public Task Handle(RefreshWaveformEvent message)
+        {
+            if (message.Source != Source) return Task.FromResult(0);
+            return Execute.OnUIThreadAsync(RefreshWaveform);
+        }
+
+        private void RefreshWaveform()
+        {
+            Waveform.SetWaveform(GetWaveform());
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using NAudio.Wave;
+using NWaveform.Events;
 using NWaveform.NAudio;
 
 namespace NWaveform.App
@@ -15,8 +16,8 @@ namespace NWaveform.App
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
         private readonly Task _task;
 
-        public EndlessFileLoopChannel(IEventAggregator events, string name, WaveStream audioStream, TimeSpan bufferSize)
-            : base(name, audioStream.WaveFormat, bufferSize)
+        public EndlessFileLoopChannel(IEventAggregator events, Uri source, WaveStream audioStream, TimeSpan bufferSize)
+            : base(source, audioStream.WaveFormat, bufferSize)
         {
             if (events == null) throw new ArgumentNullException(nameof(events));
             _events = events;
@@ -24,15 +25,14 @@ namespace NWaveform.App
             _task = Task.Factory.StartNew(PublishFromStream);
         }
 
-        public EndlessFileLoopChannel(IEventAggregator events, string name, string fileName, TimeSpan bufferSize)
-            : this(events, name, new AudioFileReader(fileName), bufferSize)
+        public EndlessFileLoopChannel(IEventAggregator events, Uri source, string fileName, TimeSpan bufferSize)
+            : this(events, source, new AudioFileReader(fileName), bufferSize)
         {
         }
 
         private void PublishFromStream()
         {
             var buffer = new byte[Stream.WaveFormat.AverageBytesPerSecond * 1];
-            var streamTime = TimeSpan.Zero;
             var loops = 0;
 
             while (!_tokenSource.IsCancellationRequested)
@@ -50,13 +50,19 @@ namespace NWaveform.App
                     if (bytesRead == 0) continue;
                 }
 
+                var streamTime = BufferedStream.CurrentWriteTime;
                 AddSamples(streamTime, buffer, bytesRead);
-                _events.PublishOnCurrentThread(new SamplesReceivedEvent(Name, streamTime, Stream.WaveFormat, buffer, bytesRead));
-                Trace.WriteLine($"Buffered '{Name}' ({loops}, {timeAfterRead} / {streamTime})...");
-                streamTime += timeDelta;
+                _events.PublishOnCurrentThread(new SamplesReceivedEvent(Source, streamTime, Stream.WaveFormat, buffer, bytesRead));
+                Trace.WriteLine($"Buffered '{Source}' ({loops}, {timeAfterRead} / {streamTime})...");
 
                 Thread.Sleep(timeDelta);
             }
+        }
+
+        protected override void OnWrappedAround()
+        {
+            base.OnWrappedAround();
+            _events.PublishOnCurrentThread(new RefreshWaveformEvent(Source));
         }
 
         public override void Dispose()

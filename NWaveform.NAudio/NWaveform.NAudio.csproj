@@ -64,6 +64,7 @@
     <Compile Include="BufferedStreamingChannel.cs" />
     <Compile Include="BufferedStreamingChannel_Should.cs" />
     <Compile Include="BufferedWaveStream.cs" />
+    <Compile Include="BufferedWaveStream_Should.cs" />
     <Compile Include="IPeakProvider.cs" />
     <Compile Include="IStreamingAudioChannel.cs" />
     <Compile Include="IWaveProviderEx.cs" />

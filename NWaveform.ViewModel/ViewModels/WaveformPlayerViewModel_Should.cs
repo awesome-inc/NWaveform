@@ -1,7 +1,10 @@
 ﻿using System;
+using Caliburn.Micro;
 using FluentAssertions;
+using NEdifis;
 using NSubstitute;
 using NUnit.Framework;
+using NWaveform.Events;
 using NWaveform.Extender;
 using NWaveform.Interfaces;
 using NWaveform.Model;
@@ -15,11 +18,11 @@ namespace NWaveform.ViewModels
         [Test]
         public void Initialize_selection_menu_on()
         {
-            var context = new CreationContext();
+            var ctx = new ContextFor<WaveformPlayerViewModel>();
             var menu = new MenuViewModel(new[] {new MenuItemViewModel {Header = "test"}});
-            context.SelectionMenuProvider.Menu.Returns(menu);
+            ctx.For<IAudioSelectionMenuProvider>().Menu.Returns(menu);
 
-            var sut = context.Create();
+            var sut = ctx.BuildSut();
 
             sut.Waveform.SelectionMenu.Should().Be(menu);
         }
@@ -28,9 +31,9 @@ namespace NWaveform.ViewModels
         public void Return_players_Source_when_getting_source()
         {
             var uri = new Uri("http://some/uri/audio.wav");
-            var context = new CreationContext();
-            context.Player.Source.Returns(uri);
-            var sut = context.Create();
+            var ctx = new ContextFor<WaveformPlayerViewModel>();
+            ctx.For<IMediaPlayer>().Source.Returns(uri);
+            var sut = ctx.BuildSut();
             sut.Source.Should().Be(uri);
 
         }
@@ -44,9 +47,9 @@ namespace NWaveform.ViewModels
                 Channels = new[] { new Channel() }
             };
 
-            var context = new CreationContext();
-            context.Waveforms.For(uri).Returns(waveForm);
-            var sut = context.Create();
+            var ctx = new ContextFor<WaveformPlayerViewModel>();
+            ctx.For<IWaveFormRepository>().For(uri).Returns(waveForm);
+            var sut = ctx.BuildSut();
 
             sut.Source = uri;
 
@@ -54,25 +57,26 @@ namespace NWaveform.ViewModels
             sut.Waveform.Received().SetWaveform(waveForm);
         }
 
-        private class CreationContext
+        [Test]
+        public void Handle_refresh_waveform_events()
         {
-            public IMediaPlayer Player { get; set; }
-            public IWaveFormRepository Waveforms { get; set; }
-            public IWaveformViewModel Waveform { get; set; }
-            public IAudioSelectionMenuProvider SelectionMenuProvider { get; set; }
+            var ctx = new ContextFor<WaveformPlayerViewModel>();
 
-            public CreationContext()
-            {
-                Player = Substitute.For<IMediaPlayer>();
-                Waveforms = Substitute.For<IWaveFormRepository>();
-                Waveform = Substitute.For<IWaveformViewModel>();
-                SelectionMenuProvider = Substitute.For<IAudioSelectionMenuProvider>();
-            }
+            var uri = new Uri("http://some/uri/audio.wav");
+            ctx.For<IMediaPlayer>().Source.Returns(uri);
 
-            public WaveformPlayerViewModel Create()
-            {
-                return new WaveformPlayerViewModel(Player, Waveforms, Waveform, SelectionMenuProvider);
-            }
+            var sut = ctx.BuildSut();
+            sut.Should().BeAssignableTo<IHandleWithTask<RefreshWaveformEvent>>();
+            ctx.For<IEventAggregator>().Received().Subscribe(sut);
+
+            var waveForms = ctx.For<IWaveFormRepository>();
+            waveForms.ClearReceivedCalls();
+
+            sut.Handle(new RefreshWaveformEvent(new Uri("some://other/uri/"))).Wait();
+            waveForms.DidNotReceiveWithAnyArgs().For(null);
+
+            sut.Handle(new RefreshWaveformEvent(uri)).Wait();
+            waveForms.Received().For(uri);
         }
     }
 }

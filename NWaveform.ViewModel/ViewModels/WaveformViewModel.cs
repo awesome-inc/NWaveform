@@ -89,14 +89,13 @@ namespace NWaveform.ViewModels
             {
                 if (value == null) throw new ArgumentNullException();
                 _waveformImage = value;
-                _waveformImage.Clear(BackgroundBrush.Color);
                 _halfHeight = (int)(_waveformImage.Height / 2.0);
                 _width = (int)_waveformImage.Width;
                 if (_leftChannel == null) _leftChannel = new int[_width]; else Array.Resize(ref _leftChannel, _width);
                 if (_rightChannel == null) _rightChannel = new int[_width]; else Array.Resize(ref _rightChannel, _width);
                 Zero(_leftChannel);
                 Zero(_rightChannel);
-                WaveformImage.Clear(BackgroundBrush.Color);
+                _waveformImage.Clear(BackgroundBrush.Color);
             }
         }
 
@@ -275,6 +274,7 @@ namespace NWaveform.ViewModels
 
         public void SetWaveform(WaveformData waveform)
         {
+            _waveformImage.Clear(BackgroundBrush.Color);
             Zero(_leftChannel);
             Zero(_rightChannel);
 
@@ -294,6 +294,8 @@ namespace NWaveform.ViewModels
             ResampleChannel(_halfHeight, leftPoints, _leftChannel);
             ResampleChannel(_halfHeight, rightPoints, _rightChannel);
             Duration = duration;
+
+            NotifyOfPropertyChange(nameof(Position));
         }
 
         private static void ResampleChannel(double sy, IList<Point> points, IList<int> channel)
@@ -343,7 +345,7 @@ namespace NWaveform.ViewModels
 
         private bool SameSource(PeaksReceivedEvent message)
         {
-            return PositionProvider?.Source != null && message.Source == PositionProvider?.Source.ToString();
+            return PositionProvider?.Source != null && message.Source == PositionProvider?.Source;
         }
 
         private void RenderWaveform()

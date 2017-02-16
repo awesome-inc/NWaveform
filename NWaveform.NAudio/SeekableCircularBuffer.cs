@@ -23,6 +23,8 @@ namespace NWaveform.NAudio
             }
         }
 
+        public int WritePosition => _writePosition;
+
         public SeekableCircularBuffer(int size)
         {
             _buffer = new byte[size];
@@ -38,7 +40,7 @@ namespace NWaveform.NAudio
                     count = _buffer.Length - _byteCount;
                 }
                 // write to end
-                int writeToEnd = Math.Min(_buffer.Length - _writePosition, count);
+                var writeToEnd = Math.Min(_buffer.Length - _writePosition, count);
                 Array.Copy(data, offset, _buffer, _writePosition, writeToEnd);
                 _writePosition += writeToEnd;
                 _writePosition %= _buffer.Length;
@@ -60,10 +62,8 @@ namespace NWaveform.NAudio
         {
             lock (_lockObject)
             {
-                if (count > _byteCount)
-                {
-                    count = _byteCount;
-                }
+                if (count > _byteCount) count = _byteCount;
+
                 var bytesRead = 0;
                 var readToEnd = Math.Min(_buffer.Length - _readPosition, count);
                 Array.Copy(_buffer, _readPosition, data, offset, readToEnd);
@@ -86,8 +86,6 @@ namespace NWaveform.NAudio
             }
         }
 
-        public int MaxLength => _buffer.Length;
-
         public int Count
         {
             get
@@ -99,35 +97,14 @@ namespace NWaveform.NAudio
             }
         }
 
-        public void Reset()
+        public void Clear()
         {
             lock (_lockObject)
             {
-                ResetInner();
-            }
-        }
-
-        private void ResetInner()
-        {
-            _byteCount = 0;
-            _readPosition = 0;
-            _writePosition = 0;
-        }
-
-        public void Advance(int count)
-        {
-            lock (_lockObject)
-            {
-                if (count >= _byteCount)
-                {
-                    ResetInner();
-                }
-                else
-                {
-                    _byteCount -= count;
-                    _readPosition += count;
-                    _readPosition %= MaxLength;
-                }
+                _byteCount = 0;
+                _readPosition = 0;
+                _writePosition = 0;
+                Array.Clear(_buffer, 0, _buffer.Length);
             }
         }
     }

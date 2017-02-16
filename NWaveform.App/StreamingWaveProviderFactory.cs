@@ -11,7 +11,7 @@ namespace NWaveform.App
         public StreamingWaveProviderFactory(IEnumerable<IStreamingAudioChannel> channels)
         {
             foreach(var channel in channels)
-                _channels.Add(channel.Name, channel.Stream);
+                _channels.Add(channel.Source.ToString(), channel.Stream);
         }
 
         public override IWaveProviderEx Create(Uri source)

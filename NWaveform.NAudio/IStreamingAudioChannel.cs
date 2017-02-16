@@ -1,8 +1,10 @@
+using System;
+
 namespace NWaveform.NAudio
 {
     public interface IStreamingAudioChannel
     {
-        string Name { get; }
+        Uri Source { get; }
         IWaveProviderEx Stream { get; }
     }
 }
