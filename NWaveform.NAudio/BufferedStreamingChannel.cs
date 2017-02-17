@@ -43,7 +43,7 @@ namespace NWaveform.NAudio
             var length = numBytes > 0 ? numBytes : buffer.Length;
 
             var exceededLen = (int)(BufferedStream.WritePosition + length - BufferedStream.Length);
-            if (exceededLen <= 0)
+            if (exceededLen < 0)
             {
                 BufferedStream.AddSamples(buffer, 0, length);
             }

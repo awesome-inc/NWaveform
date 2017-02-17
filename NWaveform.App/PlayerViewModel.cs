@@ -118,7 +118,7 @@ namespace NWaveform.App
             try
             {
                 AudioPlayer.Source = new Uri(url);
-                AddRandomProperties();
+                //AddRandomProperties();
                 DisplayName = url;
                 NotifyOfPropertyChange(nameof(ToolTip));
             }

@@ -21,9 +21,6 @@ namespace NWaveform.NAudio
             sut.Length.Should().Be(sut.BufferLength);
             sut.BufferLength.Should().Be((int) (waveFormat.AverageBytesPerSecond * duration.TotalSeconds));
 
-            sut.BufferedBytes.Should().Be(0);
-            sut.BufferedDuration.Should().Be(TimeSpan.Zero);
-
             sut.Position.Should().Be(0);
             sut.Position = sut.BufferLength+1;
             sut.Position.Should().Be(sut.BufferLength);
@@ -31,6 +28,5 @@ namespace NWaveform.NAudio
             sut.Position = -1;
             sut.Position.Should().Be(0);
         }
-
     }
 }

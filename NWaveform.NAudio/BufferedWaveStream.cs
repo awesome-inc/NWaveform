@@ -36,22 +36,19 @@ namespace NWaveform.NAudio
         public bool DiscardOnBufferOverflow { get; set; }
         public bool ReadFully { get; set; }
 
-        public int BufferedBytes => _circularBuffer?.Count ?? 0;
         public int BufferLength { get; private set; }
-        public TimeSpan BufferedDuration => TimeSpan.FromSeconds((double)BufferedBytes / WaveFormat.AverageBytesPerSecond);
         public TimeSpan BufferDuration
         {
             get { return TimeSpan.FromSeconds((double)BufferLength / WaveFormat.AverageBytesPerSecond); }
             private set { BufferLength = (int)(value.TotalSeconds * WaveFormat.AverageBytesPerSecond); }
         }
 
-        public void AddSamples(byte[] buffer, int offset, int count)
+        public int AddSamples(byte[] buffer, int offset, int count)
         {
             var written = _circularBuffer.Write(buffer, offset, count);
             if (written < count && !DiscardOnBufferOverflow)
-            {
                 throw new InvalidOperationException("Buffer full");
-            }
+            return written;
         }
 
         public override int Read(byte[] buffer, int offset, int count)

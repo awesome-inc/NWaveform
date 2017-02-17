@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using NWaveform.Default;
@@ -71,6 +72,7 @@ namespace NWaveform.ViewModels
         private void RefreshWaveform()
         {
             Waveform.SetWaveform(GetWaveform());
+            Trace.WriteLine("Refrshed waveform");
         }
     }
 }

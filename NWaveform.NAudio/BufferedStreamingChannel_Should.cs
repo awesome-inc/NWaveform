@@ -27,12 +27,14 @@ namespace NWaveform.NAudio
                 sut.AddSamples(time, expected);
 
                 var stream = sut.BufferedStream;
-                stream.BufferedDuration.Should().Be(stream.BufferDuration);
+                stream.WritePosition.Should().Be(0, "wrap around");
 
                 var actual = new byte[expected.Length];
                 var numbytes = stream.Read(actual, 0, actual.Length);
                 numbytes.Should().Be(expected.Length);
                 actual.Should().Equal(expected);
+
+                stream.Position.Should().Be(0, "wrap around");
             }
         }
 
@@ -73,15 +75,19 @@ namespace NWaveform.NAudio
 
                 sut.MonitorEvents();
                 sut.AddSamples(TimeSpan.Zero, expectedBytes);
+                stream.WritePosition.Should().Be(expectedBytes.Length);
                 sut.ShouldNotRaise(nameof(sut.WrappedAround));
+
                 sut.AddSamples(TimeSpan.Zero, expectedBytes);
                 sut.ShouldRaise(nameof(sut.WrappedAround));
+                stream.WritePosition.Should().Be(expectedBytes.Length, "preserved");
 
                 sut.Stream.CurrentTime.Should().Be(time - skippedTime, "position should be wrapped");
 
                 stream.Position = 0;
                 stream.Read(actualBytes, 0, actualBytes.Length);
                 actualBytes.Should().Equal(expectedBytes);
+                stream.Position.Should().Be(actualBytes.Length);
             }
         }
     }

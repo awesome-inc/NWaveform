@@ -8,7 +8,6 @@ namespace NWaveform.NAudio
         private readonly byte[] _buffer;
         private readonly object _lockObject = new object();
         private int _writePosition;
-        private int _byteCount;
         private int _readPosition;
 
         public int ReadPosition
@@ -35,10 +34,6 @@ namespace NWaveform.NAudio
             lock (_lockObject)
             {
                 var bytesWritten = 0;
-                if (count > _buffer.Length - _byteCount)
-                {
-                    count = _buffer.Length - _byteCount;
-                }
                 // write to end
                 var writeToEnd = Math.Min(_buffer.Length - _writePosition, count);
                 Array.Copy(data, offset, _buffer, _writePosition, writeToEnd);
@@ -53,7 +48,6 @@ namespace NWaveform.NAudio
                     _writePosition += (count - bytesWritten);
                     bytesWritten = count;
                 }
-                _byteCount += bytesWritten;
                 return bytesWritten;
             }
         }
@@ -62,8 +56,6 @@ namespace NWaveform.NAudio
         {
             lock (_lockObject)
             {
-                if (count > _byteCount) count = _byteCount;
-
                 var bytesRead = 0;
                 var readToEnd = Math.Min(_buffer.Length - _readPosition, count);
                 Array.Copy(_buffer, _readPosition, data, offset, readToEnd);
@@ -80,20 +72,7 @@ namespace NWaveform.NAudio
                     bytesRead = count;
                 }
 
-                _byteCount -= bytesRead;
-                Debug.Assert(_byteCount >= 0);
                 return bytesRead;
-            }
-        }
-
-        public int Count
-        {
-            get
-            {
-                lock (_lockObject)
-                {
-                    return _byteCount;
-                }
             }
         }
 
@@ -101,7 +80,6 @@ namespace NWaveform.NAudio
         {
             lock (_lockObject)
             {
-                _byteCount = 0;
                 _readPosition = 0;
                 _writePosition = 0;
                 Array.Clear(_buffer, 0, _buffer.Length);

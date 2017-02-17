@@ -53,7 +53,7 @@ namespace NWaveform.App
                 var streamTime = BufferedStream.CurrentWriteTime;
                 AddSamples(streamTime, buffer, bytesRead);
                 _events.PublishOnCurrentThread(new SamplesReceivedEvent(Source, streamTime, Stream.WaveFormat, buffer, bytesRead));
-                Trace.WriteLine($"Buffered '{Source}' ({loops}, {timeAfterRead} / {streamTime})...");
+                Trace.WriteLine($"Buffered '{Source}' ({loops}, {timeAfterRead} / {BufferedStream.CurrentWriteTime})...");
 
                 Thread.Sleep(timeDelta);
             }
