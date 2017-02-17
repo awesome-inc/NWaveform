@@ -98,7 +98,6 @@
     <Compile Include="Events\AudioSamplesExtensions.cs" />
     <Compile Include="Events\PointsReceivedEvent.cs" />
     <Compile Include="Events\PeaksReceivedEvent.cs" />
-    <Compile Include="Events\RefreshWaveformEvent.cs" />
     <Compile Include="Extender\AudioSelectionMenuProvider.cs" />
     <Compile Include="Extender\IAudioSelectionMenuProvider.cs" />
     <Compile Include="Extender\IAudioSelectionMenuExtender.cs" />

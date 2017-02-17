@@ -4,7 +4,6 @@ using FluentAssertions;
 using NEdifis;
 using NSubstitute;
 using NUnit.Framework;
-using NWaveform.Events;
 using NWaveform.Extender;
 using NWaveform.Interfaces;
 using NWaveform.Model;
@@ -55,28 +54,6 @@ namespace NWaveform.ViewModels
 
             sut.Waveforms.Received().For(uri);
             sut.Waveform.Received().SetWaveform(waveForm);
-        }
-
-        [Test]
-        public void Handle_refresh_waveform_events()
-        {
-            var ctx = new ContextFor<WaveformPlayerViewModel>();
-
-            var uri = new Uri("http://some/uri/audio.wav");
-            ctx.For<IMediaPlayer>().Source.Returns(uri);
-
-            var sut = ctx.BuildSut();
-            sut.Should().BeAssignableTo<IHandleWithTask<RefreshWaveformEvent>>();
-            ctx.For<IEventAggregator>().Received().Subscribe(sut);
-
-            var waveForms = ctx.For<IWaveFormRepository>();
-            waveForms.ClearReceivedCalls();
-
-            sut.Handle(new RefreshWaveformEvent(new Uri("some://other/uri/"))).Wait();
-            waveForms.DidNotReceiveWithAnyArgs().For(null);
-
-            sut.Handle(new RefreshWaveformEvent(uri)).Wait();
-            waveForms.Received().For(uri);
         }
     }
 }

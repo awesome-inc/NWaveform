@@ -7,6 +7,8 @@ namespace NWaveform.NAudio
     {
         public override WaveFormat WaveFormat { get; }
         private readonly SeekableCircularBuffer _circularBuffer;
+        private TimeSpan _preserveAfterWrapAround;
+        private byte[] _preservedBuffer;
 
         public BufferedWaveStream(WaveFormat waveFormat, TimeSpan bufferDuration)
         {
@@ -28,6 +30,24 @@ namespace NWaveform.NAudio
             }
         }
         #endregion
+
+        public event EventHandler WrappedAround;
+        public TimeSpan PreserveAfterWrapAround
+        {
+            get { return _preserveAfterWrapAround; }
+            set
+            {
+                if (value >= BufferDuration) throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(PreserveAfterWrapAround)} must be less than {nameof(BufferDuration)}");
+                _preserveAfterWrapAround = value;
+                var preservedBytes = (int)(value.TotalSeconds * WaveFormat.AverageBytesPerSecond);
+                _preservedBuffer = preservedBytes > 0 ? new byte[preservedBytes] : null;
+            }
+        }
+
+        protected virtual void OnWrappedAround()
+        {
+            WrappedAround?.Invoke(this, EventArgs.Empty);
+        }
 
         public long WritePosition => _circularBuffer.WritePosition;
         public TimeSpan CurrentWriteTime => TimeSpan.FromSeconds((double)WritePosition / WaveFormat.AverageBytesPerSecond);

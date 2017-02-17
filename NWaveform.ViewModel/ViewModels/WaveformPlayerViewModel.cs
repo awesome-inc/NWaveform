@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
 using Caliburn.Micro;
 using NWaveform.Default;
-using NWaveform.Events;
 using NWaveform.Extender;
 using NWaveform.Interfaces;
 using NWaveform.Model;
@@ -12,8 +9,6 @@ namespace NWaveform.ViewModels
 {
     public class WaveformPlayerViewModel : Screen
         , IWaveformPlayerViewModel
-        , IHandleWithTask<RefreshWaveformEvent>
-
     {
         public WaveformPlayerViewModel(IEventAggregator events,
             IMediaPlayer player,
@@ -49,7 +44,7 @@ namespace NWaveform.ViewModels
                 if (Player.Source == value) return;
                 Player.Source = value;
                 NotifyOfPropertyChange();
-                RefreshWaveform();
+                Waveform.SetWaveform(GetWaveform());
             }
         }
 
@@ -61,18 +56,6 @@ namespace NWaveform.ViewModels
             if (waveform.Duration == TimeSpan.Zero && Player.HasDuration)
                 waveform.Duration = TimeSpan.FromSeconds(Player.Duration);
             return waveform;
-        }
-
-        public Task Handle(RefreshWaveformEvent message)
-        {
-            if (message.Source != Source) return Task.FromResult(0);
-            return Execute.OnUIThreadAsync(RefreshWaveform);
-        }
-
-        private void RefreshWaveform()
-        {
-            Waveform.SetWaveform(GetWaveform());
-            Trace.WriteLine("Refrshed waveform");
         }
     }
 }

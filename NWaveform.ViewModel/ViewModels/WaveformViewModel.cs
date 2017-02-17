@@ -327,6 +327,10 @@ namespace NWaveform.ViewModels
 
         private void Handle(PointsReceivedEvent message)
         {
+            // DEBUG
+            _waveformImage.Clear(BackgroundBrush.Color);
+            // ---
+
             AddPoints(message.XOffset, message.LeftPoints, _leftChannel);
             AddPoints(message.XOffset, message.RightPoints, _rightChannel);
             RenderPolyline(message.XOffset, message.LeftPoints, LeftBrush.Color);

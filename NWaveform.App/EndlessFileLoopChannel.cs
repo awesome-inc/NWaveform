@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using NAudio.Wave;
-using NWaveform.Events;
 using NWaveform.NAudio;
 
 namespace NWaveform.App
@@ -51,18 +50,13 @@ namespace NWaveform.App
                 }
 
                 var streamTime = BufferedStream.CurrentWriteTime;
+
                 AddSamples(streamTime, buffer, bytesRead);
                 _events.PublishOnCurrentThread(new SamplesReceivedEvent(Source, streamTime, Stream.WaveFormat, buffer, bytesRead));
                 Trace.WriteLine($"Buffered '{Source}' ({loops}, {timeAfterRead} / {BufferedStream.CurrentWriteTime})...");
 
                 Thread.Sleep(timeDelta);
             }
-        }
-
-        protected override void OnWrappedAround()
-        {
-            base.OnWrappedAround();
-            _events.PublishOnCurrentThread(new RefreshWaveformEvent(Source));
         }
 
         public override void Dispose()
