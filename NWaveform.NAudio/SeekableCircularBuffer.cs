@@ -17,7 +17,7 @@ namespace NWaveform.NAudio
             {
                 lock (_lockObject)
                 {
-                    _readPosition = Math.Min(value, _buffer.Length);
+                    _readPosition = Math.Min(value, Math.Max(0, _buffer.Length));
                 }
             }
         }

@@ -297,7 +297,8 @@ namespace NWaveform.NAudio
             if (!IsPlaying) return;
 
             // HACK: workaround for NAudios PlaybackStopped event coming way too late (>1sec.)
-            if (PositionCloseTo(Position, Duration))
+            // also handles cases where Position > Duration (for wrap around buffers)
+            if (Duration - Position <= TimeEpsilon)
             {
                 Stop();
                 return;

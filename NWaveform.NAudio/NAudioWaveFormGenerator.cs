@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
@@ -82,11 +83,13 @@ namespace NWaveform.NAudio
             var sampleCount = 0;
             var maxSamples = new float[numChannels];
 
+            var stopWatch = Stopwatch.StartNew();
+
             var duration = audioStream.TotalTime.TotalSeconds;
             var t0 = audioStream.CurrentTime.TotalSeconds;
             var samplesRead = sampleStream.Read(buffer, 0, bufsize);
             var t1 = audioStream.CurrentTime.TotalSeconds; // save time after read
-            while (samplesRead > 0 && t1 < duration)
+            while (samplesRead > 0 && audioStream.Position < audioStream.Length)
             {
                 for (var channelIndex = 0; channelIndex + numChannels <= samplesRead; channelIndex += numChannels)
                 {
@@ -120,6 +123,10 @@ namespace NWaveform.NAudio
                     t1 = audioStream.CurrentTime.TotalSeconds; // save time after read
                 }
             }
+
+            var elapsed = stopWatch.Elapsed;
+            var mibPerSecond = audioStream.Length/elapsed.TotalSeconds/1024/1024;
+            Trace.WriteLine($"Sampled '{audioStream.TotalTime}' of wave data in '{elapsed}' ({mibPerSecond:F1} MiB/sec).");
 
             return maxSamples;
         }

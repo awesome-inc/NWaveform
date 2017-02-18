@@ -104,6 +104,7 @@
     <Compile Include="FormattedSlider.cs" />
     <Compile Include="ICommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\ArrayExtensions.cs" />
     <Compile Include="ViewModels\AudioSelectionViewModel_Should.cs" />
     <Compile Include="ViewModels\ImageTestExtensions.cs" />
     <Compile Include="ViewModels\IMenuItemViewModel.cs" />

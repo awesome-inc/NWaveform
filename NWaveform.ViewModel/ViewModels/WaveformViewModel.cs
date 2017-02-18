@@ -42,8 +42,8 @@ namespace NWaveform.ViewModels
         private IPositionProvider _positionProvider = new EmptyPositionProvider();
 
         private WriteableBitmap _waveformImage;
-        int[] _leftChannel;
-        int[] _rightChannel;
+        private int[] _leftChannel;
+        private int[] _rightChannel;
         private int _width;
         private int _zeroMagnitude;
 
@@ -332,15 +332,17 @@ namespace NWaveform.ViewModels
             return PositionProvider?.Source != null && message.Source == PositionProvider?.Source;
         }
 
-        private void RenderWaveform(int x0 = 0)
+        private void RenderWaveform(int x0 = 0, int len = 0)
         {
             var w = (int)WaveformImage.Width;
             var h = (int)WaveformImage.Height;
             var h2 = h / 2;
 
-            // clear background
+            // clear background from x0 to x1
+            var x1 = len > 0 ? x0 + len : w;
             var backColor = WriteableBitmapExtensions.ConvertColor(BackgroundBrush.Color);
-            WaveformImage.FillRectangle(x0, 0, w, h, backColor);
+            WaveformImage.FillRectangle(x0, 0, x1, h, backColor);
+
             using (var ctx = WaveformImage.GetBitmapContext())
             {
                 var leftColor = WriteableBitmapExtensions.ConvertColor(LeftBrush.Color);
@@ -361,26 +363,6 @@ namespace NWaveform.ViewModels
             points = points.Scaled(duration, flipY ? -_maxMagnitude : _maxMagnitude);
 
             return points;
-        }
-    }
-
-    internal static class ArrayExtensions
-    {
-        public static void Set(this int[] channel, int value, int offset = 0)
-        {
-            for (int i = offset; i < channel.Length; i++) channel[i] = value;
-        }
-
-        public static void FlushedCopy(this int[] destPoints, int xOffset, int[] sourcePoints, int zeroValue)
-        {
-            if (xOffset < 0) return;
-            for (int i = 0; i < sourcePoints.Length; i++)
-            {
-                if (xOffset + i >= destPoints.Length) break;
-                destPoints[xOffset + i] = sourcePoints[i];
-            }
-            // zero tail of points
-            Set(destPoints, zeroValue, xOffset + sourcePoints.Length);
         }
     }
 }

@@ -23,9 +23,7 @@ namespace NWaveform.NAudio
             get { return _circularBuffer.ReadPosition; }
             set
             {
-                value = Math.Min(value, Length);
                 value -= value % WaveFormat.BlockAlign;
-                value = Math.Max(0, value);
                 _circularBuffer.ReadPosition = (int) value;
             }
         }

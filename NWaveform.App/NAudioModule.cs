@@ -1,4 +1,5 @@
 using Autofac;
+using NAudio.Wave;
 using NWaveform.Interfaces;
 using NWaveform.NAudio;
 
@@ -8,6 +9,9 @@ namespace NWaveform.App
     {
         protected override void Load(ContainerBuilder builder)
         {
+            //builder.RegisterType<DirectSoundOut>().As<IWavePlayer>();
+            builder.RegisterType<WaveOut>().As<IWavePlayer>();
+
             builder.RegisterType<NAudioPlayer>().As<IMediaPlayer>();
 
             builder.RegisterModule<StreamingModule>();
