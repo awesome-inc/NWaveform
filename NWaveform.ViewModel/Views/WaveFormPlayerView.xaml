@@ -127,70 +127,77 @@
             </Grid>
         </Grid>
 
-        <StackPanel Grid.Row="1" DataContext="{Binding Path=Player}">
 
-            <Label ToolTip="Position">
-                <TextBlock>
-                    <TextBlock.Text>
-                        <MultiBinding StringFormat="{}{0} / {1}">
-                            <Binding Path="Position" Converter="{StaticResource SecondsToTime}"/>
-                            <Binding Path="Duration" Converter="{StaticResource SecondsToTime}"/>
-                        </MultiBinding>
-                    </TextBlock.Text>
-                </TextBlock>
+        <StackPanel Grid.Row="1">
+ 
+            <Label ToolTip="Time" Visibility="{Binding HasCurrentTime, Converter={StaticResource BoolToVisible}}">
+                <TextBlock Text="{Binding CurrentTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"/>
             </Label>
 
-            <Label ToolTip="Speed" Visibility="{Binding SupportsRate, Converter={StaticResource BoolToVisible}}">
-                <TextBlock Text="{Binding Rate, StringFormat={}{0:N2} x}"/>
-            </Label>
+            <StackPanel DataContext="{Binding Path=Player}">
+                <Label ToolTip="Position">
+                    <TextBlock>
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0} / {1}">
+                                <Binding Path="Position" Converter="{StaticResource SecondsToTime}"/>
+                                <Binding Path="Duration" Converter="{StaticResource SecondsToTime}"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </Label>
 
-            <Button cal:Message.Attach="Stop"
+                <Label ToolTip="Speed" Visibility="{Binding SupportsRate, Converter={StaticResource BoolToVisible}}">
+                    <TextBlock Text="{Binding Rate, StringFormat={}{0:N2} x}"/>
+                </Label>
+
+                <Button cal:Message.Attach="Stop"
                     Content="{fa:ToText Stop}" ToolTip="Stop" />
 
-            <ToggleButton cal:Message.Attach="ToggleLoop" Visibility="{Binding CanLoop, Converter={StaticResource BoolToVisible}}"
+                <ToggleButton cal:Message.Attach="ToggleLoop" Visibility="{Binding CanLoop, Converter={StaticResource BoolToVisible}}"
                     Content="{fa:ToText Repeat}" ToolTip="Toggle Loop" IsThreeState="False" IsChecked="{Binding IsLooping,Mode=OneWay}" />
 
-            <StackPanel>
-                <Button cal:Message.Attach="Slower" 
+                <StackPanel>
+                    <Button cal:Message.Attach="Slower" 
                         Visibility="{Binding SupportsRate, Converter={StaticResource BoolToVisible}}"
                         Content="{fa:ToText AngleDoubleLeft}" ToolTip="Slower" />
 
-                <Button cal:Message.Attach="Play"
+                    <Button cal:Message.Attach="Play"
                         Content="{fa:ToText Play}" ToolTip="Play" Style="{StaticResource ProminentButton}"
                         Visibility="{Binding IsPlaying, Converter={StaticResource InverseBoolToVisible}}" />
 
-                <Button cal:Message.Attach="Pause"
+                    <Button cal:Message.Attach="Pause"
                         Content="{fa:ToText Pause}" ToolTip="Pause" Style="{StaticResource ProminentButton}"
                         Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisible}}" />
 
-                <Button cal:Message.Attach="Faster"
+                    <Button cal:Message.Attach="Faster"
                         Visibility="{Binding SupportsRate, Converter={StaticResource BoolToVisible}}"
                         Content="{fa:ToText AngleDoubleRight}" ToolTip="Faster" />
-            </StackPanel>
+                </StackPanel>
 
-            <StackPanel>
-                <Button cal:Message.Attach="Mute"
+                <StackPanel>
+                    <Button cal:Message.Attach="Mute"
                         Content="{fa:ToText VolumeOff}" ToolTip="Mute" 
                         Visibility="{Binding CanMute, Converter={StaticResource BoolToVisible}}" />
-                <Button cal:Message.Attach="UnMute"
+                    <Button cal:Message.Attach="UnMute"
                         Content="{fa:ToText VolumeUp}" ToolTip="Unmute"
                         Visibility="{Binding CanMute, Converter={StaticResource InverseBoolToVisible}}" />
 
-                <nWaveform:FormattedSlider VerticalAlignment="Center" MinWidth="95"
+                    <nWaveform:FormattedSlider VerticalAlignment="Center" MinWidth="95"
                     Value="{Binding Volume}" Minimum="0" Maximum="1" 
                     TickFrequency="0.1" IsSnapToTickEnabled="True" TickPlacement="BottomRight"
                     ToolTip="Volume"
                     AutoToolTipFormat="{}{0:0%}" AutoToolTipPlacement="BottomRight" />
-            </StackPanel>
+                </StackPanel>
 
-            <StackPanel Visibility="{Binding SupportsBalance, Converter={StaticResource BoolToVisible}}">
-                <TextBlock Text="L"/>
-                <nWaveform:FormattedSlider VerticalAlignment="Center" MinWidth="95"
+                <StackPanel Visibility="{Binding SupportsBalance, Converter={StaticResource BoolToVisible}}">
+                    <TextBlock Text="L"/>
+                    <nWaveform:FormattedSlider VerticalAlignment="Center" MinWidth="95"
                     Value="{Binding Balance}" Minimum="-1" Maximum="1" 
                     TickFrequency="0.1" IsSnapToTickEnabled="True" TickPlacement="BottomRight"
                     ToolTip="Balance"
                     AutoToolTipFormat="{}{0:0%}" AutoToolTipPlacement="BottomRight" />
-                <TextBlock Text="R"/>
+                    <TextBlock Text="R"/>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
     </Grid>

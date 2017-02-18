@@ -46,6 +46,7 @@ namespace NWaveform.ViewModels
         private int[] _rightChannel;
         private int _width;
         private int _zeroMagnitude;
+        private DateTimeOffset? _startTime;
 
         public WaveformViewModel(IEventAggregator events, WaveformSettings waveformSettings = null)
         {
@@ -136,6 +137,20 @@ namespace NWaveform.ViewModels
                 NotifyOfPropertyChange();
             }
         }
+
+        public DateTimeOffset? StartTime
+        {
+            get { return _startTime; }
+            set
+            {
+                if (value.Equals(_startTime)) return;
+                _startTime = value;
+                NotifyOfPropertyChange();
+                NotifyOfPropertyChange(nameof(CurrentTime));
+            }
+        }
+
+        public DateTimeOffset? CurrentTime => StartTime + TimeSpan.FromSeconds(Position);
 
         public double Duration
         {

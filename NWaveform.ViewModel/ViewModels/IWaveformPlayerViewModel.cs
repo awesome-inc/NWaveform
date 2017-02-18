@@ -11,5 +11,8 @@ namespace NWaveform.ViewModels
         IMediaPlayer Player { get; }
         IWaveformViewModel Waveform { get; }
         WaveformData GetWaveform();
+
+        bool HasCurrentTime { get; }
+        DateTimeOffset? CurrentTime { get; }
     }
 }

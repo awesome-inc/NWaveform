@@ -10,6 +10,8 @@ namespace NWaveform.ViewModels
     public class WaveformPlayerViewModel : Screen
         , IWaveformPlayerViewModel
     {
+        private DateTimeOffset? _startTime = DateTimeOffset.UtcNow;
+
         public WaveformPlayerViewModel(IEventAggregator events,
             IMediaPlayer player,
             IWaveFormRepository waveforms,
@@ -22,6 +24,7 @@ namespace NWaveform.ViewModels
             if (waveform == null) throw new ArgumentNullException(nameof(waveform));
 
             Player = player;
+            Player.PropertyChanged += Player_PropertyChanged;
             Waveforms = waveforms;
             Waveform = waveform;
             Waveform.PositionProvider = player;
@@ -30,6 +33,12 @@ namespace NWaveform.ViewModels
             if (menu != null) Waveform.SelectionMenu = menu;
 
             events.Subscribe(this);
+        }
+
+        private void Player_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (_startTime.HasValue && e.PropertyName == nameof(Player.Position))
+                NotifyOfPropertyChange(nameof(CurrentTime));
         }
 
         public IMediaPlayer Player { get; }
@@ -57,5 +66,8 @@ namespace NWaveform.ViewModels
                 waveform.Duration = TimeSpan.FromSeconds(Player.Duration);
             return waveform;
         }
+
+        public bool HasCurrentTime => _startTime.HasValue;
+        public DateTimeOffset? CurrentTime => _startTime + TimeSpan.FromSeconds(Player.Position);
     }
 }
