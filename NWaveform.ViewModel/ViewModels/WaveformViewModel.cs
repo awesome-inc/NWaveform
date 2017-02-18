@@ -45,7 +45,7 @@ namespace NWaveform.ViewModels
         int[] _leftChannel;
         int[] _rightChannel;
         private int _width;
-        private int _halfHeight;
+        private int _zeroMagnitude;
 
         public WaveformViewModel(IEventAggregator events, WaveformSettings waveformSettings = null)
         {
@@ -89,19 +89,14 @@ namespace NWaveform.ViewModels
             {
                 if (value == null) throw new ArgumentNullException();
                 _waveformImage = value;
-                _halfHeight = (int)(_waveformImage.Height / 2.0);
+                _zeroMagnitude = (int)(_waveformImage.Height / 2.0);
                 _width = (int)_waveformImage.Width;
                 if (_leftChannel == null) _leftChannel = new int[_width]; else Array.Resize(ref _leftChannel, _width);
                 if (_rightChannel == null) _rightChannel = new int[_width]; else Array.Resize(ref _rightChannel, _width);
-                Zero(_leftChannel);
-                Zero(_rightChannel);
+                ArrayExtensions.Set(_leftChannel, _zeroMagnitude);
+                ArrayExtensions.Set(_rightChannel, _zeroMagnitude);
                 _waveformImage.Clear(BackgroundBrush.Color);
             }
-        }
-
-        private void Zero(int[] channel)
-        {
-            for (int i = 0; i < channel.Length; i++) channel[i] = _halfHeight;
         }
 
         private void PositionProviderOnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -275,8 +270,8 @@ namespace NWaveform.ViewModels
         public void SetWaveform(WaveformData waveform)
         {
             _waveformImage.Clear(BackgroundBrush.Color);
-            Zero(_leftChannel);
-            Zero(_rightChannel);
+            _leftChannel.Set(_zeroMagnitude);
+            _rightChannel.Set(_zeroMagnitude);
 
             if (waveform == null) return;
 
@@ -291,11 +286,11 @@ namespace NWaveform.ViewModels
                 ? GetPoints(channels[1].Samples, duration, false)
                 : leftPoints.Scaled(1, -1); // mono? --> Y-flipped duplicate of left channel
 
-            ResampleChannel(_halfHeight, leftPoints, _leftChannel);
-            ResampleChannel(_halfHeight, rightPoints, _rightChannel);
+            ResampleChannel(_zeroMagnitude, leftPoints, _leftChannel);
+            ResampleChannel(_zeroMagnitude, rightPoints, _rightChannel);
             Duration = duration;
 
-            NotifyOfPropertyChange(nameof(Position));
+            RenderWaveform();
         }
 
         private static void ResampleChannel(double sy, IList<Point> points, IList<int> channel)
@@ -327,24 +322,9 @@ namespace NWaveform.ViewModels
 
         private void Handle(PointsReceivedEvent message)
         {
-            // DEBUG
-            _waveformImage.Clear(BackgroundBrush.Color);
-            // ---
-
-            AddPoints(message.XOffset, message.LeftPoints, _leftChannel);
-            AddPoints(message.XOffset, message.RightPoints, _rightChannel);
-            RenderPolyline(message.XOffset, message.LeftPoints, LeftBrush.Color);
-            RenderPolyline(message.XOffset, message.RightPoints, RightBrush.Color);
-        }
-
-        private static void AddPoints(int xOffset, int[] sourcePoints, int[] destPoints)
-        {
-            if (xOffset < 0) return;
-            for (int i = 0; i < sourcePoints.Length; i++)
-            {
-                if (xOffset + i >= destPoints.Length) break;
-                destPoints[xOffset + i] = sourcePoints[i];
-            }
+            _leftChannel.FlushedCopy(message.XOffset, message.LeftPoints, _zeroMagnitude);
+            _rightChannel.FlushedCopy(message.XOffset, message.RightPoints, _zeroMagnitude);
+            RenderWaveform(message.XOffset);
         }
 
         private bool SameSource(PeaksReceivedEvent message)
@@ -352,25 +332,24 @@ namespace NWaveform.ViewModels
             return PositionProvider?.Source != null && message.Source == PositionProvider?.Source;
         }
 
-        private void RenderWaveform()
+        private void RenderWaveform(int x0 = 0)
         {
-            WaveformImage.Clear(BackgroundBrush.Color);
-            RenderPolyline(0, LeftChannel, LeftBrush.Color);
-            RenderPolyline(0, RightChannel, RightBrush.Color);
-        }
-
-        private void RenderPolyline(int x0, int[] points, Color color)
-        {
-            //_waveformImage.DrawPolyline(points, color);
-
             var w = (int)WaveformImage.Width;
             var h = (int)WaveformImage.Height;
             var h2 = h / 2;
-            var c = WriteableBitmapExtensions.ConvertColor(color);
+
+            // clear background
+            var backColor = WriteableBitmapExtensions.ConvertColor(BackgroundBrush.Color);
+            WaveformImage.FillRectangle(x0, 0, w, h, backColor);
             using (var ctx = WaveformImage.GetBitmapContext())
             {
-                for (var i = 0; i < points.Length; i++)
-                    WriteableBitmapExtensions.DrawLine(ctx, w, h, x0 + i, h2, x0 + i, points[i], c);
+                var leftColor = WriteableBitmapExtensions.ConvertColor(LeftBrush.Color);
+                var rightColor = WriteableBitmapExtensions.ConvertColor(RightBrush.Color);
+                for (var x = x0; x < _leftChannel.Length; x++)
+                {
+                    WriteableBitmapExtensions.DrawLine(ctx, w, h, x, h2, x, _leftChannel[x], leftColor);
+                    WriteableBitmapExtensions.DrawLine(ctx, w, h, x, h2, x, _rightChannel[x], rightColor);
+                }
             }
         }
 
@@ -382,6 +361,26 @@ namespace NWaveform.ViewModels
             points = points.Scaled(duration, flipY ? -_maxMagnitude : _maxMagnitude);
 
             return points;
+        }
+    }
+
+    internal static class ArrayExtensions
+    {
+        public static void Set(this int[] channel, int value, int offset = 0)
+        {
+            for (int i = offset; i < channel.Length; i++) channel[i] = value;
+        }
+
+        public static void FlushedCopy(this int[] destPoints, int xOffset, int[] sourcePoints, int zeroValue)
+        {
+            if (xOffset < 0) return;
+            for (int i = 0; i < sourcePoints.Length; i++)
+            {
+                if (xOffset + i >= destPoints.Length) break;
+                destPoints[xOffset + i] = sourcePoints[i];
+            }
+            // zero tail of points
+            Set(destPoints, zeroValue, xOffset + sourcePoints.Length);
         }
     }
 }

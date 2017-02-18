@@ -6,6 +6,9 @@ namespace NWaveform.Events
     {
         public static PointsReceivedEvent ToPoints(this PeaksReceivedEvent e, double duration, double width, double height)
         {
+            if (e == null) throw new ArgumentNullException(nameof(e));
+            if (e.Peaks == null || e.Peaks.Length == 0) throw new ArgumentException("Must not be null or empty", nameof(e.Peaks));
+
             var sx = width / duration;
             var sy = height / 2.0d;
 

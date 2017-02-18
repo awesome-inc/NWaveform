@@ -9,7 +9,6 @@ using NEdifis;
 using NEdifis.Attributes;
 using NSubstitute;
 using NUnit.Framework;
-using NWaveform.Default;
 using NWaveform.Events;
 using NWaveform.Interfaces;
 using NWaveform.Model;
@@ -123,10 +122,10 @@ namespace NWaveform.ViewModels
             sut.HandlePeaks(e);
 
             // assert the image rendered
-            RectShouldHaveColor(sut.WaveformImage, 1, 1, w2, h2, sut.LeftBrush.Color);
-            RectShouldHaveColor(sut.WaveformImage, w2 + 1, h2 + 1, 2 * w2, 2 * h2, sut.RightBrush.Color);
-            RectShouldHaveColor(sut.WaveformImage, 1, h2 + 1, w2 - 1, 2*h2-1, sut.BackgroundBrush.Color);
-            RectShouldHaveColor(sut.WaveformImage, w2 + 1, 1, 2*w2, h2, sut.BackgroundBrush.Color);
+            sut.WaveformImage.RectShouldHaveColor(1, 1, w2, h2, sut.LeftBrush.Color);
+            sut.WaveformImage.RectShouldHaveColor(w2 + 1, h2 + 1, 2 * w2, 2 * h2, sut.RightBrush.Color);
+            sut.WaveformImage.RectShouldHaveColor(1, h2 + 1, w2 - 1, 2*h2-1, sut.BackgroundBrush.Color);
+            sut.WaveformImage.RectShouldHaveColor(w2 + 1, 1, 2*w2, h2, sut.BackgroundBrush.Color);
 
             // assert the points are filled
             sut.LeftChannel.Take(10).ShouldAllBeEquivalentTo(0);
@@ -146,45 +145,41 @@ namespace NWaveform.ViewModels
             var e = new PeaksReceivedEvent(new Uri("source://test/"), 0, 1, new PeakInfo[0]);
             sut.PositionProvider.Source = new Uri("other://source/");
             sut.Handle(e).Wait();
-            RectShouldHaveColor(sut.WaveformImage, 0, 0, 20, 20, sut.BackgroundBrush.Color);
+            sut.WaveformImage.RectShouldHaveColor(0, 0, 20, 20, sut.BackgroundBrush.Color);
         }
 
-        [Test(Description = "Refreshing the waveform is used by wrap arounds")]
-        public void Notify_position_on_waveform_refresh()
+        [Test]
+        public void Refresh_waveform_when_receiving_earlier_samples_than_before()
         {
             var ctx = new ContextFor<WaveformViewModel>();
             var sut = ctx.BuildSut();
 
-            sut.MonitorEvents();
-            var waveForm = EmptyWaveFormGenerator.CreateEmpty(1.0);
-            sut.SetWaveform(waveForm);
-            sut.ShouldRaisePropertyChangeFor(x => x.Position);
-        }
+            sut.BackgroundBrush = new SolidColorBrush(Colors.Black);
+            var color = Colors.Red;
+            sut.LeftBrush = sut.RightBrush = new SolidColorBrush(color);
+            sut.WaveformImage = BitmapFactory.New(30, 20);
 
-        private static unsafe void RectShouldHaveColor(WriteableBitmap b, int x0, int y0, int x1, int y1, Color color)
-        {
-            var expectedColor = WriteableBitmapExtensions.ConvertColor(color);
-            var expectedColorName = GetColorName(color);
-            using (var c = b.GetBitmapContext(ReadWriteMode.ReadOnly))
-            {
-                for (var y = y0; y < y1; y++)
-                    for (var x = x0; x < x1; x++)
-                    {
-                        var actualColor = c.Pixels[y * c.Width + x];
-                        if (actualColor != expectedColor)
-                        {
-                            var actualColorName = GetColorName(b.GetPixel(x,y));
-                            Assert.Fail($"Pixel at ({x},{y}) should be '{expectedColorName}' but is '{actualColorName}'");
-                        }
-                    }
-            }
-        }
+            var uri = new Uri("source://test/");
+            var w3 = (int)(sut.WaveformImage.Width / 3);
+            var peaks = Enumerable.Repeat(1f, w3).Select(m => new PeakInfo(-m,m)).ToArray();
 
-        private static string GetColorName(Color col)
-        {
-            var colorProperty = typeof(Colors).GetProperties()
-                .FirstOrDefault(p => Color.AreClose((Color)p.GetValue(null), col));
-            return colorProperty != null ? colorProperty.Name : col.ToString();
+            sut.Duration = 3;
+            // 1/3
+            var e = new PeaksReceivedEvent(uri, 0, 1, peaks);
+            sut.HandlePeaks(e);
+            sut.WaveformImage.RectShouldHaveColor(0, 0, w3-1, 20, color);
+            sut.WaveformImage.RectShouldHaveColor(w3, 0, 3*w3, 20, sut.BackgroundBrush.Color);
+            // 3/3
+            e = new PeaksReceivedEvent(uri, 2, 3, peaks);
+            sut.HandlePeaks(e);
+            sut.WaveformImage.RectShouldHaveColor(0, 0, w3 - 1, 20, color);
+            sut.WaveformImage.RectShouldHaveColor(w3, 0, 2 * w3 -1, 20, sut.BackgroundBrush.Color);
+            sut.WaveformImage.RectShouldHaveColor(2*w3, 0, 3 * w3, 20, color);
+            // 2/3
+            e = new PeaksReceivedEvent(uri, 1, 2, peaks);
+            sut.HandlePeaks(e);
+            sut.WaveformImage.RectShouldHaveColor(0, 0, 2 * w3 - 1, 20, color);
+            sut.WaveformImage.RectShouldHaveColor(2 * w3, 0, 3 * w3, 20, sut.BackgroundBrush.Color);
         }
     }
 }

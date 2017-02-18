@@ -42,6 +42,7 @@ namespace NWaveform.App
             builder.Register(c => RegisterPlayer(c, "Player 2")).As<IPlayerViewModel>();
             builder.Register(c => RegisterPlayer(c, "Player 3")).As<IPlayerViewModel>();
             builder.Register(c => RegisterPlayer(c, "Player 4")).As<IPlayerViewModel>();
+            builder.Register(c => RegisterPlayer(c, "Player 5")).As<IPlayerViewModel>();
 
             builder.RegisterType<WaveformPlayerViewModel>().As<IWaveformPlayerViewModel>();
             builder.RegisterType<WaveformViewModel>().As<IWaveformViewModel>();

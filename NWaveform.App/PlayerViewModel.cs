@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using Caliburn.Micro;
 using FontAwesome.Sharp;
@@ -98,7 +99,11 @@ namespace NWaveform.App
         // ReSharper disable once UnusedMember.Global
         public void OpenFile()
         {
-            var dlg = new OpenFileDialog();
+            var dlg = new OpenFileDialog
+            {
+                InitialDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data"),
+                FileName = "Pulp_Fiction_Jimmys_Coffee.mp3"
+            };
             var res = dlg.ShowDialog();
 
             if (res.HasValue && res.Value)

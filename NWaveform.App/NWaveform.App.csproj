@@ -153,10 +153,6 @@
       <Project>{561e4bf0-8e28-4f56-9357-bc46da04a645}</Project>
       <Name>NWaveform.ViewModel</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NWaveform.Vlc\NWaveform.Vlc.csproj">
-      <Project>{48A45617-C814-49E8-AE1A-1DE414FAD9EB}</Project>
-      <Name>NWaveform.Vlc</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NWaveform\NWaveform.csproj">
       <Project>{5646ff5b-c8a1-4e26-9317-67de96175f19}</Project>
       <Name>NWaveform</Name>

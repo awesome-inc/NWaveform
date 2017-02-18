@@ -1,3 +1,4 @@
+#if VLC
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -28,3 +29,4 @@ namespace NWaveform.App
         }
     }
 }
+#endif
