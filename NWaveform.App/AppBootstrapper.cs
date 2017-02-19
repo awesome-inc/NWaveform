@@ -5,9 +5,6 @@ using System.Windows;
 using Autofac;
 using Autofac.Core;
 using Caliburn.Micro;
-using NWaveform.NAudio;
-using NWaveform.Serializer;
-using NWaveform.ViewModels;
 
 namespace NWaveform.App
 {
@@ -34,20 +31,12 @@ namespace NWaveform.App
 
             builder.RegisterType<AppViewModel>().AsSelf().SingleInstance();
 
-            builder.Register(c => RegisterPlayer(c, "Player 1")).As<IPlayerViewModel>();
-            builder.Register(c => RegisterPlayer(c, "Player 2")).As<IPlayerViewModel>();
-            builder.Register(c => RegisterPlayer(c, "Player 3")).As<IPlayerViewModel>();
-            builder.Register(c => RegisterPlayer(c, "Player 4")).As<IPlayerViewModel>();
-            builder.Register(c => RegisterPlayer(c, "Player 5")).As<IPlayerViewModel>();
+            builder.RegisterType<PlayerViewModel>().As<IPlayerViewModel>();
+            builder.RegisterType<NAudioToMp3Cropper>().AsSelf().AutoActivate().SingleInstance();
 
             builder.RegisterModule<AudioModule>();
 
             _container = builder.Build();
-        }
-
-        private static IPlayerViewModel RegisterPlayer(IComponentContext c, string name)
-        {
-            return new PlayerViewModel(c.Resolve<IWaveformPlayerViewModel>()) { DisplayName = name };
         }
 
         protected override object GetInstance(Type service, string key)

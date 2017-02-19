@@ -17,7 +17,7 @@ namespace NWaveform.ViewModels
             {
                 var maxX = samples.Count - 1;
                 var maxY = samples.Max();
-                if (maxX > 1.0 && maxY > double.Epsilon)
+                if (maxX > 0 && maxY > double.Epsilon)
                 {
                     var sX = 1.0 / maxX;
                     var sY = 1.0 / maxY;

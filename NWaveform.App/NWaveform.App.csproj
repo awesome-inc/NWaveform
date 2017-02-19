@@ -65,6 +65,9 @@
     <Reference Include="NAudio, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NAudio.1.8.0\lib\net35\NAudio.dll</HintPath>
     </Reference>
+    <Reference Include="NAudio.Lame, Version=1.0.3.3048, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.Lame.1.0.4\lib\net20\NAudio.Lame.dll</HintPath>
+    </Reference>
     <Reference Include="NEdifis">
       <HintPath>..\packages\NEdifis.0.7.0\lib\net45\NEdifis.dll</HintPath>
     </Reference>
@@ -102,9 +105,12 @@
       <DependentUpon>AppView.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppViewModel.cs" />
+    <Compile Include="CropAudioResponse.cs" />
     <Compile Include="EndlessFileLoopChannel.cs" />
     <Compile Include="IPlayerViewModel.cs" />
     <Compile Include="NAudioModule.cs" />
+    <Compile Include="NAudioToMp3Cropper.cs" />
+    <Compile Include="CropAudioRequest.cs" />
     <Compile Include="SamplesHandlerPeakPublisher.cs" />
     <Compile Include="StreamingModule.cs" />
     <Compile Include="StreamingWaveProviderFactory.cs" />
@@ -161,6 +167,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Data\Pulp_Fiction_Jimmys_Coffee.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="libmp3lame.32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="libmp3lame.64.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

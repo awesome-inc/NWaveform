@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Caliburn.Micro;
 using NWaveform.Default;
 using NWaveform.Events;
@@ -72,12 +73,13 @@ namespace NWaveform.ViewModels
                 Player.Source = value;
                 NotifyOfPropertyChange();
                 Waveform.SetWaveform(GetWaveform());
+                if (value != null && value.IsFile) StartTime = new FileInfo(value.AbsolutePath).LastWriteTimeUtc;
             }
         }
 
         public WaveformData GetWaveform()
         {
-            var waveform = Waveforms.For(Player.Source);
+            var waveform = Player.Source != null ? Waveforms.For(Player.Source) : null;
             if (waveform == null) return EmptyWaveFormGenerator.CreateEmpty(Player.Duration);
 
             if (waveform.Duration == TimeSpan.Zero && Player.HasDuration)

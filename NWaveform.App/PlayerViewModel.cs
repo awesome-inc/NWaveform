@@ -13,13 +13,29 @@ namespace NWaveform.App
     // ReSharper disable once ClassNeverInstantiated.Global
     public class PlayerViewModel : Screen, IPlayerViewModel
     {
+        private readonly IEventAggregator _events;
         private readonly MenuViewModel _labelMenu;
 
         public string ToolTip => DisplayName;
 
-        public PlayerViewModel(IWaveformPlayerViewModel audioPlayer)
+        public Uri Source
         {
+            get { return AudioPlayer?.Source; }
+            set
+            {
+                AudioPlayer.Source = value;
+                DisplayName = value?.ToString();
+                NotifyOfPropertyChange(nameof(ToolTip));
+                if (value != null) AddRandomProperties();
+
+            }
+        }
+
+        public PlayerViewModel(IEventAggregator events, IWaveformPlayerViewModel audioPlayer)
+        {
+            if (events == null) throw new ArgumentNullException(nameof(events));
             if (audioPlayer == null) throw new ArgumentNullException(nameof(audioPlayer));
+            _events = events;
             AudioPlayer = audioPlayer;
 
             // ReSharper disable VirtualMemberCallInConstructor
@@ -59,6 +75,15 @@ namespace NWaveform.App
                         Title = "Assign WP to...",
                         Description = "Assign a WP from the selection to..."
                     }
+                },
+                new MenuItemViewModel
+                {
+                    Icon = IconChar.Scissors,
+                    Command = new DelegateCommand<IAudioSelectionViewModel>(CropToFile, CanCropToFile)
+                    {
+                        Title = "Crop to file...",
+                        Description = "Save the current audio selection to file"
+                    }
                 }
             });
 
@@ -81,6 +106,17 @@ namespace NWaveform.App
             MessageBox.Show("Assign waypoints...");
         }
 
+        private bool CanCropToFile(IAudioSelectionViewModel selection)
+        {
+            return (selection != null && selection.Duration > 1.0);
+        }
+
+        private void CropToFile(IAudioSelectionViewModel selection)
+        {
+            var message = new CropAudioRequest(AudioPlayer.Source, selection);
+            _events.PublishOnUIThread(message);
+        }
+
         private void EditLabel(ILabelVievModel label)
         {
             MessageBox.Show("Edit Label...");
@@ -93,10 +129,8 @@ namespace NWaveform.App
             waveForm.Labels.Remove(label);
         }
 
-        // ReSharper disable once MemberCanBePrivate.Global
-        public IWaveformPlayerViewModel AudioPlayer { get; private set; }
+        public IWaveformPlayerViewModel AudioPlayer { get; }
 
-        // ReSharper disable once UnusedMember.Global
         public void OpenFile()
         {
             var dlg = new OpenFileDialog
@@ -122,10 +156,7 @@ namespace NWaveform.App
         {
             try
             {
-                AudioPlayer.Source = new Uri(url);
-                //AddRandomProperties();
-                DisplayName = url;
-                NotifyOfPropertyChange(nameof(ToolTip));
+                Source = new Uri(url);
             }
             catch (Exception ex)
             {
@@ -153,7 +184,7 @@ namespace NWaveform.App
                 End = Math.Max(a, b),
             };
 
-            AudioPlayer.Waveform.UserChannel = TestData.GetRandomWaypoints(r, duration, (int) (0.2 * duration), 0.5,
+            AudioPlayer.Waveform.UserChannel = TestData.GetRandomWaypoints(r, duration, (int)(0.2 * duration), 0.5,
                 0.85);
 
             AudioPlayer.Waveform.SeparationLeftChannel = TestData.GetSeparationTop(r, duration, 10);

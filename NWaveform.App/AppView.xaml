@@ -5,15 +5,33 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NWaveform.App"
              xmlns:cal="http://www.caliburnproject.org"
+             xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <TabControl x:Name="Items" SelectedItem="ActiveItem">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Button x:Name="AddPlayer" ToolTip="Add tab" Width="32" Height="32" HorizontalAlignment="Left">
+            <Button.Content>
+                <fa:IconBlock Icon="Plus"/>
+            </Button.Content>
+        </Button>
+
+        <TabControl x:Name="Items" SelectedItem="ActiveItem" Grid.Row="1">
             <TabControl.ItemTemplate>
                 <DataTemplate DataType="local:IPlayerViewModel">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding ToolTip}"
                             TextTrimming="CharacterEllipsis" MaxWidth="150" VerticalAlignment="Center" HorizontalAlignment="Left" Padding="0,0,4,0" />
+                        <Button cal:Message.Attach="DeactivateItem($dataContext, 'true')"
+                                ToolTip="Close">
+                            <Button.Content>
+                                <fa:IconBlock Icon="Times" />
+                            </Button.Content>
+                        </Button>
                     </StackPanel>
                 </DataTemplate>
             </TabControl.ItemTemplate>
