@@ -98,6 +98,7 @@
     <Compile Include="Events\AudioSamplesExtensions.cs" />
     <Compile Include="Events\PointsReceivedEvent.cs" />
     <Compile Include="Events\PeaksReceivedEvent.cs" />
+    <Compile Include="Events\StartTimeChanged.cs" />
     <Compile Include="Extender\AudioSelectionMenuProvider.cs" />
     <Compile Include="Extender\IAudioSelectionMenuProvider.cs" />
     <Compile Include="Extender\IAudioSelectionMenuExtender.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="ViewModels\ArrayExtensions.cs" />
     <Compile Include="ViewModels\AudioSelectionViewModel_Should.cs" />
     <Compile Include="ViewModels\DateTimeFormatter.cs" />
+    <Compile Include="ViewModels\DateTimeFormatter_Should.cs" />
     <Compile Include="ViewModels\IFormat.cs" />
     <Compile Include="ViewModels\ImageTestExtensions.cs" />
     <Compile Include="ViewModels\IMenuItemViewModel.cs" />
