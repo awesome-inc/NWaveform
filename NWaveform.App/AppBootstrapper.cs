@@ -5,13 +5,9 @@ using System.Windows;
 using Autofac;
 using Autofac.Core;
 using Caliburn.Micro;
-using NWaveform.Default;
-using NWaveform.Extender;
-using NWaveform.Interfaces;
 using NWaveform.NAudio;
 using NWaveform.Serializer;
 using NWaveform.ViewModels;
-using NWaveform.Views;
 
 namespace NWaveform.App
 {
@@ -44,21 +40,7 @@ namespace NWaveform.App
             builder.Register(c => RegisterPlayer(c, "Player 4")).As<IPlayerViewModel>();
             builder.Register(c => RegisterPlayer(c, "Player 5")).As<IPlayerViewModel>();
 
-            builder.RegisterType<WaveformPlayerViewModel>().As<IWaveformPlayerViewModel>();
-            builder.RegisterType<WaveformViewModel>().As<IWaveformViewModel>();
-
-            builder.RegisterType<AudioSelectionMenuProvider>().As<IAudioSelectionMenuProvider>().SingleInstance();
-
-            AssemblySource.Instance.Add(typeof(WaveformPlayerView).Assembly);
-
-            //builder.RegisterModule<WindowsMediaPlayerModule>();
-            builder.RegisterModule<NAudioModule>();
-            //builder.RegisterModule<VlcModule>();
-
-            //builder.RegisterType<CachedWaveFormRepository>().As<IWaveFormRepository>().SingleInstance();
-            builder.RegisterType<GeneratingWaveFormRepository>().As<IWaveFormRepository>().SingleInstance();
-            builder.RegisterType<NAudioWaveFormGenerator>().As<IWaveFormGenerator>().SingleInstance();
-            builder.RegisterType<WaveFormSerializer>().As<IWaveFormSerializer>().SingleInstance();
+            builder.RegisterModule<AudioModule>();
 
             _container = builder.Build();
         }

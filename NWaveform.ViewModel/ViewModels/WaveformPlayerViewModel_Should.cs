@@ -4,6 +4,7 @@ using FluentAssertions;
 using NEdifis;
 using NSubstitute;
 using NUnit.Framework;
+using NWaveform.Events;
 using NWaveform.Extender;
 using NWaveform.Interfaces;
 using NWaveform.Model;
@@ -18,7 +19,7 @@ namespace NWaveform.ViewModels
         public void Initialize_selection_menu_on()
         {
             var ctx = new ContextFor<WaveformPlayerViewModel>();
-            var menu = new MenuViewModel(new[] {new MenuItemViewModel {Header = "test"}});
+            var menu = new MenuViewModel(new[] { new MenuItemViewModel { Header = "test" } });
             ctx.For<IAudioSelectionMenuProvider>().Menu.Returns(menu);
 
             var sut = ctx.BuildSut();
@@ -54,6 +55,64 @@ namespace NWaveform.ViewModels
 
             sut.Waveforms.Received().For(uri);
             sut.Waveform.Received().SetWaveform(waveForm);
+        }
+
+        [Test]
+        public void Support_absolute_audio_time()
+        {
+            var uri = new Uri("http://some/uri/audio.wav");
+            var ctx = new ContextFor<WaveformPlayerViewModel>();
+            var waveForm = new WaveformData
+            {
+                Duration = TimeSpan.FromSeconds(1),
+                Channels = new[] { new Channel() }
+            };
+            ctx.For<IWaveFormRepository>().For(uri).Returns(waveForm);
+            var formatter = new DateTimeFormatter("yyyy-MM-dd HH:mm:ss");
+            ctx.Use<IFormat<DateTimeOffset?>>(formatter);
+            var sut = ctx.BuildSut();
+
+            sut.HasCurrentTime.Should().BeFalse("no start time by default");
+            sut.CurrentTime.Should().BeNullOrWhiteSpace();
+
+            var d = DateTimeOffset.UtcNow;
+            sut.StartTime = d;
+
+            sut.HasCurrentTime.Should().BeTrue();
+
+            var position = waveForm.Duration;
+            sut.Player.Position = position.TotalSeconds;
+
+            var expected = formatter.Format(d + position);
+            sut.CurrentTime.Should().Be(expected);
+        }
+
+        [Test]
+        public void Handle_start_time_updates()
+        {
+            var uri = new Uri("http://some/uri/audio.wav");
+            var ctx = new ContextFor<WaveformPlayerViewModel>();
+
+            var d = DateTimeOffset.UtcNow;
+            var sut = ctx.BuildSut();
+
+            sut.Should().BeAssignableTo<IHandle<StartTimeChanged>>();
+            ctx.For<IEventAggregator>().Received().Subscribe(sut);
+
+            var message = new StartTimeChanged(uri, d);
+            sut.Source.Should().NotBe(uri);
+            sut.Handle(message);
+            sut.HasCurrentTime.Should().BeFalse("not the same source");
+
+            sut.Source = uri;
+            sut.Handle(message);
+            sut.HasCurrentTime.Should().BeTrue();
+            sut.StartTime.Should().Be(message.StartTime);
+
+            message = new StartTimeChanged(uri, null);
+            sut.Handle(message);
+            sut.HasCurrentTime.Should().BeFalse("update start time is null");
+            sut.StartTime.Should().BeNull();
         }
     }
 }

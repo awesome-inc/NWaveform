@@ -14,6 +14,8 @@ namespace NWaveform.App
 
             builder.RegisterType<NAudioPlayer>().As<IMediaPlayer>();
 
+            builder.RegisterType<NAudioWaveFormGenerator>().As<IWaveFormGenerator>().SingleInstance();
+
             builder.RegisterModule<StreamingModule>();
         }
     }

@@ -109,6 +109,7 @@
     <Compile Include="StreamingModule.cs" />
     <Compile Include="StreamingWaveProviderFactory.cs" />
     <Compile Include="VlcModule.cs" />
+    <Compile Include="AudioModule.cs" />
     <Compile Include="WaypointLabelViewModel.cs" />
     <Compile Include="WaypointLabelViewModel_Should.cs" />
     <Compile Include="TestData.cs" />

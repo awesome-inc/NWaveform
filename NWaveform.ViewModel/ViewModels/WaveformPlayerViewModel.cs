@@ -1,6 +1,7 @@
 ﻿using System;
 using Caliburn.Micro;
 using NWaveform.Default;
+using NWaveform.Events;
 using NWaveform.Extender;
 using NWaveform.Interfaces;
 using NWaveform.Model;
@@ -10,23 +11,40 @@ namespace NWaveform.ViewModels
     public class WaveformPlayerViewModel : Screen
         , IWaveformPlayerViewModel
     {
-        private DateTimeOffset? _startTime = DateTimeOffset.UtcNow;
+        public DateTimeOffset? StartTime
+        {
+            get { return _startTime; }
+            set
+            {
+                if (value.Equals(_startTime)) return;
+                _startTime = value;
+                NotifyOfPropertyChange();
+                NotifyOfPropertyChange(nameof(HasCurrentTime));
+                NotifyOfPropertyChange(nameof(CurrentTime));
+            }
+        }
+
+        private readonly IFormat<DateTimeOffset?> _formatTime;
+        private DateTimeOffset? _startTime = null;
 
         public WaveformPlayerViewModel(IEventAggregator events,
             IMediaPlayer player,
             IWaveFormRepository waveforms,
             IWaveformViewModel waveform,
-            IAudioSelectionMenuProvider audioSelectionMenuProvider)
+            IAudioSelectionMenuProvider audioSelectionMenuProvider,
+            IFormat<DateTimeOffset?> formatTime)
         {
             if (events == null) throw new ArgumentNullException(nameof(events));
             if (player == null) throw new ArgumentNullException(nameof(player));
             if (waveforms == null) throw new ArgumentNullException(nameof(waveforms));
             if (waveform == null) throw new ArgumentNullException(nameof(waveform));
+            if (formatTime == null) throw new ArgumentNullException(nameof(formatTime));
 
             Player = player;
             Player.PropertyChanged += Player_PropertyChanged;
             Waveforms = waveforms;
             Waveform = waveform;
+            _formatTime = formatTime;
             Waveform.PositionProvider = player;
 
             var menu = audioSelectionMenuProvider?.Menu;
@@ -37,7 +55,7 @@ namespace NWaveform.ViewModels
 
         private void Player_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (_startTime.HasValue && e.PropertyName == nameof(Player.Position))
+            if (StartTime.HasValue && e.PropertyName == nameof(Player.Position))
                 NotifyOfPropertyChange(nameof(CurrentTime));
         }
 
@@ -67,7 +85,15 @@ namespace NWaveform.ViewModels
             return waveform;
         }
 
-        public bool HasCurrentTime => _startTime.HasValue;
-        public DateTimeOffset? CurrentTime => _startTime + TimeSpan.FromSeconds(Player.Position);
+        public bool HasCurrentTime => StartTime.HasValue;
+        public string CurrentTime => _formatTime.Format(StartTime + TimeSpan.FromSeconds(Player.Position));
+
+        public void Handle(StartTimeChanged message)
+        {
+            var sameSource = Source != null && Source == message.Source;
+            if (!sameSource) return;
+
+            StartTime = message.StartTime;
+        }
     }
 }
