@@ -13,15 +13,20 @@ namespace NWaveform.ViewModels
         {
             IList<Point> points = new List<Point> { new Point(0, 0) };
 
-            if (samples != null && samples.Count > 1)
+            if (samples != null)
             {
-                var sX = 1.0 / (samples.Count - 1);
-                var sY = 1.0 / samples.Max();
-                for (int i = 0; i < samples.Count; i++)
+                var maxX = samples.Count - 1;
+                var maxY = samples.Max();
+                if (maxX > 1.0 && maxY > double.Epsilon)
                 {
-                    var x = sX * i;
-                    var y = sY * samples[i];
-                    points.Add(new Point(x, y));
+                    var sX = 1.0 / maxX;
+                    var sY = 1.0 / maxY;
+                    for (int i = 0; i < samples.Count; i++)
+                    {
+                        var x = sX * i;
+                        var y = sY * samples[i];
+                        points.Add(new Point(x, y));
+                    }
                 }
             }
 
