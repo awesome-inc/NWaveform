@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NWaveform.Interfaces
+﻿namespace NWaveform.Interfaces
 {
     public interface IMediaPlayer : IPositionProvider
     {
