@@ -5,6 +5,7 @@ using System.Windows;
 using Autofac;
 using Autofac.Core;
 using Caliburn.Micro;
+using NWaveform.NAudio;
 
 namespace NWaveform.App
 {
@@ -32,7 +33,6 @@ namespace NWaveform.App
             builder.RegisterType<AppViewModel>().AsSelf().SingleInstance();
 
             builder.RegisterType<PlayerViewModel>().As<IPlayerViewModel>();
-            builder.RegisterType<NAudioToMp3Cropper>().AsSelf().AutoActivate().SingleInstance();
 
             builder.RegisterModule<AudioModule>();
 

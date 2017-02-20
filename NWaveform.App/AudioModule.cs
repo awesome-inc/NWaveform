@@ -1,4 +1,3 @@
-using System;
 using Autofac;
 using Caliburn.Micro;
 using NWaveform.Default;
@@ -18,19 +17,19 @@ namespace NWaveform.App
             builder.RegisterType<AudioSelectionMenuProvider>().As<IAudioSelectionMenuProvider>().SingleInstance();
 
             builder.Register(c => new DateTimeFormatter("yyyy-MM-dd HH:mm:ss"))
-                .As<IFormat<DateTimeOffset?>>()
+                .As<IAbsoluteTimeFormatter>()
                 .SingleInstance();
 
             AssemblySource.Instance.Add(typeof(WaveformPlayerView).Assembly);
+
+            //builder.RegisterType<WaveFormSerializer>().As<IWaveFormSerializer>().SingleInstance();
+            //builder.RegisterType<CachedWaveFormRepository>().As<IWaveFormRepository>().SingleInstance();
+            builder.RegisterType<GeneratingWaveFormRepository>().As<IWaveFormRepository>().SingleInstance();
 
             //builder.RegisterModule<WindowsMediaPlayerModule>();
             builder.RegisterModule<NAudioModule>();
             //builder.RegisterModule<VlcModule>();
 
-            //builder.RegisterType<WaveFormSerializer>().As<IWaveFormSerializer>().SingleInstance();
-            //builder.RegisterType<CachedWaveFormRepository>().As<IWaveFormRepository>().SingleInstance();
-
-            builder.RegisterType<GeneratingWaveFormRepository>().As<IWaveFormRepository>().SingleInstance();
         }
     }
 }

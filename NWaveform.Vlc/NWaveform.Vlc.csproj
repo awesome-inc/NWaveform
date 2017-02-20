@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Caliburn.Micro, Version=3.0.3.0, Culture=neutral, PublicKeyToken=8e5891231f2ed21f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Caliburn.Micro.Core.3.0.3\lib\net45\Caliburn.Micro.dll</HintPath>
+    </Reference>
     <Reference Include="FluentAssertions, Version=4.19.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentAssertions.4.19.0\lib\net45\FluentAssertions.dll</HintPath>
     </Reference>
@@ -63,7 +66,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CoreAudio.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VlcConfiguration.cs" />
     <Compile Include="VlcMediaPlayer.cs" />
@@ -77,9 +79,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NWaveform\NWaveform.csproj">
-      <Project>{5646ff5b-c8a1-4e26-9317-67de96175f19}</Project>
-      <Name>NWaveform</Name>
+    <ProjectReference Include="..\NWaveform.WPF\NWaveform.WPF.csproj">
+      <Project>{561e4bf0-8e28-4f56-9357-bc46da04a645}</Project>
+      <Name>NWaveform.WPF</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

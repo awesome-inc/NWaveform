@@ -105,13 +105,9 @@
       <DependentUpon>AppView.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppViewModel.cs" />
-    <Compile Include="CropAudioResponse.cs" />
     <Compile Include="EndlessFileLoopChannel.cs" />
     <Compile Include="IPlayerViewModel.cs" />
     <Compile Include="NAudioModule.cs" />
-    <Compile Include="NAudioToMp3Cropper.cs" />
-    <Compile Include="CropAudioRequest.cs" />
-    <Compile Include="SamplesHandlerPeakPublisher.cs" />
     <Compile Include="StreamingModule.cs" />
     <Compile Include="StreamingWaveProviderFactory.cs" />
     <Compile Include="VlcModule.cs" />
@@ -152,17 +148,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NWaveform.NAudio\NWaveform.NAudio.csproj">
-      <Project>{E9EBF5F6-94F4-4931-88E7-B5879C98B719}</Project>
-      <Name>NWaveform.NAudio</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NWaveform.ViewModel\NWaveform.ViewModel.csproj">
+    <ProjectReference Include="..\NWaveform.WPF\NWaveform.WPF.csproj">
       <Project>{561e4bf0-8e28-4f56-9357-bc46da04a645}</Project>
-      <Name>NWaveform.ViewModel</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NWaveform\NWaveform.csproj">
-      <Project>{5646ff5b-c8a1-4e26-9317-67de96175f19}</Project>
-      <Name>NWaveform</Name>
+      <Name>NWaveform.WPF</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

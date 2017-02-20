@@ -1,10 +1,9 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Caliburn.Micro;
 using Declarations;
 using Declarations.Events;
 using Declarations.Media;
@@ -15,10 +14,11 @@ using NWaveform.Exceptions;
 using NWaveform.Extensions;
 using NWaveform.Interfaces;
 using NWaveform.Model;
+using NWaveform.NAudio;
 
 namespace NWaveform.Vlc
 {
-    public class VlcMediaPlayer : IMediaPlayer, IDisposable
+    public class VlcMediaPlayer : PropertyChangedBase, IMediaPlayer, IDisposable
     {
         private const double RateEps = 0.125;
         private const double TimeEps = 0.125;
@@ -123,11 +123,9 @@ namespace NWaveform.Vlc
                 _audioSelection = value;
                 if (!_audioSelection.Contains(Position)) Position = value.Start;
 
-                OnPropertyChanged();
-                // ReSharper disable ExplicitCallerInfoArgument
-                OnPropertyChanged(nameof(CanLoop));
-                OnPropertyChanged(nameof(IsLooping));
-                // ReSharper restore ExplicitCallerInfoArgument
+                NotifyOfPropertyChange();
+                NotifyOfPropertyChange(nameof(CanLoop));
+                NotifyOfPropertyChange(nameof(IsLooping));
             }
         }
 
@@ -139,7 +137,7 @@ namespace NWaveform.Vlc
             private set
             {
                 _isLooping = value;
-                OnPropertyChanged();
+                NotifyOfPropertyChange();
             }
         }
 
@@ -155,17 +153,17 @@ namespace NWaveform.Vlc
                     // change souce if there are no exceptions during open
                     _source = value;
 
-                    OnPropertyChanged();
+                    NotifyOfPropertyChange();
                     // ReSharper disable ExplicitCallerInfoArgument
-                    OnPropertyChanged(nameof(CanFaster));
-                    OnPropertyChanged(nameof(CanSlower));
-                    OnPropertyChanged(nameof(CanPlay));
-                    OnPropertyChanged(nameof(CanPause));
-                    OnPropertyChanged(nameof(CanStop));
+                    NotifyOfPropertyChange(nameof(CanFaster));
+                    NotifyOfPropertyChange(nameof(CanSlower));
+                    NotifyOfPropertyChange(nameof(CanPlay));
+                    NotifyOfPropertyChange(nameof(CanPause));
+                    NotifyOfPropertyChange(nameof(CanStop));
 
-                    OnPropertyChanged(nameof(Volume));
-                    OnPropertyChanged(nameof(CanMute));
-                    OnPropertyChanged(nameof(CanUnMute));
+                    NotifyOfPropertyChange(nameof(Volume));
+                    NotifyOfPropertyChange(nameof(CanMute));
+                    NotifyOfPropertyChange(nameof(CanUnMute));
                     // ReSharper restore ExplicitCallerInfoArgument
 
                     Error.Exception = null;
@@ -188,9 +186,9 @@ namespace NWaveform.Vlc
                 if (CloseTo(_duration, value, TimeEps)) return;
                 _duration = value;
 
-                OnPropertyChanged();
+                NotifyOfPropertyChange();
                 // ReSharper disable once ExplicitCallerInfoArgument
-                OnPropertyChanged(nameof(HasDuration));
+                NotifyOfPropertyChange(nameof(HasDuration));
             }
         }
 
@@ -241,11 +239,11 @@ namespace NWaveform.Vlc
                 if (_player.Volume != newVolume)
                     _player.Volume = newVolume;
 
-                OnPropertyChanged();
+                NotifyOfPropertyChange();
                 // ReSharper disable ExplicitCallerInfoArgument
-                OnPropertyChanged(nameof(CanMute));
-                OnPropertyChanged(nameof(CanUnMute));
-                OnPropertyChanged(nameof(IsMuted));
+                NotifyOfPropertyChange(nameof(CanMute));
+                NotifyOfPropertyChange(nameof(CanUnMute));
+                NotifyOfPropertyChange(nameof(IsMuted));
                 // ReSharper restore ExplicitCallerInfoArgument
             }
         }
@@ -266,7 +264,7 @@ namespace NWaveform.Vlc
                 if (Math.Abs(_balance - value) < BalanceEps) return;
                 _balance = value;
                 _audioEndpointVolume?.SetBalance((float)_balance);
-                OnPropertyChanged();
+                NotifyOfPropertyChange();
             }
         }
 
@@ -284,11 +282,9 @@ namespace NWaveform.Vlc
                 _player.PlaybackRate = (float)newValue;
                 _rate = newValue;
 
-                OnPropertyChanged();
-                // ReSharper disable ExplicitCallerInfoArgument
-                OnPropertyChanged(nameof(CanFaster));
-                OnPropertyChanged(nameof(CanSlower));
-                // ReSharper restore ExplicitCallerInfoArgument
+                NotifyOfPropertyChange();
+                NotifyOfPropertyChange(nameof(CanFaster));
+                NotifyOfPropertyChange(nameof(CanSlower));
             }
         }
 
@@ -357,7 +353,7 @@ namespace NWaveform.Vlc
             _position = 0.0;
             _player.Position = 0.0F;
             // ReSharper disable once ExplicitCallerInfoArgument
-            OnPropertyChanged(nameof(Position));
+            NotifyOfPropertyChange(nameof(Position));
             OnStateChanged();
         }
 
@@ -392,7 +388,7 @@ namespace NWaveform.Vlc
         private void OnParsedChanged()
         {
             // ReSharper disable once ExplicitCallerInfoArgument
-            OnPropertyChanged(nameof(HasAudio));
+            NotifyOfPropertyChange(nameof(HasAudio));
             OnStateChanged();
         }
 
@@ -416,22 +412,22 @@ namespace NWaveform.Vlc
 
             _position = value;
             // ReSharper disable ExplicitCallerInfoArgument
-            OnPropertyChanged(nameof(Position));
+            NotifyOfPropertyChange(nameof(Position));
             // in case we just started, we need to enforce an "CanStop" update, because this depends on a position change
-            OnPropertyChanged(nameof(CanStop));
+            NotifyOfPropertyChange(nameof(CanStop));
             // ReSharper restore ExplicitCallerInfoArgument
         }
 
         private void OnStateChanged()
         {
             // ReSharper disable ExplicitCallerInfoArgument
-            OnPropertyChanged(nameof(IsPlaying));
-            OnPropertyChanged(nameof(IsPaused));
-            OnPropertyChanged(nameof(IsStopped));
-            OnPropertyChanged(nameof(CanPlay));
-            OnPropertyChanged(nameof(CanPause));
-            OnPropertyChanged(nameof(CanStop));
-            OnPropertyChanged(nameof(Volume));
+            NotifyOfPropertyChange(nameof(IsPlaying));
+            NotifyOfPropertyChange(nameof(IsPaused));
+            NotifyOfPropertyChange(nameof(IsStopped));
+            NotifyOfPropertyChange(nameof(CanPlay));
+            NotifyOfPropertyChange(nameof(CanPause));
+            NotifyOfPropertyChange(nameof(CanStop));
+            NotifyOfPropertyChange(nameof(Volume));
             // ReSharper restore ExplicitCallerInfoArgument
         }
 
@@ -487,7 +483,7 @@ namespace NWaveform.Vlc
             _media = null;
 
             // ReSharper disable once ExplicitCallerInfoArgument
-            OnPropertyChanged(nameof(HasAudio));
+            NotifyOfPropertyChange(nameof(HasAudio));
             Duration = 0.0;
             Position = 0.0;
         }
@@ -517,7 +513,6 @@ namespace NWaveform.Vlc
             return Math.Abs(a - b) <= epsilon;
         }
 
-
         #endregion
 
         #region IDisposable implementation
@@ -543,12 +538,5 @@ namespace NWaveform.Vlc
         }
 
         #endregion
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

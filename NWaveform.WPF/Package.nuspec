@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>NWaveform.WPF</id>
+    <version>$Version$</version>
+    <title>NWaveform.WPF</title>
+		<authors>Awesome Incremented and Contributors</authors>
+		<owners>Awesome Incremented and Contributors</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>WPF support for NWaveform</description>
+    <summary>WPF support for NWaveform</summary>
+    <releaseNotes>Revision: $Revision$</releaseNotes>
+    <projectUrl>https://github.com/awesome-inc/NWaveform</projectUrl>
+    <copyright>Awesome Incremented</copyright>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="PresentationCore"/>
+      <frameworkAssembly assemblyName="System.IO.Compression"/>
+      <frameworkAssembly assemblyName="System.Xml"/>
+      <frameworkAssembly assemblyName="System.Xml.Linq"/>
+      <frameworkAssembly assemblyName="WindowsBase"/>
+    </frameworkAssemblies>
+    <dependencies>
+      <dependency id="NAudio" version="1.8.0" />
+      <dependency id="NAudio.Lame" version="1.0.4" />
+      <dependency id="Caliburn.Micro" version="3.0.3" />
+      <dependency id="FontAwesome.Sharp" version="4.7.0" />
+      <dependency id="WriteableBitmapEx" version="1.5.0.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\NWaveform.*" target="lib\net45"/>
+  </files>
+</package>

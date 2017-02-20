@@ -14,6 +14,7 @@ using NSubstitute;
 using NUnit.Framework;
 using NWaveform.Exceptions;
 using NWaveform.Model;
+using NWaveform.NAudio;
 
 namespace NWaveform.Vlc
 {

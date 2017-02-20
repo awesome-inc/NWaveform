@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26020.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NWaveform", "NWaveform\NWaveform.csproj", "{5646FF5B-C8A1-4E26-9317-67DE96175F19}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{335F31F9-70AB-46E8-9ED6-B0924A199B35}"
 	ProjectSection(SolutionItems) = preProject
 		.gitattributes = .gitattributes
@@ -17,9 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		SolutionInfo.cs = SolutionInfo.cs
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NWaveform.NAudio", "NWaveform.NAudio\NWaveform.NAudio.csproj", "{E9EBF5F6-94F4-4931-88E7-B5879C98B719}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NWaveform.ViewModel", "NWaveform.ViewModel\NWaveform.ViewModel.csproj", "{561E4BF0-8E28-4F56-9357-BC46DA04A645}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NWaveform.WPF", "NWaveform.WPF\NWaveform.WPF.csproj", "{561E4BF0-8E28-4F56-9357-BC46DA04A645}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NWaveform.App", "NWaveform.App\NWaveform.App.csproj", "{46ABCA67-6DFA-4AE9-AFA3-DC9FE88BD149}"
 EndProject
@@ -31,14 +27,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5646FF5B-C8A1-4E26-9317-67DE96175F19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5646FF5B-C8A1-4E26-9317-67DE96175F19}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5646FF5B-C8A1-4E26-9317-67DE96175F19}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5646FF5B-C8A1-4E26-9317-67DE96175F19}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E9EBF5F6-94F4-4931-88E7-B5879C98B719}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E9EBF5F6-94F4-4931-88E7-B5879C98B719}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E9EBF5F6-94F4-4931-88E7-B5879C98B719}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E9EBF5F6-94F4-4931-88E7-B5879C98B719}.Release|Any CPU.Build.0 = Release|Any CPU
 		{561E4BF0-8E28-4F56-9357-BC46DA04A645}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{561E4BF0-8E28-4F56-9357-BC46DA04A645}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{561E4BF0-8E28-4F56-9357-BC46DA04A645}.Release|Any CPU.ActiveCfg = Release|Any CPU

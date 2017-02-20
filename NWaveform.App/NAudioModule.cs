@@ -13,10 +13,10 @@ namespace NWaveform.App
             builder.RegisterType<WaveOut>().As<IWavePlayer>();
 
             builder.RegisterType<NAudioPlayer>().As<IMediaPlayer>();
-
             builder.RegisterType<NAudioWaveFormGenerator>().As<IWaveFormGenerator>().SingleInstance();
-
             builder.RegisterModule<StreamingModule>();
+
+            builder.RegisterType<NAudioToMp3Cropper>().AsSelf().AutoActivate().SingleInstance();
         }
     }
 }
