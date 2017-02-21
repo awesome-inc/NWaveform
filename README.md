@@ -4,7 +4,7 @@ Audio waveform library for .NET & WPF.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/oyi8yjwrnuprarkp?svg=true)](https://ci.appveyor.com/project/awesome-inc-build/nwaveform)
 
-[![Nuget](https://img.shields.io/nuget/v/nwaveform.svg)](http://nuget.org/packages/nwaveform)
+[![Nuget](https://img.shields.io/nuget/v/nwaveform.wpf.svg)](http://nuget.org/packages/nwaveform.wpf)
 
 [![Issue Stats](http://issuestats.com/github/awesome-inc/NWaveform/badge/issue)](http://issuestats.com/github/awesome-inc/NWaveform) 
 [![Issue Stats](http://issuestats.com/github/awesome-inc/NWaveform/badge/pr)](http://issuestats.com/github/awesome-inc/NWaveform)

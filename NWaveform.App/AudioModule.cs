@@ -29,7 +29,6 @@ namespace NWaveform.App
             //builder.RegisterModule<WindowsMediaPlayerModule>();
             builder.RegisterModule<NAudioModule>();
             //builder.RegisterModule<VlcModule>();
-
         }
     }
 }
