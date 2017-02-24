@@ -22,7 +22,7 @@ namespace NWaveform.NAudio
             WaveFormat = waveFormat;
             var n = numBytes > 0 ? numBytes : data.Length;
             Data = new byte[n];
-            Array.Copy(data, Data, numBytes);
+            Array.Copy(data, Data, n);
         }
     }
 }
