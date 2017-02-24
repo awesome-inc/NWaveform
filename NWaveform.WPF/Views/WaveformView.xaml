@@ -110,7 +110,7 @@
     </UserControl.Resources>
     <Grid>
         <Grid.Background>
-            <!-- The waveform polygon -->
+            <!-- The waveform image -->
             <ImageBrush x:Name="WaveformImage" Stretch="Fill"/>
         </Grid.Background>
         

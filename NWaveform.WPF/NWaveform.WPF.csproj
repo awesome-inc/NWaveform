@@ -178,14 +178,17 @@
     <Compile Include="ViewModels\DateTimeFormatter.cs" />
     <Compile Include="ViewModels\DateTimeFormatter_Should.cs" />
     <Compile Include="ViewModels\IAbsoluteTimeFormatter.cs" />
+    <Compile Include="ViewModels\IHaveWaveformImage.cs" />
     <Compile Include="ViewModels\ImageTestExtensions.cs" />
     <Compile Include="ViewModels\IMenuItemViewModel.cs" />
     <Compile Include="ViewModels\IMenuViewModel.cs" />
+    <Compile Include="ViewModels\IWaveformDisplayViewModel.cs" />
     <Compile Include="ViewModels\MenuExtensions.cs" />
     <Compile Include="ViewModels\MenuExtensions_Should.cs" />
     <Compile Include="ViewModels\MenuItemViewModel.cs" />
     <Compile Include="ViewModels\MenuViewModel.cs" />
     <Compile Include="ViewModels\PolylineHelper_Should.cs" />
+    <Compile Include="ViewModels\WaveformDisplayViewModel.cs" />
     <Compile Include="ViewModels\WaveformViewModel_Should.cs" />
     <Compile Include="ViewModels\WaveformPlayerViewModel_Should.cs" />
     <Compile Include="ViewModels\AudioSelectionViewModel.cs" />
@@ -200,14 +203,23 @@
     <Compile Include="ViewModels\PolylineHelper.cs" />
     <Compile Include="ViewModels\WaveformPlayerViewModel.cs" />
     <Compile Include="ViewModels\WaveformSettings.cs" />
+    <Compile Include="Views\WaveformDisplayView.xaml.cs">
+      <DependentUpon>WaveformDisplayView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\WaveformDisplayView_Should.cs" />
     <Compile Include="Views\WaveformView.xaml.cs">
       <DependentUpon>WaveformView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\WaveFormPlayerView.xaml.cs">
       <DependentUpon>WaveFormPlayerView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\WaveformView_Should.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\WaveformDisplayView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\WaveformView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

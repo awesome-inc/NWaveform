@@ -8,12 +8,14 @@ namespace NWaveform.App
     public class AppViewModel : Conductor<IPlayerViewModel>.Collection.OneActive
         , IHandle<CropAudioResponse>
     {
+        public IChannelsViewModel Channels { get; }
         private readonly IComponentContext _container;
 
-        public AppViewModel(IEventAggregator events, IComponentContext container)
+        public AppViewModel(IEventAggregator events, IComponentContext container, IChannelsViewModel channels)
         {
             if (events == null) throw new ArgumentNullException(nameof(events));
             if (container == null) throw new ArgumentNullException(nameof(container));
+            if (channels == null) throw new ArgumentNullException(nameof(channels));
             _container = container;
 
             var viewModels = Enumerable.Range(0, 4).Select(i =>
@@ -26,6 +28,8 @@ namespace NWaveform.App
             Items.AddRange(viewModels);
             // ReSharper disable once VirtualMemberCallInConstructor
             ActivateItem(viewModels.First());
+
+            Channels = channels;
 
             events.Subscribe(this);
         }

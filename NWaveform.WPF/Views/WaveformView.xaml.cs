@@ -6,12 +6,14 @@ using NWaveform.ViewModels;
 
 namespace NWaveform.Views
 {
-    public partial class WaveformView
+    public partial class WaveformView : IHaveWaveformImage
     {
         private Point _mouseDownPoint;
         private Point _currentPoint;
         private IWaveformViewModel _viewModel;
         private bool _isMouseDown;
+
+        public ImageBrush WaveformImageBrush => WaveformImage;
 
         public WaveformView()
         {

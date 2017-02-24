@@ -14,6 +14,7 @@ namespace NWaveform.App
         {
             builder.RegisterType<WaveformPlayerViewModel>().As<IWaveformPlayerViewModel>();
             builder.RegisterType<WaveformViewModel>().As<IWaveformViewModel>();
+            builder.RegisterType<WaveformDisplayViewModel>().As<IWaveformDisplayViewModel>();
             builder.RegisterType<AudioSelectionMenuProvider>().As<IAudioSelectionMenuProvider>().SingleInstance();
 
             builder.Register(c => new DateTimeFormatter("yyyy-MM-dd HH:mm:ss"))

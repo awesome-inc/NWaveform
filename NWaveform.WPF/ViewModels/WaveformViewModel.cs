@@ -1,34 +1,26 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
-using NWaveform.Events;
 using NWaveform.Interfaces;
 using NWaveform.Model;
-using NWaveform.Views;
 
 namespace NWaveform.ViewModels
 {
-    public class WaveformViewModel : Screen, IWaveformViewModel
-        , IHandleWithTask<PeaksReceivedEvent>
+    public class WaveformViewModel : WaveformDisplayViewModel, IWaveformViewModel
     {
         private PointCollection _userChannel = new PointCollection();
         private PointCollection _separationLeftChannel = new PointCollection();
         private PointCollection _separationRightChannel = new PointCollection();
 
-        private double _duration;
         private IAudioSelectionViewModel _selection = new AudioSelectionViewModel();
 
         private readonly double _maxMagnitude;
         private double _ticksEach;
 
-        private SolidColorBrush _backgroundBrush;
-        private SolidColorBrush _leftBrush;
-        private SolidColorBrush _rightBrush;
         private SolidColorBrush _positionBrush;
         private SolidColorBrush _selectionBrush;
 
@@ -41,32 +33,23 @@ namespace NWaveform.ViewModels
         private SolidColorBrush _userTextBrush;
         private IPositionProvider _positionProvider = new EmptyPositionProvider();
 
-        private WriteableBitmap _waveformImage;
-        private int[] _leftChannel;
-        private int[] _rightChannel;
-        private int _width;
-        private int _zeroMagnitude;
         private DateTimeOffset? _startTime;
 
-        public WaveformViewModel(IEventAggregator events, WaveformSettings waveformSettings = null)
+        public WaveformViewModel(IEventAggregator events, WaveformSettings waveformSettings = null) : base(events)
         {
             var settings = waveformSettings ?? new WaveformSettings();
 
             _maxMagnitude = settings.MaxMagnitude;
             _ticksEach = settings.TicksEach;
-            _backgroundBrush = new SolidColorBrush(settings.BackgroundColor);
-            _leftBrush = new SolidColorBrush(settings.LeftColor);
-            _rightBrush = new SolidColorBrush(settings.RightColor);
+            BackgroundBrush = new SolidColorBrush(settings.BackgroundColor);
+            LeftBrush = new SolidColorBrush(settings.LeftColor);
+            RightBrush = new SolidColorBrush(settings.RightColor);
             _positionBrush = new SolidColorBrush(settings.PositionColor);
             _selectionBrush = new SolidColorBrush(settings.SelectionColor);
             _userBrush = new SolidColorBrush(settings.UserColor);
             _separationLeftBrush = new SolidColorBrush(settings.SeparationLeftColor);
             _separationRightBrush = new SolidColorBrush(settings.SeparationRightColor);
             _userTextBrush = new SolidColorBrush(settings.UserTextColor);
-
-            WaveformImage = BitmapFactory.New(1920, 1080);
-
-            events.Subscribe(this);
         }
 
         public IPositionProvider PositionProvider
@@ -83,47 +66,21 @@ namespace NWaveform.ViewModels
             }
         }
 
-        internal WriteableBitmap WaveformImage
-        {
-            get { return _waveformImage; }
-            set
-            {
-                if (value == null) throw new ArgumentNullException();
-                _waveformImage = value;
-                _zeroMagnitude = (int)(_waveformImage.Height / 2.0);
-                _width = (int)_waveformImage.Width;
-                if (_leftChannel == null) _leftChannel = new int[_width]; else Array.Resize(ref _leftChannel, _width);
-                if (_rightChannel == null) _rightChannel = new int[_width]; else Array.Resize(ref _rightChannel, _width);
-                ArrayExtensions.Set(_leftChannel, _zeroMagnitude);
-                ArrayExtensions.Set(_rightChannel, _zeroMagnitude);
-                _waveformImage.Clear(BackgroundBrush.Color);
-            }
-        }
-
         private void PositionProviderNotifyOfPropertyChange(object sender, PropertyChangedEventArgs e)
         {
             // Position if a direct reference to _positionProvider whereby Duration caches the value in this instance
             switch (e.PropertyName)
             {
-                case nameof(Position):
+                case nameof(IPositionProvider.Position):
                     NotifyOfPropertyChange(nameof(Position));
                     break;
-                case nameof(Duration):
+                case nameof(IPositionProvider.Duration):
                     Duration = PositionProvider.Duration;
                     break;
+                case nameof(IPositionProvider.Source):
+                    Source = PositionProvider.Source;
+                    break;
             }
-        }
-
-        protected override void OnViewLoaded(object view)
-        {
-            var myView = view as WaveformView;
-            if (myView != null)
-                myView.WaveformImage.ImageSource = WaveformImage;
-        }
-
-        protected override void OnActivate()
-        {
-            RenderWaveform();
         }
 
         public double Position
@@ -151,18 +108,6 @@ namespace NWaveform.ViewModels
         }
 
         public DateTimeOffset? CurrentTime => StartTime + TimeSpan.FromSeconds(Position);
-
-        public double Duration
-        {
-            get { return _duration; }
-            set
-            {
-                if (Math.Abs(_duration - value) < double.Epsilon) return;
-                _duration = value;
-                NotifyOfPropertyChange();
-                NotifyOfPropertyChange(nameof(HasDuration));
-            }
-        }
 
         public bool HasDuration => Duration > 0.0;
 
@@ -205,24 +150,6 @@ namespace NWaveform.ViewModels
         {
             get { return _selectedLabel; }
             set { _selectedLabel = value; NotifyOfPropertyChange(); }
-        }
-
-        public SolidColorBrush BackgroundBrush
-        {
-            get { return _backgroundBrush; }
-            set { _backgroundBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
-        }
-
-        public SolidColorBrush LeftBrush
-        {
-            get { return _leftBrush; }
-            set { _leftBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
-        }
-
-        public SolidColorBrush RightBrush
-        {
-            get { return _rightBrush; }
-            set { _rightBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
         public SolidColorBrush UserBrush
@@ -279,14 +206,11 @@ namespace NWaveform.ViewModels
             set { _separationRightChannel = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
-        public int[] LeftChannel => _leftChannel;
-        public int[] RightChannel => _rightChannel;
-
         public void SetWaveform(WaveformData waveform)
         {
-            _waveformImage.Clear(BackgroundBrush.Color);
-            _leftChannel.Set(_zeroMagnitude);
-            _rightChannel.Set(_zeroMagnitude);
+            WaveformImage.Clear(BackgroundBrush.Color);
+            LeftChannel.Set(ZeroMagnitude);
+            RightChannel.Set(ZeroMagnitude);
 
             if (waveform == null) return;
 
@@ -301,8 +225,8 @@ namespace NWaveform.ViewModels
                 ? GetPoints(channels[1].Samples, duration, false)
                 : leftPoints.Scaled(1, -1); // mono? --> Y-flipped duplicate of left channel
 
-            ResampleChannel(_zeroMagnitude, leftPoints, _leftChannel);
-            ResampleChannel(_zeroMagnitude, rightPoints, _rightChannel);
+            ResampleChannel(ZeroMagnitude, leftPoints, LeftChannel);
+            ResampleChannel(ZeroMagnitude, rightPoints, RightChannel);
             Duration = duration;
 
             RenderWaveform();
@@ -320,53 +244,6 @@ namespace NWaveform.ViewModels
                 var point = points[t];
                 var y = (int)(sy * (1 + point.Y));
                 channel[x] = y;
-            }
-        }
-
-        public Task Handle(PeaksReceivedEvent message)
-        {
-            if (!SameSource(message)) return Task.FromResult(0);
-            return Execute.OnUIThreadAsync(() => HandlePeaks(message));
-        }
-
-        internal void HandlePeaks(PeaksReceivedEvent message)
-        {
-            var pointsReceivedEvent = message.ToPoints(Duration, WaveformImage.Width, WaveformImage.Height);
-            Handle(pointsReceivedEvent);
-        }
-
-        private void Handle(PointsReceivedEvent message)
-        {
-            _leftChannel.FlushedCopy(message.XOffset, message.LeftPoints, _zeroMagnitude);
-            _rightChannel.FlushedCopy(message.XOffset, message.RightPoints, _zeroMagnitude);
-            RenderWaveform(message.XOffset);
-        }
-
-        private bool SameSource(PeaksReceivedEvent message)
-        {
-            return PositionProvider?.Source != null && message.Source == PositionProvider?.Source;
-        }
-
-        private void RenderWaveform(int x0 = 0, int len = 0)
-        {
-            var w = (int)WaveformImage.Width;
-            var h = (int)WaveformImage.Height;
-            var h2 = h / 2;
-
-            // clear background from x0 to x1
-            var x1 = len > 0 ? x0 + len : w;
-            var backColor = WriteableBitmapExtensions.ConvertColor(BackgroundBrush.Color);
-            WaveformImage.FillRectangle(x0, 0, x1, h, backColor);
-
-            using (var ctx = WaveformImage.GetBitmapContext())
-            {
-                var leftColor = WriteableBitmapExtensions.ConvertColor(LeftBrush.Color);
-                var rightColor = WriteableBitmapExtensions.ConvertColor(RightBrush.Color);
-                for (var x = x0; x < _leftChannel.Length; x++)
-                {
-                    WriteableBitmapExtensions.DrawLine(ctx, w, h, x, h2, x, _leftChannel[x], leftColor);
-                    WriteableBitmapExtensions.DrawLine(ctx, w, h, x, h2, x, _rightChannel[x], rightColor);
-                }
             }
         }
 

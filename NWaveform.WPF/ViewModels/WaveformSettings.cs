@@ -4,6 +4,10 @@ namespace NWaveform.ViewModels
 {
     public class WaveformSettings
     {
+        public static readonly Color DefaultBackgroundColor = Colors.Transparent;
+        public static readonly Color DefaultLeftColor = Colors.IndianRed;
+        public static readonly Color DefaultRightColor = Colors.RoyalBlue;
+
         public double MaxMagnitude { get; set; }
         public double TicksEach { get; set; }
 
@@ -22,9 +26,9 @@ namespace NWaveform.ViewModels
             MaxMagnitude = 1.0;
             TicksEach = 5.0;
 
-            BackgroundColor = Colors.Transparent; //Colors.DimGray;
-            LeftColor = Colors.IndianRed;
-            RightColor = Colors.RoyalBlue;
+            BackgroundColor = DefaultBackgroundColor; //Colors.DimGray;
+            LeftColor = DefaultLeftColor;
+            RightColor = DefaultRightColor;
             PositionColor = Color.FromArgb(255, 192, 192, 0);// Colors.Yellow *0.8
             SelectionColor = Color.FromArgb(80, 115, 192, 115); // Colors.LimeGreen * 0.8
             UserColor = Color.FromArgb(192, 0, 0, 0);

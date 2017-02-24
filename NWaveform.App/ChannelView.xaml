@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="NWaveform.App.ChannelView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="4"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="150" Width="150"/>
+            <ColumnDefinition MinWidth="60" Width="60"/>
+            <ColumnDefinition Width="*" MinWidth="250"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock x:Name="Source"/>
+        <TextBlock x:Name="Duration" Grid.Column="1"/>
+        <ContentControl x:Name="Waveform" Grid.Column="2" MinHeight="48" Margin="4"/>
+    </Grid>
+</UserControl>

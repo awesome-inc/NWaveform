@@ -105,7 +105,17 @@
       <DependentUpon>AppView.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppViewModel.cs" />
+    <Compile Include="ChannelsView.xaml.cs">
+      <DependentUpon>ChannelsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ChannelsViewModel.cs" />
+    <Compile Include="ChannelView.xaml.cs">
+      <DependentUpon>ChannelView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ChannelViewModel.cs" />
     <Compile Include="EndlessFileLoopChannel.cs" />
+    <Compile Include="IChannelsViewModel.cs" />
+    <Compile Include="IChannelViewModel.cs" />
     <Compile Include="IPlayerViewModel.cs" />
     <Compile Include="NAudioModule.cs" />
     <Compile Include="StreamingModule.cs" />
@@ -117,6 +127,14 @@
     <Compile Include="TestData.cs" />
     <Compile Include="WindowsMediaPlayerModule.cs" />
     <Page Include="AppView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ChannelsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ChannelView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

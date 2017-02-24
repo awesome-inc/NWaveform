@@ -31,8 +31,8 @@ namespace NWaveform.App
             builder.RegisterType<EventAggregator>().As<IEventAggregator>().SingleInstance();
 
             builder.RegisterType<AppViewModel>().AsSelf().SingleInstance();
-
             builder.RegisterType<PlayerViewModel>().As<IPlayerViewModel>();
+            builder.RegisterType<ChannelsViewModel>().As<IChannelsViewModel>();
 
             builder.RegisterModule<AudioModule>();
 

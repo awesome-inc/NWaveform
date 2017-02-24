@@ -12,6 +12,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Button x:Name="AddPlayer" ToolTip="Add tab" Width="32" Height="32" HorizontalAlignment="Left">
@@ -42,5 +43,7 @@
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>
+        
+        <ContentControl x:Name="Channels" Grid.Row="2"/>
     </Grid>
 </UserControl>
