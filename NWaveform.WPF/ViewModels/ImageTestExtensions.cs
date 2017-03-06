@@ -20,16 +20,21 @@ namespace NWaveform.ViewModels
                 y0 = Clamp(y0, 0, y1);
 
                 for (var y = y0; y < y1; y++)
-                for (var x = x0; x < x1; x++)
-                {
-                    var actualColor = c.Pixels[y * c.Width + x];
-                    if (actualColor != expectedColor)
+                    for (var x = x0; x < x1; x++)
                     {
-                        var actualColorName = GetColorName(b.GetPixel(x, y));
-                        Assert.Fail($"Pixel at ({x},{y}) should be '{expectedColorName}' but is '{actualColorName}'");
+                        var actualColor = c.Pixels[y * c.Width + x];
+                        if (actualColor != expectedColor)
+                        {
+                            var actualColorName = GetColorName(b.GetPixel(x, y));
+                            Assert.Fail($"Pixel at ({x},{y}) should be '{expectedColorName}' but is '{actualColorName}'");
+                        }
                     }
-                }
             }
+        }
+
+        public static void ShouldHaveColor(this WriteableBitmap b, Color color)
+        {
+            RectShouldHaveColor(b, 0, 0, b.PixelWidth, b.PixelHeight, color);
         }
 
         static int Clamp(int value, int min, int max)
