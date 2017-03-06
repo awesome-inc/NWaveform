@@ -52,6 +52,7 @@ namespace NWaveform.ViewModels
             {
                 if (Equals(value, _source)) return;
                 _source = value;
+                _waveformImage.Clear(BackgroundBrush.Color);
                 NotifyOfPropertyChange();
             }
         }
