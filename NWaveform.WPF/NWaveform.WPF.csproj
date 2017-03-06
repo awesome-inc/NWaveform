@@ -116,6 +116,7 @@
     <Compile Include="Events\AudioSamplesExtensions.cs" />
     <Compile Include="Events\AudioSelectionEventArgs.cs" />
     <Compile Include="Events\AudioSelectionEventArgs_Should.cs" />
+    <Compile Include="Events\AudioShiftedEvent.cs" />
     <Compile Include="Events\PointsReceivedEvent.cs" />
     <Compile Include="Events\PeaksReceivedEvent.cs" />
     <Compile Include="Events\StartTimeChanged.cs" />
@@ -189,6 +190,7 @@
     <Compile Include="ViewModels\MenuViewModel.cs" />
     <Compile Include="ViewModels\PolylineHelper_Should.cs" />
     <Compile Include="ViewModels\WaveformDisplayViewModel.cs" />
+    <Compile Include="ViewModels\WaveformDisplayViewModel_Should.cs" />
     <Compile Include="ViewModels\WaveformViewModel_Should.cs" />
     <Compile Include="ViewModels\WaveformPlayerViewModel_Should.cs" />
     <Compile Include="ViewModels\AudioSelectionViewModel.cs" />

@@ -35,10 +35,12 @@ namespace NWaveform.ViewModels
             {
                 if (value == null) throw new ArgumentNullException();
                 _waveformImage = value;
-                ZeroMagnitude = (int)(_waveformImage.Height / 2.0);
-                _width = (int)_waveformImage.Width;
-                if (_leftChannel == null) _leftChannel = new int[_width]; else Array.Resize(ref _leftChannel, _width);
-                if (_rightChannel == null) _rightChannel = new int[_width]; else Array.Resize(ref _rightChannel, _width);
+                ZeroMagnitude = (int) (_waveformImage.Height / 2.0);
+                _width = (int) _waveformImage.Width;
+                if (_leftChannel == null) _leftChannel = new int[_width];
+                else Array.Resize(ref _leftChannel, _width);
+                if (_rightChannel == null) _rightChannel = new int[_width];
+                else Array.Resize(ref _rightChannel, _width);
                 _leftChannel.Set(ZeroMagnitude);
                 _rightChannel.Set(ZeroMagnitude);
                 _waveformImage.Clear(BackgroundBrush.Color);
@@ -72,13 +74,23 @@ namespace NWaveform.ViewModels
         public SolidColorBrush LeftBrush
         {
             get { return _leftBrush; }
-            set { _leftBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
+            set
+            {
+                _leftBrush = value;
+                NotifyOfPropertyChange();
+                RenderWaveform();
+            }
         }
 
         public SolidColorBrush RightBrush
         {
             get { return _rightBrush; }
-            set { _rightBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
+            set
+            {
+                _rightBrush = value;
+                NotifyOfPropertyChange();
+                RenderWaveform();
+            }
         }
 
         public int[] LeftChannel => _leftChannel;
@@ -87,7 +99,12 @@ namespace NWaveform.ViewModels
         public SolidColorBrush BackgroundBrush
         {
             get { return _backgroundBrush; }
-            set { _backgroundBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
+            set
+            {
+                _backgroundBrush = value;
+                NotifyOfPropertyChange();
+                RenderWaveform();
+            }
         }
 
         protected override void OnViewLoaded(object view)
@@ -104,15 +121,44 @@ namespace NWaveform.ViewModels
 
         public Task Handle(PeaksReceivedEvent message)
         {
-            if (!SameSource(message)) return Task.FromResult(0);
+            if (!SameSource(message.Source)) return Task.FromResult(0);
             return Execute.OnUIThreadAsync(() => HandlePeaks(message));
+        }
+
+        public Task Handle(AudioShiftedEvent message)
+        {
+            if (!SameSource(message.Source)) return Task.FromResult(0);
+            return Execute.OnUIThreadAsync(() => HandleShift(message.Shift));
         }
 
         internal void HandlePeaks(PeaksReceivedEvent message)
         {
             var pointsReceivedEvent = message.ToPoints(Duration, WaveformImage.Width, WaveformImage.Height);
             Handle(pointsReceivedEvent);
-            Trace.WriteLine($"Received #{message.Peaks.Length} peaks ({message.Start}:{message.End}) for '{message.Source}' ");
+            Trace.WriteLine(
+                $"Received #{message.Peaks.Length} peaks ({message.Start}:{message.End}) for '{message.Source}' ");
+        }
+
+        internal void HandleShift(TimeSpan shift)
+        {
+            var dx = (int)(WaveformImage.Width * shift.TotalSeconds / Duration);
+            var x0 = (dx < 0 ? -dx : 0);
+            var x1 = (dx > 0 ? dx : 0);
+            var count = WaveformImage.PixelWidth - Math.Abs(dx);
+
+            //Buffer.BlockCopy(_leftChannel, x0, _leftChannel, x1, count * 4);
+            //Buffer.BlockCopy(_rightChannel, x0, _rightChannel, x1, count * 4);
+            Array.Copy(_leftChannel, x0, _leftChannel, x1, count);
+            Array.Copy(_rightChannel, x0, _rightChannel, x1, count);
+            // zero tail of points
+            var x2 = x1 + count;
+            _leftChannel.Set(ZeroMagnitude, x2);
+            _rightChannel.Set(ZeroMagnitude, x2);
+
+            _waveformImage.Clear(BackgroundBrush.Color);
+            RenderWaveform();
+
+            Trace.WriteLine($"Shifted audio {shift}");
         }
 
         private void Handle(PointsReceivedEvent message)
@@ -122,15 +168,15 @@ namespace NWaveform.ViewModels
             RenderWaveform(message.XOffset);
         }
 
-        private bool SameSource(PeaksReceivedEvent message)
+        private bool SameSource(Uri source)
         {
-            return Source != null && message.Source == Source;
+            return Source != null && source == Source;
         }
 
         protected void RenderWaveform(int x0 = 0, int len = 0)
         {
-            var w = (int)WaveformImage.Width;
-            var h = (int)WaveformImage.Height;
+            var w = (int) WaveformImage.Width;
+            var h = (int) WaveformImage.Height;
             var h2 = h / 2;
 
             // clear background from x0 to x1

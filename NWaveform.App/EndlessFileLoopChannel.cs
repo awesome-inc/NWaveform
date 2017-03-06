@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using NAudio.Wave;
+using NWaveform.Events;
 using NWaveform.NAudio;
 
 namespace NWaveform.App
@@ -21,7 +22,14 @@ namespace NWaveform.App
             if (events == null) throw new ArgumentNullException(nameof(events));
             _events = events;
             _audioStream = audioStream;
+
+            BufferedStream.WrappedAround += BufferedStream_WrappedAround;
             _task = Task.Factory.StartNew(PublishFromStream);
+        }
+
+        private void BufferedStream_WrappedAround(object sender, EventArgs e)
+        {
+            _events.PublishOnCurrentThread(new AudioShiftedEvent(Source, -BufferedStream.SkippedDuration));
         }
 
         public EndlessFileLoopChannel(IEventAggregator events, Uri source, string fileName, TimeSpan bufferSize)

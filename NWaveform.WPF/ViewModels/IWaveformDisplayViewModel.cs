@@ -9,6 +9,7 @@ namespace NWaveform.ViewModels
     public interface IWaveformDisplayViewModel
         : INotifyPropertyChanged
         , IHandleWithTask<PeaksReceivedEvent>
+        , IHandleWithTask<AudioShiftedEvent>
     {
         Uri Source { get; set; }
         double Duration { get; set; }

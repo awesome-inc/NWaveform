@@ -35,9 +35,9 @@ namespace NWaveform.App
         {
             var events = c.Resolve<IEventAggregator>();
             const string fileName = @"Data\Pulp_Fiction_Jimmys_Coffee.mp3";
-            //var preserveWrapAround = TimeSpan.FromSeconds(bufferSize.TotalSeconds / 3.0);
-            return new EndlessFileLoopChannel(events, source, fileName, bufferSize);
-            //{ PreserveAfterWrapAround = preserveWrapAround };
+            var preserveWrapAround = TimeSpan.FromSeconds(bufferSize.TotalSeconds * 0.5);
+            return new EndlessFileLoopChannel(events, source, fileName, bufferSize)
+            { PreserveAfterWrapAround = preserveWrapAround };
         }
 
         private static IChannelViewModel CreateChannelViewModel(IComponentContext c, Uri source, double duration)

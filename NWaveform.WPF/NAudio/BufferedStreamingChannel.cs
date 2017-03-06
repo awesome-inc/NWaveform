@@ -12,14 +12,16 @@ namespace NWaveform.NAudio
         public IWaveProviderEx Stream => _waveProvider;
         public TimeSpan BufferSize => BufferedStream.BufferDuration;
 
+        public TimeSpan PreserveAfterWrapAround
+        {
+            get { return BufferedStream.PreserveAfterWrapAround; }
+            set { BufferedStream.PreserveAfterWrapAround = value; }
+        }
+
         public BufferedStreamingChannel(Uri source, WaveFormat waveFormat, TimeSpan bufferSize)
         {
             Source = source;
-            BufferedStream = new BufferedWaveStream(waveFormat, bufferSize)
-            {
-                DiscardOnBufferOverflow = true,
-                ReadFully = true,
-            };
+            BufferedStream = new BufferedWaveStream(waveFormat, bufferSize);
             _waveProvider = new WaveProviderEx(BufferedStream) { Closeable = false };
         }
 
