@@ -8,7 +8,7 @@
     xmlns:converter="clr-namespace:NWaveform.Converter"
     xmlns:viewModels="clr-namespace:NWaveform.ViewModels"
     xmlns:nWaveform="clr-namespace:NWaveform"
-    Background="{Binding BackgroundBrush}" MinHeight="100"
+    Background="{Binding BackgroundBrush}" MinHeight="24"
     mc:Ignorable="d" d:DesignHeight="150" d:DesignWidth="300"
     d:DataContext="{d:DesignInstance viewModels:IWaveformViewModel, IsDesignTimeCreatable=False}">
     <UserControl.Resources>
