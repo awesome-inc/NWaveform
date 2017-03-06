@@ -66,6 +66,19 @@ namespace NWaveform.ViewModels
             }
         }
 
+        internal override void HandleShift(double shift)
+        {
+            base.HandleShift(shift);
+
+            PositionProvider.Position += shift;
+
+            if (Selection != null)
+            {
+                Selection.Start += shift;
+                Selection.End += shift;
+            }
+        }
+
         private void PositionProviderNotifyOfPropertyChange(object sender, PropertyChangedEventArgs e)
         {
             // Position if a direct reference to _positionProvider whereby Duration caches the value in this instance

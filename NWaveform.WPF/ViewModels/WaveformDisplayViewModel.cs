@@ -128,7 +128,7 @@ namespace NWaveform.ViewModels
         public Task Handle(AudioShiftedEvent message)
         {
             if (!SameSource(message.Source)) return Task.FromResult(0);
-            return Execute.OnUIThreadAsync(() => HandleShift(message.Shift));
+            return Execute.OnUIThreadAsync(() => HandleShift(message.Shift.TotalSeconds));
         }
 
         internal void HandlePeaks(PeaksReceivedEvent message)
@@ -139,9 +139,9 @@ namespace NWaveform.ViewModels
                 $"Received #{message.Peaks.Length} peaks ({message.Start}:{message.End}) for '{message.Source}' ");
         }
 
-        internal void HandleShift(TimeSpan shift)
+        internal virtual void HandleShift(double shift)
         {
-            var dx = (int)(WaveformImage.Width * shift.TotalSeconds / Duration);
+            var dx = (int)(WaveformImage.Width * shift / Duration);
             var x0 = (dx < 0 ? -dx : 0);
             var x1 = (dx > 0 ? dx : 0);
             var count = WaveformImage.PixelWidth - Math.Abs(dx);
@@ -158,7 +158,7 @@ namespace NWaveform.ViewModels
             _waveformImage.Clear(BackgroundBrush.Color);
             RenderWaveform();
 
-            Trace.WriteLine($"Shifted audio {shift}");
+            Trace.WriteLine($"Shifted audio {shift} seconds.");
         }
 
         private void Handle(PointsReceivedEvent message)
