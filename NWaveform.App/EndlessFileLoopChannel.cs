@@ -29,7 +29,7 @@ namespace NWaveform.App
 
         private void BufferedStream_WrappedAround(object sender, EventArgs e)
         {
-            _events.PublishOnCurrentThread(new AudioShiftedEvent(Source, -BufferedStream.SkippedDuration));
+            _events.PublishOnCurrentThread(new AudioShiftedEvent(Source, BufferedStream.SkippedDuration));
         }
 
         public EndlessFileLoopChannel(IEventAggregator events, Uri source, string fileName, TimeSpan bufferSize)

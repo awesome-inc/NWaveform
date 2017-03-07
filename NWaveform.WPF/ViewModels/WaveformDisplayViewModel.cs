@@ -141,12 +141,10 @@ namespace NWaveform.ViewModels
         internal virtual void HandleShift(double shift)
         {
             var dx = (int)(WaveformImage.Width * shift / Duration);
-            var x0 = (dx < 0 ? -dx : 0);
-            var x1 = (dx > 0 ? dx : 0);
+            var x0 = (dx > 0 ? dx : 0);
+            var x1 = (dx < 0 ? -dx : 0);
             var count = WaveformImage.PixelWidth - Math.Abs(dx);
 
-            //Buffer.BlockCopy(_leftChannel, x0, _leftChannel, x1, count * 4);
-            //Buffer.BlockCopy(_rightChannel, x0, _rightChannel, x1, count * 4);
             Array.Copy(_leftChannel, x0, _leftChannel, x1, count);
             Array.Copy(_rightChannel, x0, _rightChannel, x1, count);
             // zero tail of points

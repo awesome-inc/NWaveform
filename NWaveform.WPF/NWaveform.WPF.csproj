@@ -119,7 +119,6 @@
     <Compile Include="Events\AudioShiftedEvent.cs" />
     <Compile Include="Events\PointsReceivedEvent.cs" />
     <Compile Include="Events\PeaksReceivedEvent.cs" />
-    <Compile Include="Events\StartTimeChanged.cs" />
     <Compile Include="Events\StreamVolumeEventArgs.cs" />
     <Compile Include="Exceptions\AudioException.cs" />
     <Compile Include="Exceptions\AudioExceptions_Should.cs" />
@@ -136,6 +135,7 @@
     <Compile Include="FormattedSlider.cs" />
     <Compile Include="ICommand.cs" />
     <Compile Include="Interfaces\EmptyPositionProvider.cs" />
+    <Compile Include="Interfaces\IGetTimeStamp.cs" />
     <Compile Include="Interfaces\IMediaPlayer.cs" />
     <Compile Include="Interfaces\IPlayerError.cs" />
     <Compile Include="Interfaces\IPositionProvider.cs" />

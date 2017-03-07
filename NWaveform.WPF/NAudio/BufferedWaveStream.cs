@@ -76,7 +76,7 @@ namespace NWaveform.NAudio
             // split in two writes: a) until full, b) exceeding
             var delta = count-exceeding;
             var written = _circularBuffer.Write(buffer, offset, delta);
-            _circularBuffer.Shift(-SkippedBytes);
+            _circularBuffer.Shift(SkippedBytes);
 
             OnWrappedAround();
 

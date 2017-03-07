@@ -8,6 +8,7 @@ namespace NWaveform.NAudio
         private readonly WaveProviderEx _waveProvider;
         protected internal readonly BufferedWaveStream BufferedStream;
 
+        public DateTimeOffset? CreationTime { get; } = DateTimeOffset.UtcNow;
         public Uri Source { get; }
         public IWaveProviderEx Stream => _waveProvider;
         public TimeSpan BufferSize => BufferedStream.BufferDuration;
@@ -36,5 +37,6 @@ namespace NWaveform.NAudio
             _waveProvider?.ExplicitClose();
             BufferedStream?.Dispose();
         }
+
     }
 }

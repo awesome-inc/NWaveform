@@ -70,12 +70,12 @@ namespace NWaveform.ViewModels
         {
             base.HandleShift(shift);
 
-            Position += shift;
+            Position -= shift;
 
             if (Selection != null)
             {
-                Selection.Start += shift;
-                Selection.End += shift;
+                Selection.Start -= shift;
+                Selection.End -= shift;
             }
         }
 

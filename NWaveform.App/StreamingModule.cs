@@ -11,7 +11,7 @@ namespace NWaveform.App
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<StreamingWaveProviderFactory>().As<IWaveProviderFactory>().SingleInstance();
+            builder.RegisterType<StreamingWaveProviderFactory>().AsImplementedInterfaces().SingleInstance();
 
             var channels = new Dictionary<Uri, TimeSpan>
             {

@@ -25,7 +25,7 @@ namespace NWaveform.NAudio
 
             // now shift backward
             const int shift = size / 2;
-            sut.Shift(-shift);
+            sut.Shift(shift);
 
             expected = expected.Skip(shift).Concat(Enumerable.Repeat((byte)0, size - shift)).ToArray();
             sut.ReadPosition = 0;
@@ -33,7 +33,7 @@ namespace NWaveform.NAudio
             actual.Should().Equal(expected);
 
             // shift forward
-            sut.Shift(shift);
+            sut.Shift(-shift);
             expected = Enumerable.Repeat((byte) 0, shift).Concat(expected.Take(size - shift)).ToArray();
             sut.ReadPosition = 0;
             sut.Read(actual, 0, actual.Length).Should().Be(sut.Length);

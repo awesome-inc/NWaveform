@@ -78,15 +78,15 @@ namespace NWaveform.NAudio
         public void Shift(int delta)
         {
             int from = 0, to = 0, count, clearFrom = 0;
-            if (delta < 0)
+            if (delta > 0)
             {
-                from = -delta;
+                from = delta;
                 count = Length - from;
                 clearFrom = count;
             }
             else
             {
-                to = delta;
+                to = -delta;
                 count = Length - to;
             }
             var clearCount = Length - count;
@@ -95,8 +95,8 @@ namespace NWaveform.NAudio
             {
                 Buffer.BlockCopy(_buffer, from, _buffer, to, count);
                 Array.Clear(_buffer, clearFrom, clearCount);
-                _readPosition = Mod(_readPosition + delta, _buffer.Length);
-                WritePosition = Mod(WritePosition + delta, _buffer.Length);
+                _readPosition = Mod(_readPosition - delta, _buffer.Length);
+                WritePosition = Mod(WritePosition - delta, _buffer.Length);
             }
         }
 
