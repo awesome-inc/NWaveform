@@ -10,7 +10,7 @@ namespace NWaveform.NAudio
         public WaveFormat WaveFormat { get; }
         public byte[] Data { get; }
 
-        public SamplesReceivedEvent(Uri source, TimeSpan start, WaveFormat waveFormat, byte[] data, int numBytes = 0)
+        public SamplesReceivedEvent(Uri source, TimeSpan start, WaveFormat waveFormat, byte[] data, int offset = 0, int count = 0)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (start < TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(start), "Must not be negative");
@@ -20,9 +20,9 @@ namespace NWaveform.NAudio
             Source = source;
             Start = start;
             WaveFormat = waveFormat;
-            var n = numBytes > 0 ? numBytes : data.Length;
+            var n = count > 0 ? count : data.Length - offset;
             Data = new byte[n];
-            Array.Copy(data, Data, n);
+            Buffer.BlockCopy(data, offset, Data, 0, n);
         }
     }
 }

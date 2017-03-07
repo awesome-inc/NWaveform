@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
@@ -53,7 +55,7 @@ namespace NWaveform.ViewModels
             sut.HasDuration.Should().BeTrue();
         }
 
-        [Test(Description = "verify duration change on player is handles because of media stream")]
+        [Test]
         public void Not_Handle_Duration_Changed_Event_From_MediaPlayer_If_Not_Changed()
         {
             const int expectedDuration = 4;
@@ -180,6 +182,25 @@ namespace NWaveform.ViewModels
             sut.HandlePeaks(e);
             sut.WaveformImage.RectShouldHaveColor(0, 0, 2 * w3 - 1, 20, color);
             sut.WaveformImage.RectShouldHaveColor(2 * w3, 0, 3 * w3, 20, sut.BackgroundBrush.Color);
+        }
+
+        [Test]
+        public void Shift_position_selection_channels_and_labels()
+        {
+            var ctx = new ContextFor<WaveformViewModel>();
+            var sut = ctx.BuildSut();
+
+            sut.Duration = 12;
+            sut.Position = 6;
+            sut.Selection.Start = 6;
+            sut.Selection.End = 9;
+            sut.HandleShift(3);
+
+            sut.Position.Should().Be(3);
+            sut.Selection.Start.Should().Be(3);
+            sut.Selection.End.Should().Be(6);
+
+            // TODO: assert channels & labels
         }
     }
 }

@@ -16,7 +16,8 @@ namespace NWaveform.NAudio
         [TestCase(44100, 2)]
         [TestCase(22050, 2)]
         [TestCase(16000, 2)]
-        [TestCase(11025, 1)]
+        [TestCase(11000, 2)]
+        [TestCase(11000, 1)]
         [TestCase(8000, 1)]
         public void Provide_Average_Peaks_For(int rate, int channels)
         {
@@ -45,8 +46,8 @@ namespace NWaveform.NAudio
 
                 var peak = peaks[i];
                 peak.Max.Should().BeInRange(-1f, 1f);
-                peak.Min.Should().Be(-peak.Max);
                 peak.Max.Should().BeApproximately(expected, 0.01f);
+                peak.Min.Should().Be(-peak.Max);
             }
         }
 
