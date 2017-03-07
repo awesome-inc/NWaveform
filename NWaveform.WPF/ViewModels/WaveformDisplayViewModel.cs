@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
@@ -119,16 +118,16 @@ namespace NWaveform.ViewModels
             RenderWaveform();
         }
 
-        public Task Handle(PeaksReceivedEvent message)
+        public void Handle(PeaksReceivedEvent message)
         {
-            if (!SameSource(message.Source)) return Task.FromResult(0);
-            return Execute.OnUIThreadAsync(() => HandlePeaks(message));
+            if (!SameSource(message.Source)) return;
+            Execute.OnUIThread(() => HandlePeaks(message));
         }
 
-        public Task Handle(AudioShiftedEvent message)
+        public void Handle(AudioShiftedEvent message)
         {
-            if (!SameSource(message.Source)) return Task.FromResult(0);
-            return Execute.OnUIThreadAsync(() => HandleShift(message.Shift.TotalSeconds));
+            if (!SameSource(message.Source)) return;
+            Execute.OnUIThread(() => HandleShift(message.Shift.TotalSeconds));
         }
 
         internal void HandlePeaks(PeaksReceivedEvent message)

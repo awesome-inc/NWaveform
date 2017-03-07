@@ -101,7 +101,7 @@ namespace NWaveform.ViewModels
             var ctx = new ContextFor<WaveformViewModel>();
             var sut = ctx.BuildSut();
 
-            sut.Should().BeAssignableTo<IHandleWithTask<PeaksReceivedEvent>>();
+            sut.Should().BeAssignableTo<IHandle<PeaksReceivedEvent>>();
             ctx.For<IEventAggregator>().Received().Subscribe(sut);
 
             // |----------         |
@@ -144,7 +144,7 @@ namespace NWaveform.ViewModels
             sut.WaveformImage = BitmapFactory.New(20, 20);
             var e = new PeaksReceivedEvent(new Uri("source://test/"), 0, 1, new PeakInfo[0]);
             sut.PositionProvider.Source = new Uri("other://source/");
-            sut.Handle(e).Wait();
+            sut.Handle(e);
             sut.WaveformImage.RectShouldHaveColor(0, 0, 20, 20, sut.BackgroundBrush.Color);
         }
 

@@ -1,3 +1,4 @@
+using System;
 using Caliburn.Micro;
 using FluentAssertions;
 using NEdifis;
@@ -16,7 +17,13 @@ namespace NWaveform.ViewModels
         {
             var ctx = new ContextFor<WaveformDisplayViewModel>();
             var sut = ctx.BuildSut();
-            sut.Should().BeAssignableTo<IHandleWithTask<AudioShiftedEvent>>();
+            sut.Should().BeAssignableTo<IHandle<AudioShiftedEvent>>();
+
+            var source = new Uri("http://some/audio/");
+            sut.Source = source;
+            var shift = TimeSpan.FromSeconds(-3);
+            var e = new AudioShiftedEvent(source, shift);
+            sut.Handle(e);
         }
     }
 }

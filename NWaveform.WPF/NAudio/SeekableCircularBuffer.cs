@@ -22,7 +22,7 @@ namespace NWaveform.NAudio
         }
 
         public int WritePosition { get; private set; }
-
+        public int Length => _buffer.Length;
         public SeekableCircularBuffer(int size)
         {
             _buffer = new byte[size];
@@ -75,16 +75,26 @@ namespace NWaveform.NAudio
             }
         }
 
-        public void Shift(int from, int to, int count)
+        public void Shift(int delta)
         {
-            if (count <= 0) throw new ArgumentOutOfRangeException(nameof(count));
-            if (from < 0 || from + count > _buffer.Length) throw new ArgumentOutOfRangeException(nameof(from));
-            if (to < 0 || to + count > _buffer.Length) throw new ArgumentOutOfRangeException(nameof(to));
+            int from = 0, to = 0, count, clearFrom = 0;
+            if (delta < 0)
+            {
+                from = -delta;
+                count = Length - from;
+                clearFrom = count;
+            }
+            else
+            {
+                to = delta;
+                count = Length - to;
+            }
+            var clearCount = Length - count;
 
             lock (_lockObject)
             {
                 Buffer.BlockCopy(_buffer, from, _buffer, to, count);
-                var delta = to - from;
+                Array.Clear(_buffer, clearFrom, clearCount);
                 _readPosition = Mod(_readPosition + delta, _buffer.Length);
                 WritePosition = Mod(WritePosition + delta, _buffer.Length);
             }

@@ -70,7 +70,7 @@ namespace NWaveform.ViewModels
         {
             base.HandleShift(shift);
 
-            PositionProvider.Position += shift;
+            Position += shift;
 
             if (Selection != null)
             {
@@ -107,20 +107,6 @@ namespace NWaveform.ViewModels
                 NotifyOfPropertyChange();
             }
         }
-
-        public DateTimeOffset? StartTime
-        {
-            get { return _startTime; }
-            set
-            {
-                if (value.Equals(_startTime)) return;
-                _startTime = value;
-                NotifyOfPropertyChange();
-                NotifyOfPropertyChange(nameof(CurrentTime));
-            }
-        }
-
-        public DateTimeOffset? CurrentTime => StartTime + TimeSpan.FromSeconds(Position);
 
         public bool HasDuration => Duration > 0.0;
 
