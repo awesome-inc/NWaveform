@@ -66,7 +66,7 @@ namespace NWaveform.NAudio
 
         public int AddSamples(byte[] buffer, int offset = 0, int length = 0)
         {
-            var count = length > 0 ? length : buffer.Length;
+            var count = length > 0 ? length : buffer.Length - offset;
             
             // definition by cases
             var exceeding = (int)(WritePosition + count - BufferLength);

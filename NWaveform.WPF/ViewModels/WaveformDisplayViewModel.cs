@@ -134,13 +134,18 @@ namespace NWaveform.ViewModels
         {
             var pointsReceivedEvent = message.ToPoints(Duration, WaveformImage.Width, WaveformImage.Height);
             Handle(pointsReceivedEvent);
+#if DEBUG
             Trace.WriteLine(
                 $"Received #{message.Peaks.Length} peaks ({message.Start}:{message.End}) for '{message.Source}' ");
+#endif
         }
 
-        internal virtual void HandleShift(double shift)
+        protected internal virtual void HandleShift(double shift)
         {
+            if (Duration < double.Epsilon) return;
             var dx = (int)(WaveformImage.Width * shift / Duration);
+            if (dx == 0) return; // no shift
+
             var x0 = (dx > 0 ? dx : 0);
             var x1 = (dx < 0 ? -dx : 0);
             var count = WaveformImage.PixelWidth - Math.Abs(dx);
@@ -154,8 +159,9 @@ namespace NWaveform.ViewModels
 
             _waveformImage.Clear(BackgroundBrush.Color);
             RenderWaveform();
-
+#if DEBUG
             Trace.WriteLine($"Shifted audio {shift} seconds.");
+#endif
         }
 
         private void Handle(PointsReceivedEvent message)

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Caliburn.Micro;
 using NWaveform.Events;
 using NWaveform.NAudio;
@@ -24,7 +25,8 @@ namespace NWaveform
             var start = samples.Start.TotalSeconds;
             var end = start + ((double)samples.Data.Length / samples.WaveFormat.AverageBytesPerSecond);
             var peaks = _peakProvider.Sample(samples.WaveFormat, samples.Data);
-            _events.PublishOnCurrentThread(new PeaksReceivedEvent(samples.Source, start,end, peaks));
+            if (peaks.Any())
+                _events.PublishOnCurrentThread(new PeaksReceivedEvent(samples.Source, start,end, peaks));
         }
     }
 }

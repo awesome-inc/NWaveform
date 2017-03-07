@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
 using FluentAssertions;
 using NEdifis.Attributes;
 using NUnit.Framework;
@@ -38,6 +40,40 @@ namespace NWaveform.ViewModels
             var actual = points.Scaled(scale.X, scale.Y);
             var expected = points.Select(p => new Point(p.X*scale.X, p.Y*scale.Y)).ToList();
             actual.Should().BeEquivalentTo(expected);
+        }
+
+        [Test]
+        public void Clamp()
+        {
+            var points = new[] {new Point(-0.1, -1.1), new Point(1.1, 2.1)};
+            var clamped = points.Clamped(0, 1, -1, 2);
+            clamped.Should().Equal(new Point(0, -1), new Point(1, 2));
+        }
+
+        [Test]
+        public void Shift()
+        {
+            const double shift = 0.4, duration = 1.0;
+            var points = new[]
+            {
+                new Point(shift - 0.2, 0), new Point(shift - 0.2, 1), new Point(shift - 0.1, 1),
+                new Point(shift - 0.1, 0),
+                new Point(shift - 0.1, 0), new Point(shift - 0.1, 1), new Point(shift + 0.1, 1),
+                new Point(shift + 0.1, 0)
+            };
+
+            var shifted = new PointCollection(points).Shifted(shift, duration).ToArray();
+            var expected = new[] {new Point(0, 0), new Point(0, 1), new Point(0.1, 1), new Point(0.1, 0)};
+            
+            //shifted.Should().Equal(expected);
+            // NOTE: numerical issues (IEEE 754)
+            shifted.Should().HaveCount(expected.Length);
+            const double epsilon = 0.00000001;
+            for (int i = 0; i < expected.Length; i++)
+            {
+                shifted[i].X.Should().BeApproximately(expected[i].X, epsilon);
+                shifted[i].Y.Should().BeApproximately(expected[i].Y, epsilon);
+            }
         }
     }
 }

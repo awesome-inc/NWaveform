@@ -1,4 +1,5 @@
 using System;
+using System.Windows.Media.Imaging;
 using Caliburn.Micro;
 using FluentAssertions;
 using NEdifis;
@@ -20,10 +21,18 @@ namespace NWaveform.ViewModels
             sut.Should().BeAssignableTo<IHandle<AudioShiftedEvent>>();
 
             var source = new Uri("http://some/audio/");
-            sut.Source = source;
-            var shift = TimeSpan.FromSeconds(-3);
+            var shift = TimeSpan.FromSeconds(3);
             var e = new AudioShiftedEvent(source, shift);
+            sut.Source.Should().BeNull("skip shift if not same source");
             sut.Handle(e);
+
+            sut.Source = source;
+            sut.WaveformImage = BitmapFactory.New(20, 20);
+            sut.Duration.Should().Be(0, "skip shifts if duration 0");
+            sut.Handle(e);
+
+            sut.Duration = shift.TotalSeconds * 2;
+            sut.HandleShift(e.Shift.TotalSeconds);
         }
     }
 }

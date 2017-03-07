@@ -1,7 +1,9 @@
 using System;
+using Caliburn.Micro;
 using FluentAssertions;
 using NAudio.Wave;
 using NEdifis.Attributes;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace NWaveform.NAudio
@@ -14,17 +16,18 @@ namespace NWaveform.NAudio
         [TestCase(1, 8000, 1)]
         public void Add_samples(double seconds, int rate, int channels)
         {
+            var events = Substitute.For<IEventAggregator>();
+            var source = new Uri("some://uri");
             var waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(rate, channels);
             var bufferSize = TimeSpan.FromSeconds(seconds);
-            var source = new Uri("some://uri");
-            using (var sut = new BufferedStreamingChannel(source, waveFormat, bufferSize))
+
+            using (var sut = new BufferedStreamingChannel(events, source, waveFormat, bufferSize))
             {
                 sut.Source.Should().Be(source);
                 sut.Stream.TotalTime.Should().Be(bufferSize);
 
-                var time = TimeSpan.Zero;
                 var expected = waveFormat.Generate(bufferSize);
-                sut.AddSamples(time, expected);
+                sut.AddSamples(expected).Should().Be(expected.Length);
 
                 var stream = sut.BufferedStream;
                 stream.WritePosition.Should().Be(0, "wrap around");
@@ -36,6 +39,10 @@ namespace NWaveform.NAudio
 
                 stream.Position.Should().Be(0, "wrap around");
             }
+
+            events.Received().PublishOnCurrentThread(Arg.Any<SamplesReceivedEvent>());
+
+            // TODO: test wrap around & publishing
         }
     }
 }

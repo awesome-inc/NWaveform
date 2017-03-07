@@ -4,32 +4,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using NAudio.Wave;
-using NWaveform.Events;
 using NWaveform.NAudio;
 
 namespace NWaveform.App
 {
     internal class EndlessFileLoopChannel : BufferedStreamingChannel
     {
-        private readonly IEventAggregator _events;
         private readonly WaveStream _audioStream;
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
         private readonly Task _task;
 
         public EndlessFileLoopChannel(IEventAggregator events, Uri source, WaveStream audioStream, TimeSpan bufferSize)
-            : base(source, audioStream.WaveFormat, bufferSize)
+            : base(events, source, audioStream.WaveFormat, bufferSize)
         {
-            if (events == null) throw new ArgumentNullException(nameof(events));
-            _events = events;
             _audioStream = audioStream;
-
-            BufferedStream.WrappedAround += BufferedStream_WrappedAround;
             _task = Task.Factory.StartNew(PublishFromStream);
-        }
-
-        private void BufferedStream_WrappedAround(object sender, EventArgs e)
-        {
-            _events.PublishOnCurrentThread(new AudioShiftedEvent(Source, BufferedStream.SkippedDuration));
         }
 
         public EndlessFileLoopChannel(IEventAggregator events, Uri source, string fileName, TimeSpan bufferSize)
@@ -42,8 +31,11 @@ namespace NWaveform.App
             var buffer = new byte[Stream.WaveFormat.AverageBytesPerSecond * 1];
             var loops = 0;
 
+            var sw = Stopwatch.StartNew();
             while (!_tokenSource.IsCancellationRequested)
             {
+                sw.Restart();
+
                 var timeBeforeRead = _audioStream.CurrentTime;
                 var bytesRead = _audioStream.Read(buffer, 0, buffer.Length);
                 var timeAfterRead = _audioStream.CurrentTime;
@@ -57,13 +49,12 @@ namespace NWaveform.App
                     if (bytesRead == 0) continue;
                 }
 
-                var streamTime = BufferedStream.CurrentWriteTime;
-
-                AddSamples(streamTime, buffer, bytesRead);
-                _events.PublishOnCurrentThread(new SamplesReceivedEvent(Source, streamTime, Stream.WaveFormat, buffer, bytesRead));
+                AddSamples(buffer, 0, bytesRead);
                 Trace.WriteLine($"Buffered '{Source}' ({loops}, {timeAfterRead} / {BufferedStream.CurrentWriteTime})...");
 
-                Thread.Sleep(timeDelta);
+                timeDelta -= sw.Elapsed;
+                if (timeDelta.TotalSeconds > 0)
+                    Thread.Sleep(timeDelta);
             }
         }
 
