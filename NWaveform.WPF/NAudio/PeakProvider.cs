@@ -12,9 +12,13 @@ namespace NWaveform.NAudio
 
         public Func<float[], float> Filter { get; set; } = MagFilter;
 
-        public static float MagFilter(float[] samples) { return samples.Select(Math.Abs).Max(); }
-        public static float AvgFilter(float[] samples) { return samples.Average(); }
-        public static float RmsFilter(float[] samples) { return (float)Math.Sqrt( samples.Select(x => x*x).Sum() / samples.Length ); }
+        public static float MagFilter(IEnumerable<float> samples) { return samples.Select(Math.Abs).Max(); }
+        public static float AvgFilter(IEnumerable<float> samples) { return samples.Average(); }
+        public static float RmsFilter(IEnumerable<float> samples)
+        {
+            var floats = samples as float[] ?? samples.ToArray();
+            return (float)Math.Sqrt( floats.Select(x => x*x).Sum() / floats.Length );
+        }
 
         public PeakInfo[] Sample(WaveFormat waveFormat, byte[] data)
         {
@@ -26,9 +30,10 @@ namespace NWaveform.NAudio
             var peaks = new List<PeakInfo>();
             var samplesRead = sampleProvider.Read(samples, 0, samples.Length);
             // only full buffers, so we get "exactly" #PeaksPerSecond peaks
-            while (samplesRead == samples.Length)
+            while (samplesRead > 0)
             {
-                var peak = GetPeaks(waveFormat, samples);
+                var floats = samplesRead == samples.Length ? samples : samples.Take(samplesRead).ToArray();
+                var peak = GetPeaks(waveFormat, floats);
                 peaks.Add(peak);
                 samplesRead = sampleProvider.Read(samples, 0, samples.Length);
             }

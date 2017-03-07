@@ -88,7 +88,7 @@ namespace NWaveform.ViewModels
         }
 
         [Test]
-        public void Handle_start_time_updates()
+        public void Support_start_time_with_shifts()
         {
             var uri = new Uri("http://some/uri/audio.wav");
             var ctx = new ContextFor<WaveformPlayerViewModel>();
@@ -96,23 +96,19 @@ namespace NWaveform.ViewModels
             var d = DateTimeOffset.UtcNow;
             var sut = ctx.BuildSut();
 
-            sut.Should().BeAssignableTo<IHandle<StartTimeChanged>>();
+            sut.Should().BeAssignableTo<IHandle<AudioShiftedEvent>>();
             ctx.For<IEventAggregator>().Received().Subscribe(sut);
 
-            var message = new StartTimeChanged(uri, d);
-            sut.Source.Should().NotBe(uri);
-            sut.Handle(message);
-            sut.HasCurrentTime.Should().BeFalse("not the same source");
+            var getTime = ctx.For<IGetTimeStamp>();
+            getTime.For(uri).Returns(d);
 
             sut.Source = uri;
-            sut.Handle(message);
             sut.HasCurrentTime.Should().BeTrue();
-            sut.StartTime.Should().Be(message.StartTime);
+            sut.StartTime.Should().Be(d);
 
-            message = new StartTimeChanged(uri, null);
-            sut.Handle(message);
-            sut.HasCurrentTime.Should().BeFalse("update start time is null");
-            sut.StartTime.Should().BeNull();
+            var shiftedEvent = new AudioShiftedEvent(uri, TimeSpan.FromSeconds(3));
+            sut.Handle(shiftedEvent);
+            sut.StartTime.Should().Be(d + shiftedEvent.Shift);
         }
     }
 }

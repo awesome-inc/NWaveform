@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using FluentAssertions;
 using NAudio.Wave;
 using NEdifis.Attributes;
@@ -32,8 +33,6 @@ namespace NWaveform.NAudio
         [Test]
         public void Preserve_after_wrap_around()
         {
-            Assert.Inconclusive("TODO");
-
             var waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(8000, 1);
             var bufferSize = TimeSpan.FromSeconds(1);
             using (var sut = new BufferedWaveStream(waveFormat, bufferSize))
@@ -44,11 +43,9 @@ namespace NWaveform.NAudio
                 sut.Invoking(x => x.PreserveAfterWrapAround = bufferSize)
                     .ShouldThrow<ArgumentOutOfRangeException>("preserve must be less than buffer size");
 
-                sut.PreserveAfterWrapAround = TimeSpan.FromSeconds(bufferSize.TotalSeconds * 0.75);
-
                 // 1. no wrap around
                 var expectedBytes = waveFormat.Generate(bufferSize);
-                sut.AddSamples(expectedBytes);
+                sut.AddSamples(expectedBytes, 0, expectedBytes.Length);
 
                 var actualBytes = new byte[expectedBytes.Length];
                 var numbytes = sut.Read(actualBytes, 0, actualBytes.Length);
@@ -57,30 +54,30 @@ namespace NWaveform.NAudio
 
                 // 2. wrap around: check data/position preserved after wrap around
                 // position half-way between end & preserve
+                sut.PreserveAfterWrapAround = TimeSpan.FromSeconds(bufferSize.TotalSeconds * 0.75);
                 sut.ClearBuffer();
-                var skippedTime = sut.BufferDuration - sut.PreserveAfterWrapAround;
+
+                var skippedTime = sut.SkippedDuration;
                 var time = TimeSpan.FromSeconds(0.5 * (skippedTime.TotalSeconds + sut.BufferDuration.TotalSeconds));
                 sut.CurrentTime = time;
 
-                // create data that exceeds the buffer
-                expectedBytes = waveFormat.Generate(sut.PreserveAfterWrapAround);
-                Array.Resize(ref actualBytes, expectedBytes.Length);
-
                 sut.MonitorEvents();
-                sut.AddSamples(expectedBytes);
-                sut.WritePosition.Should().Be(expectedBytes.Length);
+                sut.AddSamples(expectedBytes, 0, expectedBytes.Length-1);
+                sut.WritePosition.Should().Be(expectedBytes.Length-1);
                 sut.ShouldNotRaise(nameof(sut.WrappedAround));
 
-                sut.AddSamples(expectedBytes);
+                sut.AddSamples(expectedBytes, expectedBytes.Length-1, 1);
                 sut.ShouldRaise(nameof(sut.WrappedAround));
-                //stream.WritePosition.Should().Be(expectedBytes.Length, "preserved");
-
+                sut.CurrentWriteTime.Should().Be(sut.PreserveAfterWrapAround);
                 sut.CurrentTime.Should().Be(time - skippedTime, "position should be wrapped");
 
-                sut.Position = sut.WritePosition - expectedBytes.Length;
+                Array.Resize(ref actualBytes, sut.PreservedBytes);
+                sut.Position = 0;
                 sut.Read(actualBytes, 0, actualBytes.Length);
-                actualBytes.Should().Equal(expectedBytes);
                 sut.Position.Should().Be(actualBytes.Length);
+
+                expectedBytes = expectedBytes.Skip(sut.SkippedBytes).ToArray();
+                actualBytes.Should().Equal(expectedBytes);
             }
         }
     }

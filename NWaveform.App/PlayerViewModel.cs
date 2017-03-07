@@ -184,8 +184,7 @@ namespace NWaveform.App
                 End = Math.Max(a, b),
             };
 
-            AudioPlayer.Waveform.UserChannel = TestData.GetRandomWaypoints(r, duration, (int)(0.2 * duration), 0.5,
-                0.85);
+            AudioPlayer.Waveform.UserChannel = TestData.GetRandomWaypoints(r, duration, (int)(0.2 * duration), 0.5, 0.85);
 
             AudioPlayer.Waveform.SeparationLeftChannel = TestData.GetSeparationTop(r, duration, 10);
             AudioPlayer.Waveform.SeparationRightChannel = TestData.GetSeparationBottom(r, duration, 8);

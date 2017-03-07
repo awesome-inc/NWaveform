@@ -7,7 +7,8 @@ using NWaveform.Model;
 
 namespace NWaveform.ViewModels
 {
-    public interface IWaveformPlayerViewModel : INotifyPropertyChanged, IHandle<StartTimeChanged>
+    public interface IWaveformPlayerViewModel : INotifyPropertyChanged
+        , IHandle<AudioShiftedEvent>
     {
         Uri Source { get; set; }
         IMediaPlayer Player { get; }

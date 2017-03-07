@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -33,7 +34,7 @@ namespace NWaveform.ViewModels
         private SolidColorBrush _userTextBrush;
         private IPositionProvider _positionProvider = new EmptyPositionProvider();
 
-        private DateTimeOffset? _startTime;
+        public double ShiftEpsilon { get; set; } = 0.25;
 
         public WaveformViewModel(IEventAggregator events, WaveformSettings waveformSettings = null) : base(events)
         {
@@ -66,6 +67,35 @@ namespace NWaveform.ViewModels
             }
         }
 
+        protected internal override void HandleShift(double shift)
+        {
+            base.HandleShift(shift);
+
+            Position -= shift;
+
+            if (Selection != null)
+            {
+                Selection.Start -= shift;
+                Selection.End -= shift;
+            }
+
+            ShiftChannels(shift);
+            ShiftLabels(shift);
+        }
+
+        private void ShiftChannels(double shift)
+        {
+            SeparationLeftChannel = SeparationLeftChannel.Shifted(shift, Duration);
+            SeparationRightChannel = SeparationRightChannel.Shifted(shift, Duration);
+            UserChannel = UserChannel.Shifted(shift, Duration);
+        }
+
+        private void ShiftLabels(double shift)
+        {
+            _labels.Apply(l => l.Position -= shift);
+            _labels.RemoveRange(_labels.Where(l => l.Position < 0 || l.Position >= Duration).ToList());
+        }
+
         private void PositionProviderNotifyOfPropertyChange(object sender, PropertyChangedEventArgs e)
         {
             // Position if a direct reference to _positionProvider whereby Duration caches the value in this instance
@@ -94,20 +124,6 @@ namespace NWaveform.ViewModels
                 NotifyOfPropertyChange();
             }
         }
-
-        public DateTimeOffset? StartTime
-        {
-            get { return _startTime; }
-            set
-            {
-                if (value.Equals(_startTime)) return;
-                _startTime = value;
-                NotifyOfPropertyChange();
-                NotifyOfPropertyChange(nameof(CurrentTime));
-            }
-        }
-
-        public DateTimeOffset? CurrentTime => StartTime + TimeSpan.FromSeconds(Position);
 
         public bool HasDuration => Duration > 0.0;
 

@@ -8,7 +8,6 @@ namespace NWaveform.NAudio
         public override WaveFormat WaveFormat { get; }
         private readonly SeekableCircularBuffer _circularBuffer;
         private TimeSpan _preserveAfterWrapAround;
-        private byte[] _preservedBuffer;
 
         public BufferedWaveStream(WaveFormat waveFormat, TimeSpan bufferDuration)
         {
@@ -37,10 +36,15 @@ namespace NWaveform.NAudio
             {
                 if (value >= BufferDuration) throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(PreserveAfterWrapAround)} must be less than {nameof(BufferDuration)}");
                 _preserveAfterWrapAround = value;
-                var preservedBytes = (int)(value.TotalSeconds * WaveFormat.AverageBytesPerSecond);
-                _preservedBuffer = preservedBytes > 0 ? new byte[preservedBytes] : null;
+                PreservedBytes = (int)(value.TotalSeconds * WaveFormat.AverageBytesPerSecond);
+                SkippedBytes = BufferLength - PreservedBytes;
+                SkippedDuration = BufferDuration - _preserveAfterWrapAround;
             }
         }
+
+        public int PreservedBytes { get; private set; }
+        public TimeSpan SkippedDuration { get; private set; }
+        public int SkippedBytes { get; private set; }
 
         protected virtual void OnWrappedAround()
         {
@@ -51,8 +55,6 @@ namespace NWaveform.NAudio
         public TimeSpan CurrentWriteTime => TimeSpan.FromSeconds((double)WritePosition / WaveFormat.AverageBytesPerSecond);
 
         #region Reimplementation of BufferedWaveProvider
-        public bool DiscardOnBufferOverflow { get; set; }
-        public bool ReadFully { get; set; }
 
         public int BufferLength { get; private set; }
         public TimeSpan BufferDuration
@@ -61,12 +63,26 @@ namespace NWaveform.NAudio
             private set { BufferLength = (int)(value.TotalSeconds * WaveFormat.AverageBytesPerSecond); }
         }
 
+
         public int AddSamples(byte[] buffer, int offset = 0, int length = 0)
         {
-            var count = length > 0 ? length : buffer.Length;
-            var written = _circularBuffer.Write(buffer, offset, count);
-            if (written < count && !DiscardOnBufferOverflow)
-                throw new InvalidOperationException("Buffer full");
+            var count = length > 0 ? length : buffer.Length - offset;
+            
+            // definition by cases
+            var exceeding = (int)(WritePosition + count - BufferLength);
+            if (exceeding < 0 || PreservedBytes == 0)
+                return _circularBuffer.Write(buffer, offset, count);
+            
+            // split in two writes: a) until full, b) exceeding
+            var delta = count-exceeding;
+            var written = _circularBuffer.Write(buffer, offset, delta);
+            _circularBuffer.Shift(SkippedBytes);
+
+            OnWrappedAround();
+
+            if (exceeding > 0)
+                written += _circularBuffer.Write(buffer, offset + delta, exceeding);
+
             return written;
         }
 
@@ -74,7 +90,7 @@ namespace NWaveform.NAudio
         {
             var count = length > 0 ? length : buffer.Length;
             var read = _circularBuffer.Read(buffer, offset, count);
-            if (ReadFully && read < count)
+            if (read < count)
             {
                 // zero the end of the buffer
                 Array.Clear(buffer, offset + read, count - read);

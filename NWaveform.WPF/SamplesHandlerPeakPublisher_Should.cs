@@ -7,6 +7,7 @@ using NEdifis.Attributes;
 using NSubstitute;
 using NUnit.Framework;
 using NWaveform.Events;
+using NWaveform.Model;
 using NWaveform.NAudio;
 
 namespace NWaveform
@@ -16,7 +17,7 @@ namespace NWaveform
     internal class SamplesHandlerPeakPublisher_Should
     {
         [Test]
-        public void Handle_samples_and_publish_peas()
+        public void Handle_samples_and_publish_peaks()
         {
             var ctx = new ContextFor<SamplesHandlerPeakPublisher>();
             var sut = ctx.BuildSut();
@@ -37,10 +38,11 @@ namespace NWaveform
             var peakProvider = ctx.For<IPeakProvider>();
             WaveFormat actualWaveformat = null;
             byte[] actualData = null;
-            peakProvider.When(x => x.Sample(Arg.Any<WaveFormat>(), Arg.Any<byte[]>())).Do(x =>
+            peakProvider.Sample(Arg.Any<WaveFormat>(), Arg.Any<byte[]>()).Returns(x =>
             {
                 actualWaveformat = x.Arg<WaveFormat>();
                 actualData = x.Arg<byte[]>();
+                return new[] {new PeakInfo(-1, 1)};
             });
 
             sut.Handle(samples);

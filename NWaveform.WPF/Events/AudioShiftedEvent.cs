@@ -2,16 +2,16 @@
 
 namespace NWaveform.Events
 {
-    public class StartTimeChanged
+    public class AudioShiftedEvent
     {
         public Uri Source { get; }
-        public DateTimeOffset? StartTime { get; }
+        public TimeSpan Shift { get; }
 
-        public StartTimeChanged(Uri source, DateTimeOffset? startTime)
+        public AudioShiftedEvent(Uri source, TimeSpan shift)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             Source = source;
-            StartTime = startTime;
+            Shift = shift;
         }
     }
 }

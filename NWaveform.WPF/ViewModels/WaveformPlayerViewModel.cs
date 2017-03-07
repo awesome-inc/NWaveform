@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using Caliburn.Micro;
 using NWaveform.Default;
 using NWaveform.Events;
@@ -26,6 +25,7 @@ namespace NWaveform.ViewModels
         }
 
         private readonly IAbsoluteTimeFormatter _formatTime;
+        private readonly IGetTimeStamp _getTime;
         private DateTimeOffset? _startTime;
 
         public WaveformPlayerViewModel(IEventAggregator events,
@@ -33,19 +33,23 @@ namespace NWaveform.ViewModels
             IWaveFormRepository waveforms,
             IWaveformViewModel waveform,
             IAudioSelectionMenuProvider audioSelectionMenuProvider,
-            IAbsoluteTimeFormatter formatTime)
+            IAbsoluteTimeFormatter formatTime,
+            IGetTimeStamp getTime)
         {
             if (events == null) throw new ArgumentNullException(nameof(events));
             if (player == null) throw new ArgumentNullException(nameof(player));
             if (waveforms == null) throw new ArgumentNullException(nameof(waveforms));
             if (waveform == null) throw new ArgumentNullException(nameof(waveform));
             if (formatTime == null) throw new ArgumentNullException(nameof(formatTime));
+            if (getTime == null) throw new ArgumentNullException(nameof(getTime));
 
             Player = player;
             Player.PropertyChanged += Player_PropertyChanged;
             Waveforms = waveforms;
             Waveform = waveform;
             _formatTime = formatTime;
+            _getTime = getTime;
+
             Waveform.PositionProvider = player;
 
             var menu = audioSelectionMenuProvider?.Menu;
@@ -73,7 +77,7 @@ namespace NWaveform.ViewModels
                 Player.Source = value;
                 NotifyOfPropertyChange();
                 Waveform.SetWaveform(GetWaveform());
-                if (value != null && value.IsFile) StartTime = new FileInfo(value.AbsolutePath).LastWriteTimeUtc;
+                StartTime = _getTime.For(value);
             }
         }
 
@@ -90,12 +94,18 @@ namespace NWaveform.ViewModels
         public bool HasCurrentTime => StartTime.HasValue;
         public string CurrentTime => _formatTime.Format(StartTime + TimeSpan.FromSeconds(Player.Position));
 
-        public void Handle(StartTimeChanged message)
+        public void Handle(AudioShiftedEvent message)
         {
-            var sameSource = Source != null && Source == message.Source;
-            if (!sameSource) return;
-
-            StartTime = message.StartTime;
+            if (!SameSource(message.Source)) return;
+            if (StartTime.HasValue)
+                StartTime = StartTime.Value + message.Shift;
         }
+
+        private bool SameSource(Uri source)
+        {
+            return Source != null && Source == source;
+        }
+
+
     }
 }

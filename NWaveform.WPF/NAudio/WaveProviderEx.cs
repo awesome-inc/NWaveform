@@ -36,7 +36,5 @@ namespace NWaveform.NAudio
         public bool Closeable { get; set; } = true;
 
         #endregion
-
-
     }
 }
