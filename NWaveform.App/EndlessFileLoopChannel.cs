@@ -28,7 +28,7 @@ namespace NWaveform.App
 
         private void PublishFromStream()
         {
-            var buffer = new byte[Stream.WaveFormat.AverageBytesPerSecond * 1];
+            var buffer = new byte[_audioStream.WaveFormat.AverageBytesPerSecond];
             var loops = 0;
 
             var sw = Stopwatch.StartNew();

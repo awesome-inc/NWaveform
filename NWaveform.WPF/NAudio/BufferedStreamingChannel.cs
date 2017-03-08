@@ -42,7 +42,7 @@ namespace NWaveform.NAudio
             if (exceeding <= 0)
             {
                 var time = BufferedStream.CurrentWriteTime;
-                SafePublish(new SamplesReceivedEvent(Source, time, Stream.WaveFormat, buffer, offset, count), "Could not add samples");
+                SafePublish(new SamplesReceivedEvent(Source, time, BufferedStream.WaveFormat, buffer, offset, count), "Could not add samples");
                 return BufferedStream.AddSamples(buffer, offset, count);
             }
 
