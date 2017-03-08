@@ -17,6 +17,10 @@ namespace NWaveform.NAudio
         public void Add_samples(double seconds, int rate, int channels)
         {
             var events = Substitute.For<IEventAggregator>();
+            SamplesReceivedEvent samples = null;
+            events.When(x => x.PublishOnCurrentThread(Arg.Any<SamplesReceivedEvent>()))
+                .Do(x => samples = x.Arg<SamplesReceivedEvent>());
+
             var source = new Uri("some://uri");
             var waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(rate, channels);
             var bufferSize = TimeSpan.FromSeconds(seconds);
@@ -40,9 +44,12 @@ namespace NWaveform.NAudio
                 stream.Position.Should().Be(0, "wrap around");
             }
 
-            events.Received().PublishOnCurrentThread(Arg.Any<SamplesReceivedEvent>());
+            samples.Should().NotBeNull("samples should be published");
+            samples.Source.Should().Be(source, "wave data should be published using original uri");
+            samples.Start.Should().Be(TimeSpan.Zero);
+            samples.WaveFormat.Should().Be(waveFormat, "wave data should be published using original format");
 
-            // TODO: test wrap around & publishing
+            // TODO: test wrap around & splitted publishing
         }
     }
 }
