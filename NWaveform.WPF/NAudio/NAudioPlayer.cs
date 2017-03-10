@@ -168,7 +168,6 @@ namespace NWaveform.NAudio
                 {
                     _waveProvider = _factory.Create(uri);
                     _player.Init(_waveProvider);
-                    Stop();
                 }
                 Error.Exception = null;
             }
@@ -180,7 +179,7 @@ namespace NWaveform.NAudio
             get { return _waveProvider?.CurrentTime.TotalSeconds ?? 0.0; }
             set
             {
-                if (_waveProvider == null) return;
+                if (_source == null || _waveProvider == null) return;
                 if (PositionCloseTo(_waveProvider.CurrentTime.TotalSeconds, value)) return;
 
                 _waveProvider.CurrentTime = TimeSpan.FromSeconds(value);
@@ -251,6 +250,7 @@ namespace NWaveform.NAudio
         {
             if (IsPlaying) _player.Stop();
             SafeDispose(_waveProvider);
+            _waveProvider = null;
         }
 
         private static void SafeDispose(object obj)

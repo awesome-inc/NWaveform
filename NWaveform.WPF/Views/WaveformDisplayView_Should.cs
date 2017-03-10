@@ -27,7 +27,8 @@ namespace NWaveform.Views
             var sut = ctx.BuildSut();
 
             sut.WaveformImage.Clear(Colors.Red);
-            sut.Source = new Uri("http://some/audio");
+
+            sut.Source = new Uri("http://no/audio");
 
             sut.WaveformImage.ShouldHaveColor(sut.BackgroundBrush.Color);
         }

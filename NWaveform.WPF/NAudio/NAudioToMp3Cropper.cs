@@ -1,6 +1,4 @@
 using System;
-using System.Diagnostics;
-using System.IO;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using Microsoft.Win32;
@@ -24,11 +22,11 @@ namespace NWaveform.NAudio
             _events.Subscribe(this);
         }
 
-        public Task Handle(CropAudioRequest message)
+        public async Task Handle(CropAudioRequest message)
         {
             var fileName = message.OutputFilename ?? GetFilename();
-            if (string.IsNullOrWhiteSpace(fileName)) return Task.FromResult(0);
-            return Task.Factory.StartNew(() => CropToFile(message, fileName));
+            if (string.IsNullOrWhiteSpace(fileName)) return;
+            await Task.Factory.StartNew(() => CropToFile(message, fileName));
         }
 
         private void CropToFile(CropAudioRequest message, string fileName)
@@ -39,14 +37,6 @@ namespace NWaveform.NAudio
             {
                 var inputLength = (int) (message.Selection.Duration * reader.WaveFormat.AverageBytesPerSecond);
                 var bytesLeft = inputLength;
-
-                //writer.MinProgressTime = 500;
-                writer.OnProgress += (o, inputBytes, outputBytes, finished) =>
-                {
-                    var msg = FormatProgress(inputBytes, inputLength, outputBytes);
-                    Trace.WriteLine(msg);
-                };
-
                 var buffer = new byte[reader.WaveFormat.AverageBytesPerSecond];
                 reader.CurrentTime = TimeSpan.FromSeconds(message.Selection.Start);
                 while (bytesLeft > 0)
@@ -60,19 +50,13 @@ namespace NWaveform.NAudio
             _events.PublishOnUIThread(new CropAudioResponse(new Uri(fileName)));
         }
 
-        private static string FormatProgress(long inputBytes, int inputLength, long outputBytes)
-        {
-            string msg =
-                $"Progress: {(inputBytes * 100.0) / inputLength:0.0}%, Output: {outputBytes:#,0} bytes, Ratio: 1:{((double) inputBytes) / Math.Max(1, outputBytes):0.0}";
-            return msg;
-        }
-
         private static string GetFilename()
         {
             var dlg = new SaveFileDialog
             {
-                InitialDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data"),
-                FileName = "selection.mp3"
+                //InitialDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data"),
+                FileName = "selection.mp3",
+                Filter = "MP3 audio files (*.mp3)|*.mp3"
             };
             var res = dlg.ShowDialog();
             return res.HasValue && res.Value ? dlg.FileName : string.Empty;

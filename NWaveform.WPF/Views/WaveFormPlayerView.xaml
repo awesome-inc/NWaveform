@@ -131,7 +131,7 @@
         <StackPanel Grid.Row="1">
 
             <Label ToolTip="Time" Visibility="{Binding HasCurrentTime, Converter={StaticResource BoolToVisible}}">
-                <TextBlock Text="{Binding CurrentTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"/>
+                <TextBlock Text="{Binding CurrentTime}"/>
             </Label>
 
             <StackPanel DataContext="{Binding Path=Player}">

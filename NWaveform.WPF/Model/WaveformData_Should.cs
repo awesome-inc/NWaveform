@@ -6,20 +6,20 @@ namespace NWaveform.Model
 {
     [TestFixture]
     // ReSharper disable InconsistentNaming
-    internal class WaveformDataTests
+    internal class WaveformData_Should
     {
         [Test]
-        public void TestIsNullOrEmpty()
+        public void Check_IsNullOrEmpty()
         {
             WaveformData.IsNullOrEmpty(null).Should().BeTrue("waveform is null");
 
-            var input = new WaveformData();
+            var input = new WaveformData(TimeSpan.Zero);
             WaveformData.IsNullOrEmpty(input).Should().BeTrue("waveform duration is zero");
 
-            input.Duration = TimeSpan.FromSeconds(1);
-            WaveformData.IsNullOrEmpty(input).Should().BeTrue("waveform has no channels");
+            input = new WaveformData(TimeSpan.FromSeconds(1));
+            WaveformData.IsNullOrEmpty(input).Should().BeTrue("waveform has no peaks");
 
-            input.Channels = new[] {new Channel()};
+            input = new WaveformData(TimeSpan.FromSeconds(1), new [] {new PeakInfo(-1,1)});
             WaveformData.IsNullOrEmpty(input).Should().BeFalse();
         }
     }

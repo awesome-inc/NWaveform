@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using Caliburn.Micro;
+using NWaveform.Events;
 using NWaveform.Interfaces;
 using NWaveform.Model;
 
@@ -34,9 +33,7 @@ namespace NWaveform.ViewModels
         private SolidColorBrush _userTextBrush;
         private IPositionProvider _positionProvider = new EmptyPositionProvider();
 
-        public double ShiftEpsilon { get; set; } = 0.25;
-
-        public WaveformViewModel(IEventAggregator events, WaveformSettings waveformSettings = null) : base(events)
+        public WaveformViewModel(IEventAggregator events, IGetWaveform getWaveform, WaveformSettings waveformSettings = null) : base(events, getWaveform)
         {
             var settings = waveformSettings ?? new WaveformSettings();
 
@@ -124,8 +121,6 @@ namespace NWaveform.ViewModels
                 NotifyOfPropertyChange();
             }
         }
-
-        public bool HasDuration => Duration > 0.0;
 
         public IAudioSelectionViewModel Selection
         {
@@ -222,55 +217,11 @@ namespace NWaveform.ViewModels
             set { _separationRightChannel = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
-        public void SetWaveform(WaveformData waveform)
+        public void SetWaveform(PeakInfo[] peaks, double duration)
         {
-            WaveformImage.Clear(BackgroundBrush.Color);
-            LeftChannel.Set(ZeroMagnitude);
-            RightChannel.Set(ZeroMagnitude);
-
-            if (waveform == null) return;
-
-            var channels = waveform.Channels;
-            if (channels.Length < 1 || channels.Length > 2)
-                throw new InvalidOperationException("Only Mono/Stereo supported.");
-
-            var duration = waveform.Duration.TotalSeconds;
-
-            var leftPoints = GetPoints(channels[0].Samples, duration, true);
-            var rightPoints = waveform.Channels.Length == 2
-                ? GetPoints(channels[1].Samples, duration, false)
-                : leftPoints.Scaled(1, -1); // mono? --> Y-flipped duplicate of left channel
-
-            ResampleChannel(ZeroMagnitude, leftPoints, LeftChannel);
-            ResampleChannel(ZeroMagnitude, rightPoints, RightChannel);
             Duration = duration;
-
-            RenderWaveform();
-        }
-
-        private static void ResampleChannel(double sy, IList<Point> points, IList<int> channel)
-        {
-            if (points.Count < 3) return;
-            var toT = (double)(points.Count-1) / (channel.Count - 1);
-            for (var x = 0; x < channel.Count; x++)
-            {
-                var t = (int) (x * toT);
-                t = Math.Max(0, Math.Min(t, points.Count - 1));
-
-                var point = points[t];
-                var y = (int)(sy * (1 + point.Y));
-                channel[x] = y;
-            }
-        }
-
-        private IList<Point> GetPoints(IList<float> samples, double duration, bool flipY)
-        {
-            var points = samples.ToPoints(); // get points in [0,Duration]...
-
-            // flip and scale magnitude down to maxMagnitude
-            points = points.Scaled(duration, flipY ? -_maxMagnitude : _maxMagnitude);
-
-            return points;
+            var message = new PeaksReceivedEvent(Source, 0, Duration, peaks);
+            HandlePeaks(message);
         }
     }
 }
