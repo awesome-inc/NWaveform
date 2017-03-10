@@ -7,7 +7,6 @@ using NUnit.Framework;
 using NWaveform.Events;
 using NWaveform.Extender;
 using NWaveform.Interfaces;
-using NWaveform.Model;
 
 namespace NWaveform.ViewModels
 {
@@ -37,37 +36,11 @@ namespace NWaveform.ViewModels
             sut.Source.Should().Be(uri);
 
         }
-        [Test]
-        public void Try_get_waveform_when_setting_Source()
-        {
-            var uri = new Uri("http://some/uri/audio.wav");
-            var waveForm = new WaveformData
-            {
-                Duration = TimeSpan.FromSeconds(1),
-                Channels = new[] { new Channel() }
-            };
-
-            var ctx = new ContextFor<WaveformPlayerViewModel>();
-            ctx.For<IWaveFormRepository>().For(uri).Returns(waveForm);
-            var sut = ctx.BuildSut();
-
-            sut.Source = uri;
-
-            sut.Waveforms.Received().For(uri);
-            sut.Waveform.Received().SetWaveform(waveForm);
-        }
 
         [Test]
         public void Support_absolute_audio_time()
         {
-            var uri = new Uri("http://some/uri/audio.wav");
             var ctx = new ContextFor<WaveformPlayerViewModel>();
-            var waveForm = new WaveformData
-            {
-                Duration = TimeSpan.FromSeconds(1),
-                Channels = new[] { new Channel() }
-            };
-            ctx.For<IWaveFormRepository>().For(uri).Returns(waveForm);
             var formatter = new DateTimeFormatter("yyyy-MM-dd HH:mm:ss");
             ctx.Use<IAbsoluteTimeFormatter>(formatter);
             var sut = ctx.BuildSut();
@@ -80,7 +53,7 @@ namespace NWaveform.ViewModels
 
             sut.HasCurrentTime.Should().BeTrue();
 
-            var position = waveForm.Duration;
+            var position = TimeSpan.FromSeconds(sut.Player.Duration);
             sut.Player.Position = position.TotalSeconds;
 
             var expected = formatter.Format(d + position);

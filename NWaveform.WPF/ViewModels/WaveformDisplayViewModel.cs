@@ -4,11 +4,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Caliburn.Micro;
 using NWaveform.Events;
+using NWaveform.Interfaces;
+using NWaveform.Model;
 
 namespace NWaveform.ViewModels
 {
     public class WaveformDisplayViewModel : Screen, IWaveformDisplayViewModel
     {
+        private readonly IGetWaveform _getWaveform;
         private double _duration;
         private WriteableBitmap _waveformImage;
         private int[] _leftChannel;
@@ -21,8 +24,11 @@ namespace NWaveform.ViewModels
         private SolidColorBrush _rightBrush = new SolidColorBrush(WaveformSettings.DefaultRightColor);
         private Uri _source;
 
-        public WaveformDisplayViewModel(IEventAggregator events)
+        public WaveformDisplayViewModel(IEventAggregator events, IGetWaveform getWaveform)
         {
+            if (events == null) throw new ArgumentNullException(nameof(events));
+            if (getWaveform == null) throw new ArgumentNullException(nameof(getWaveform));
+            _getWaveform = getWaveform;
             WaveformImage = BitmapFactory.New(1920, 1080);
             events.Subscribe(this);
         }
@@ -53,9 +59,23 @@ namespace NWaveform.ViewModels
             {
                 if (Equals(value, _source)) return;
                 _source = value;
-                _waveformImage.Clear(BackgroundBrush.Color);
+                SetWaveform(_source);
                 NotifyOfPropertyChange();
             }
+        }
+
+        private void SetWaveform(Uri source)
+        {
+            _waveformImage.Clear(BackgroundBrush.Color);
+            Duration = 0.0;
+            if (source == null) return;
+
+            var waveform = _getWaveform.For(source);
+            if (WaveformData.IsNullOrEmpty(waveform)) return;
+
+            Duration = waveform.Duration.TotalSeconds;
+            var e = new PeaksReceivedEvent(source, 0, Duration, waveform.Peaks);
+            HandlePeaks(e);
         }
 
         public double Duration
@@ -66,7 +86,7 @@ namespace NWaveform.ViewModels
                 if (Math.Abs(_duration - value) < double.Epsilon) return;
                 _duration = value;
                 NotifyOfPropertyChange();
-                NotifyOfPropertyChange(nameof(WaveformViewModel.HasDuration));
+                NotifyOfPropertyChange(nameof(HasDuration));
             }
         }
 
@@ -105,6 +125,8 @@ namespace NWaveform.ViewModels
                 RenderWaveform();
             }
         }
+
+        public bool HasDuration => Duration > 0.0;
 
         protected override void OnViewLoaded(object view)
         {

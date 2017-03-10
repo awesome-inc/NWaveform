@@ -9,10 +9,9 @@ namespace NWaveform.ViewModels
     {
         IPositionProvider PositionProvider { get; set; }
 
-        void SetWaveform(WaveformData waveform);
+        void SetWaveform(PeakInfo[] peaks, double duration);
 
         double Position { get; set; }
-        bool HasDuration { get; }
         double TicksEach { get; set; }
 
         IAudioSelectionViewModel Selection { get; set; }

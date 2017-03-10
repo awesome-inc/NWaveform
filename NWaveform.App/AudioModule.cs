@@ -1,8 +1,6 @@
 using Autofac;
 using Caliburn.Micro;
-using NWaveform.Default;
 using NWaveform.Extender;
-using NWaveform.Interfaces;
 using NWaveform.ViewModels;
 using NWaveform.Views;
 
@@ -22,10 +20,6 @@ namespace NWaveform.App
                 .SingleInstance();
 
             AssemblySource.Instance.Add(typeof(WaveformPlayerView).Assembly);
-
-            //builder.RegisterType<WaveFormSerializer>().As<IWaveFormSerializer>().SingleInstance();
-            //builder.RegisterType<CachedWaveFormRepository>().As<IWaveFormRepository>().SingleInstance();
-            builder.RegisterType<GeneratingWaveFormRepository>().As<IWaveFormRepository>().SingleInstance();
 
             //builder.RegisterModule<WindowsMediaPlayerModule>();
             builder.RegisterModule<NAudioModule>();

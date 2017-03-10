@@ -17,5 +17,6 @@ namespace NWaveform.ViewModels
         SolidColorBrush RightBrush { get; set; }
         int[] LeftChannel { get; }
         int[] RightChannel { get; }
+        bool HasDuration { get; }
     }
 }

@@ -1,10 +1,8 @@
 ﻿using System;
 using Caliburn.Micro;
-using NWaveform.Default;
 using NWaveform.Events;
 using NWaveform.Extender;
 using NWaveform.Interfaces;
-using NWaveform.Model;
 
 namespace NWaveform.ViewModels
 {
@@ -24,13 +22,13 @@ namespace NWaveform.ViewModels
             }
         }
 
+        private readonly IEventAggregator _events;
         private readonly IAbsoluteTimeFormatter _formatTime;
         private readonly IGetTimeStamp _getTime;
         private DateTimeOffset? _startTime;
 
         public WaveformPlayerViewModel(IEventAggregator events,
             IMediaPlayer player,
-            IWaveFormRepository waveforms,
             IWaveformViewModel waveform,
             IAudioSelectionMenuProvider audioSelectionMenuProvider,
             IAbsoluteTimeFormatter formatTime,
@@ -38,14 +36,13 @@ namespace NWaveform.ViewModels
         {
             if (events == null) throw new ArgumentNullException(nameof(events));
             if (player == null) throw new ArgumentNullException(nameof(player));
-            if (waveforms == null) throw new ArgumentNullException(nameof(waveforms));
             if (waveform == null) throw new ArgumentNullException(nameof(waveform));
             if (formatTime == null) throw new ArgumentNullException(nameof(formatTime));
             if (getTime == null) throw new ArgumentNullException(nameof(getTime));
 
+            _events = events;
             Player = player;
             Player.PropertyChanged += Player_PropertyChanged;
-            Waveforms = waveforms;
             Waveform = waveform;
             _formatTime = formatTime;
             _getTime = getTime;
@@ -55,7 +52,7 @@ namespace NWaveform.ViewModels
             var menu = audioSelectionMenuProvider?.Menu;
             if (menu != null) Waveform.SelectionMenu = menu;
 
-            events.Subscribe(this);
+            _events.Subscribe(this);
         }
 
         private void Player_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -65,7 +62,6 @@ namespace NWaveform.ViewModels
         }
 
         public IMediaPlayer Player { get; }
-        public IWaveFormRepository Waveforms { get; }
         public IWaveformViewModel Waveform { get; }
 
         public Uri Source
@@ -75,20 +71,10 @@ namespace NWaveform.ViewModels
             {
                 if (Player.Source == value) return;
                 Player.Source = value;
+                Waveform.Source = value;
                 NotifyOfPropertyChange();
-                Waveform.SetWaveform(GetWaveform());
-                StartTime = _getTime.For(value);
+                StartTime = value != null ? _getTime.For(value) : null;
             }
-        }
-
-        public WaveformData GetWaveform()
-        {
-            var waveform = Player.Source != null ? Waveforms.For(Player.Source) : null;
-            if (waveform == null) return EmptyWaveFormGenerator.CreateEmpty(Player.Duration);
-
-            if (waveform.Duration == TimeSpan.Zero && Player.HasDuration)
-                waveform.Duration = TimeSpan.FromSeconds(Player.Duration);
-            return waveform;
         }
 
         public bool HasCurrentTime => StartTime.HasValue;
