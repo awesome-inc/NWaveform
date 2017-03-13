@@ -21,7 +21,7 @@ namespace NWaveform.App
 
         public override DateTimeOffset? For(Uri source)
         {
-            return GetChannelFor(source)?.CreationTime ?? base.For(source);
+            return GetChannelFor(source)?.StartTime ?? base.For(source);
         }
 
         private IStreamingAudioChannel GetChannelFor(Uri source)

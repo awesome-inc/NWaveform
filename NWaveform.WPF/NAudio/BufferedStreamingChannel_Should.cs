@@ -5,6 +5,7 @@ using NAudio.Wave;
 using NEdifis.Attributes;
 using NSubstitute;
 using NUnit.Framework;
+using NWaveform.Events;
 
 namespace NWaveform.NAudio
 {
@@ -50,6 +51,26 @@ namespace NWaveform.NAudio
             samples.WaveFormat.Should().Be(waveFormat, "wave data should be published using original format");
 
             // TODO: test wrap around & splitted publishing
+        }
+
+        [Test]
+        public void Increase_start_time_on_wrap_around()
+        {
+            var events = Substitute.For<IEventAggregator>();
+            AudioShiftedEvent shifted = null;
+            events.When(x => x.PublishOnCurrentThread(Arg.Any<AudioShiftedEvent>()))
+                .Do(x => shifted = x.Arg<AudioShiftedEvent>());
+
+            using (
+                var sut = new BufferedStreamingChannel(events, new Uri("channel://1/"), new WaveFormat(8000, 8, 1),
+                    TimeSpan.FromSeconds(2)) { PreserveAfterWrapAround = TimeSpan.FromSeconds(1)})
+            {
+                var startTime = sut.StartTime;
+                sut.BufferedStream.OnWrappedAround();
+                sut.StartTime.Should().Be(startTime + sut.PreserveAfterWrapAround);
+
+                shifted.Shift.Should().Be(sut.PreserveAfterWrapAround);
+            }
         }
     }
 }
