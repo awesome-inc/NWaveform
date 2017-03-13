@@ -45,18 +45,20 @@ namespace NWaveform.ViewModels
             ctx.Use<IAbsoluteTimeFormatter>(formatter);
             var sut = ctx.BuildSut();
 
-            sut.HasCurrentTime.Should().BeFalse("no start time by default");
+            sut.StartTime.Should().BeNull("no start time by default");
+            sut.HasCurrentTime.Should().BeFalse();
             sut.CurrentTime.Should().BeNullOrWhiteSpace();
 
             var d = DateTimeOffset.UtcNow;
             sut.StartTime = d;
-
             sut.HasCurrentTime.Should().BeTrue();
+            var expected = formatter.Format(d);
+            sut.CurrentTime.Should().Be(expected);
 
             var position = TimeSpan.FromSeconds(sut.Player.Duration);
             sut.Player.Position = position.TotalSeconds;
 
-            var expected = formatter.Format(d + position);
+            expected = formatter.Format(d + position);
             sut.CurrentTime.Should().Be(expected);
         }
 

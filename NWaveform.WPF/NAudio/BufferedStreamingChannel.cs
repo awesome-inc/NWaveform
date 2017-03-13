@@ -12,7 +12,7 @@ namespace NWaveform.NAudio
         protected internal readonly BufferedWaveStream BufferedStream;
         private readonly IEventAggregator _events;
 
-        public DateTimeOffset? CreationTime { get; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset? StartTime { get; private set; } = DateTimeOffset.UtcNow;
         public Uri Source { get; }
         public IWaveProviderEx Stream => _waveProvider;
 
@@ -61,6 +61,7 @@ namespace NWaveform.NAudio
 
         private void BufferedStream_WrappedAround(object sender, EventArgs e)
         {
+            StartTime += BufferedStream.SkippedDuration;
             SafePublish(new AudioShiftedEvent(Source, BufferedStream.SkippedDuration), "Could not wrap around buffer");
         }
 
