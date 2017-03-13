@@ -46,7 +46,7 @@ namespace NWaveform.NAudio
         public TimeSpan SkippedDuration { get; private set; }
         public int SkippedBytes { get; private set; }
 
-        protected virtual void OnWrappedAround()
+        protected internal virtual void OnWrappedAround()
         {
             WrappedAround?.Invoke(this, EventArgs.Empty);
         }

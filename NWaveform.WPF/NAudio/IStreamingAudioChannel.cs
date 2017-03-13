@@ -4,7 +4,7 @@ namespace NWaveform.NAudio
 {
     public interface IStreamingAudioChannel
     {
-        DateTimeOffset? CreationTime { get; }
+        DateTimeOffset? StartTime { get; }
         Uri Source { get; }
         IWaveProviderEx Stream { get; }
     }
