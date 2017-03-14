@@ -27,7 +27,6 @@ namespace NWaveform.App
                 DisplayName = value?.ToString();
                 NotifyOfPropertyChange(nameof(ToolTip));
                 if (value != null) AddRandomProperties();
-
             }
         }
 
@@ -48,7 +47,7 @@ namespace NWaveform.App
                 new MenuItemViewModel
                 {
                     Icon = IconChar.Pencil,
-                    Command = new DelegateCommand<ILabelVievModel>(EditLabel)
+                    Command = new DelegateCommand<ILabelVievModel>(EditLabel, l => false)
                     {
                         Title = "Edit...",
                         Description = "Edit label"
@@ -57,7 +56,7 @@ namespace NWaveform.App
                 new MenuItemViewModel
                 {
                     Icon = IconChar.Times,
-                    Command = new DelegateCommand<ILabelVievModel>(RemoveLabel)
+                    Command = new DelegateCommand<ILabelVievModel>(RemoveLabel, l => false)
                     {
                         Title = "Remove",
                         Description = "Remove label"
@@ -197,6 +196,9 @@ namespace NWaveform.App
                     Foreground = AudioPlayer.Waveform.UserTextBrush,
                     Text = "Waypoint",
                     Icon = IconChar.LocationArrow,
+                    IconRotation = r.NextDouble() * 360,
+                    IconFlipOrientation = (FlipOrientation)r.Next((int)FlipOrientation.Vertical + 1),
+                    IconSpin = true,
                     Menu = _labelMenu
                 }
             };

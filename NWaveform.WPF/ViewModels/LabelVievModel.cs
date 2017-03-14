@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using Caliburn.Micro;
 using FontAwesome.Sharp;
@@ -18,8 +19,12 @@ namespace NWaveform.ViewModels
         private string _tooltip;
         private IAudioSelectionViewModel _selection = new AudioSelectionViewModel();
         private IMenuViewModel _menu;
-        private int _fontSize;
+        private int _fontSize = Convert.ToInt32(TextElement.FontSizeProperty.DefaultMetadata.DefaultValue);
         private FontWeight _fontWeight;
+        private double _iconRotation;
+        private FlipOrientation _iconFlipOrientation;
+        private bool _iconSpin;
+        private double _iconSpinDuration = Convert.ToDouble(Awesome.SpinDurationProperty.DefaultMetadata.DefaultValue);
 
         public string Text
         {
@@ -78,13 +83,22 @@ namespace NWaveform.ViewModels
         public int FontSize
         {
             get { return _fontSize; }
-            set { _fontSize = value; NotifyOfPropertyChange(); }
+            set
+            {
+                _fontSize = value;
+                if (value.Equals(_fontSize)) return;
+                NotifyOfPropertyChange();
+            }
         }
 
         public FontWeight FontWeight
         {
             get { return _fontWeight; }
-            set { _fontWeight = value; NotifyOfPropertyChange(); }
+            set
+            {
+                if (value.Equals(_fontWeight)) return;
+                _fontWeight = value;
+                NotifyOfPropertyChange(); }
         }
 
         // ReSharper disable once UnusedMember.Global
@@ -92,6 +106,50 @@ namespace NWaveform.ViewModels
         {
             if (e == null) throw new ArgumentNullException(nameof(e));
             if (Menu.IsEmpty()) e.Handled = true;
+        }
+
+        public double IconRotation
+        {
+            get { return _iconRotation; }
+            set
+            {
+                if (value.Equals(_iconRotation)) return;
+                _iconRotation = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        public FlipOrientation IconFlipOrientation
+        {
+            get { return _iconFlipOrientation; }
+            set
+            {
+                if (value == _iconFlipOrientation) return;
+                _iconFlipOrientation = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        public bool IconSpin
+        {
+            get { return _iconSpin; }
+            set
+            {
+                if (value == _iconSpin) return;
+                _iconSpin = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        public double IconSpinDuration
+        {
+            get { return _iconSpinDuration; }
+            set
+            {
+                if (value.Equals(_iconSpinDuration)) return;
+                _iconSpinDuration = value;
+                NotifyOfPropertyChange();
+            }
         }
     }
 }

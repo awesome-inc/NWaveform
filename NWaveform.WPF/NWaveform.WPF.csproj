@@ -171,6 +171,7 @@
     <Compile Include="ViewModels\IMenuItemViewModel.cs" />
     <Compile Include="ViewModels\IMenuViewModel.cs" />
     <Compile Include="ViewModels\IWaveformDisplayViewModel.cs" />
+    <Compile Include="ViewModels\LabelVievModel_Should.cs" />
     <Compile Include="ViewModels\MenuExtensions.cs" />
     <Compile Include="ViewModels\MenuExtensions_Should.cs" />
     <Compile Include="ViewModels\MenuItemViewModel.cs" />

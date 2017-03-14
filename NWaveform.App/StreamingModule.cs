@@ -18,7 +18,7 @@ namespace NWaveform.App
                 { new Uri("channel://1/"), TimeSpan.FromSeconds(10)},
                 { new Uri("channel://2/"), TimeSpan.FromSeconds(20)},
                 { new Uri("channel://3/"), TimeSpan.FromSeconds(33)},
-                { new Uri("channel://4/"), new TimeSpan(0,25,43) }
+                { new Uri("channel://4/"), TimeSpan.FromMinutes(1)}
             };
 
             foreach (var kvp in channels)
@@ -34,7 +34,7 @@ namespace NWaveform.App
         private static EndlessFileLoopChannel CreateChannel(IComponentContext c, Uri source, TimeSpan bufferSize)
         {
             var events = c.Resolve<IEventAggregator>();
-            const string fileName = @"Data\Channel-00.wav";
+            const string fileName = @"Data\Pulp_Fiction_Jimmys_Coffee.mp3";
             var preserveWrapAround = TimeSpan.FromSeconds(bufferSize.TotalSeconds * 0.9);
             return new EndlessFileLoopChannel(events, source, fileName, bufferSize)
             { PreserveAfterWrapAround = preserveWrapAround };
