@@ -18,6 +18,11 @@ namespace NWaveform.ViewModels
         Brush Foreground { get; set; }
         int FontSize { get; set; }
 
+        double IconRotation { get; set; }
+        FlipOrientation IconFlipOrientation { get; set; }
+        bool IconSpin { get; set; }
+        double IconSpinDuration { get; set; }
+
         IMenuViewModel Menu { get; set; }
         FontWeight FontWeight { get; set; }
     }

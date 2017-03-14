@@ -70,7 +70,11 @@
                     </ContextMenu>
 
                 </StackPanel.ContextMenu>
-                <fa:IconBlock Icon="{Binding Icon}" Foreground="{Binding Foreground}"
+                <fa:IconBlock Icon="{Binding Icon}" Foreground="{Binding Foreground}" 
+                              fa:Awesome.Rotation="{Binding IconRotation}"
+                              fa:Awesome.Flip="{Binding IconFlipOrientation}"
+                              fa:Awesome.Spin="{Binding IconSpin}"
+                              fa:Awesome.SpinDuration="{Binding IconSpinDuration}"
                             Padding="4" VerticalAlignment="Center"/>
                 <TextBlock Text="{Binding Text}" Foreground="{Binding Foreground}" FontSize="{Binding FontSize}" FontWeight="{Binding FontWeight}"
                             Padding="4" VerticalAlignment="Center"/>
