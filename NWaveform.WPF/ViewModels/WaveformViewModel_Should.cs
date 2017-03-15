@@ -194,9 +194,11 @@ namespace NWaveform.ViewModels
             sut.Position = 6;
             sut.Selection.Start = 6;
             sut.Selection.End = 9;
+
+            sut.MonitorEvents();
             sut.HandleShift(3);
 
-            sut.Position.Should().Be(3);
+            sut.ShouldRaisePropertyChangeFor(x => x.Position, "sut should not change position, just notify on the base stream (position provider)");
             sut.Selection.Start.Should().Be(3);
             sut.Selection.End.Should().Be(6);
 

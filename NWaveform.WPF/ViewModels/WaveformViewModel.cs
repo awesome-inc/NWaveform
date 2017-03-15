@@ -68,7 +68,7 @@ namespace NWaveform.ViewModels
         {
             base.HandleShift(shift);
 
-            Position -= shift;
+            NotifyOfPropertyChange(nameof(Position));
 
             if (Selection != null)
             {

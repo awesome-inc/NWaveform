@@ -54,7 +54,7 @@ namespace NWaveform.NAudio
         }
 
         [Test]
-        public void Increase_start_time_on_wrap_around()
+        public void Shift_on_wrap_around()
         {
             var events = Substitute.For<IEventAggregator>();
             AudioShiftedEvent shifted = null;
@@ -65,10 +65,13 @@ namespace NWaveform.NAudio
                 var sut = new BufferedStreamingChannel(events, new Uri("channel://1/"), new WaveFormat(8000, 8, 1),
                     TimeSpan.FromSeconds(2)) { PreserveAfterWrapAround = TimeSpan.FromSeconds(1)})
             {
+                sut.Stream.CurrentTime = sut.PreserveAfterWrapAround;
                 var startTime = sut.StartTime;
-                sut.BufferedStream.OnWrappedAround();
-                sut.StartTime.Should().Be(startTime + sut.PreserveAfterWrapAround);
 
+                sut.BufferedStream.OnWrappedAround();
+
+                sut.Stream.CurrentTime.Should().Be(TimeSpan.Zero);
+                sut.StartTime.Should().Be(startTime + sut.PreserveAfterWrapAround);
                 shifted.Shift.Should().Be(sut.PreserveAfterWrapAround);
             }
         }
