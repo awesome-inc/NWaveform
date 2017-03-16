@@ -17,12 +17,16 @@ namespace NWaveform.ViewModels
         private int[] _leftChannel;
         private int[] _rightChannel;
         private int _width;
-        protected int ZeroMagnitude { get; private set; }
+
+        private int ZeroMagnitude { get; set; }
 
         private SolidColorBrush _backgroundBrush = new SolidColorBrush(WaveformSettings.DefaultBackgroundColor);
         private SolidColorBrush _leftBrush = new SolidColorBrush(WaveformSettings.DefaultLeftColor);
         private SolidColorBrush _rightBrush = new SolidColorBrush(WaveformSettings.DefaultRightColor);
         private Uri _source;
+        private bool _liveTrackingEnabled = true;
+        private double _lastWritePosition;
+        private SolidColorBrush _lastWriteBrush = new SolidColorBrush(WaveformSettings.DefaultTransparentBlack);
 
         public WaveformDisplayViewModel(IEventAggregator events, IGetWaveform getWaveform)
         {
@@ -128,6 +132,39 @@ namespace NWaveform.ViewModels
 
         public bool HasDuration => Duration > 0.0;
 
+        public bool LiveTrackingEnabled
+        {
+            get { return _liveTrackingEnabled; }
+            set
+            {
+                if (value == _liveTrackingEnabled) return;
+                _liveTrackingEnabled = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        public double LastWritePosition
+        {
+            get { return _lastWritePosition; }
+            private set
+            {
+                if (value.Equals(_lastWritePosition)) return;
+                _lastWritePosition = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        public SolidColorBrush LastWriteBrush
+        {
+            get { return _lastWriteBrush; }
+            set
+            {
+                if (Equals(value, _lastWriteBrush)) return;
+                _lastWriteBrush = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
         protected override void OnViewLoaded(object view)
         {
             var myView = view as IHaveWaveformImage;
@@ -152,7 +189,7 @@ namespace NWaveform.ViewModels
             Execute.OnUIThread(() => HandleShift(message.Shift.TotalSeconds));
         }
 
-        internal void HandlePeaks(PeaksReceivedEvent message)
+        protected internal void HandlePeaks(PeaksReceivedEvent message)
         {
             var pointsReceivedEvent = message.ToPoints(Duration, WaveformImage.Width, WaveformImage.Height);
             Handle(pointsReceivedEvent);
@@ -160,6 +197,7 @@ namespace NWaveform.ViewModels
             Trace.WriteLine(
                 $"Received #{message.Peaks.Length} peaks ({message.Start}:{message.End}) for '{message.Source}' ");
 #endif
+            LastWritePosition = message.End;
         }
 
         protected internal virtual void HandleShift(double shift)
@@ -184,6 +222,7 @@ namespace NWaveform.ViewModels
 #if DEBUG
             Trace.WriteLine($"Shifted audio {shift} seconds.");
 #endif
+            LastWritePosition -= shift;
         }
 
         private void Handle(PointsReceivedEvent message)

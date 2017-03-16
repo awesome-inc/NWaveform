@@ -117,7 +117,7 @@ namespace NWaveform.ViewModels
             var h2 = (int)(sut.WaveformImage.Height / 2);
 
             var peaks = Enumerable.Repeat(1f, 2 * w2).Concat(Enumerable.Repeat(0f, 2 * w2))
-                .Select(m => new PeakInfo(m-1f, m)).ToArray();
+                .Select(m => new PeakInfo(m - 1f, m)).ToArray();
             var e = new PeaksReceivedEvent(new Uri("source://test/"), 0, 2, peaks);
             sut.PositionProvider.Source = e.Source;
             sut.Duration = e.End;
@@ -126,14 +126,14 @@ namespace NWaveform.ViewModels
             // assert the image rendered
             sut.WaveformImage.RectShouldHaveColor(1, 1, w2, h2, sut.LeftBrush.Color);
             sut.WaveformImage.RectShouldHaveColor(w2 + 1, h2 + 1, 2 * w2, 2 * h2, sut.RightBrush.Color);
-            sut.WaveformImage.RectShouldHaveColor(1, h2 + 1, w2 - 1, 2*h2-1, sut.BackgroundBrush.Color);
-            sut.WaveformImage.RectShouldHaveColor(w2 + 1, 1, 2*w2, h2, sut.BackgroundBrush.Color);
+            sut.WaveformImage.RectShouldHaveColor(1, h2 + 1, w2 - 1, 2 * h2 - 1, sut.BackgroundBrush.Color);
+            sut.WaveformImage.RectShouldHaveColor(w2 + 1, 1, 2 * w2, h2, sut.BackgroundBrush.Color);
 
             // assert the points are filled
             sut.LeftChannel.Take(10).ShouldAllBeEquivalentTo(0);
             sut.RightChannel.Take(10).ShouldAllBeEquivalentTo(h2);
             sut.LeftChannel.Skip(10).Take(10).ShouldAllBeEquivalentTo(h2);
-            sut.RightChannel.Skip(10).Take(10).ShouldAllBeEquivalentTo(2*h2);
+            sut.RightChannel.Skip(10).Take(10).ShouldAllBeEquivalentTo(2 * h2);
         }
 
         [Test]
@@ -163,20 +163,20 @@ namespace NWaveform.ViewModels
 
             var uri = new Uri("source://test/");
             var w3 = (int)(sut.WaveformImage.Width / 3);
-            var peaks = Enumerable.Repeat(1f, w3).Select(m => new PeakInfo(-m,m)).ToArray();
+            var peaks = Enumerable.Repeat(1f, w3).Select(m => new PeakInfo(-m, m)).ToArray();
 
             sut.Duration = 3;
             // 1/3
             var e = new PeaksReceivedEvent(uri, 0, 1, peaks);
             sut.HandlePeaks(e);
-            sut.WaveformImage.RectShouldHaveColor(0, 0, w3-1, 20, color);
-            sut.WaveformImage.RectShouldHaveColor(w3, 0, 3*w3, 20, sut.BackgroundBrush.Color);
+            sut.WaveformImage.RectShouldHaveColor(0, 0, w3 - 1, 20, color);
+            sut.WaveformImage.RectShouldHaveColor(w3, 0, 3 * w3, 20, sut.BackgroundBrush.Color);
             // 3/3
             e = new PeaksReceivedEvent(uri, 2, 3, peaks);
             sut.HandlePeaks(e);
             sut.WaveformImage.RectShouldHaveColor(0, 0, w3 - 1, 20, color);
-            sut.WaveformImage.RectShouldHaveColor(w3, 0, 2 * w3 -1, 20, sut.BackgroundBrush.Color);
-            sut.WaveformImage.RectShouldHaveColor(2*w3, 0, 3 * w3, 20, color);
+            sut.WaveformImage.RectShouldHaveColor(w3, 0, 2 * w3 - 1, 20, sut.BackgroundBrush.Color);
+            sut.WaveformImage.RectShouldHaveColor(2 * w3, 0, 3 * w3, 20, color);
             // 2/3
             e = new PeaksReceivedEvent(uri, 1, 2, peaks);
             sut.HandlePeaks(e);
@@ -194,13 +194,16 @@ namespace NWaveform.ViewModels
             sut.Position = 6;
             sut.Selection.Start = 6;
             sut.Selection.End = 9;
+
+            sut.MonitorEvents();
             sut.HandleShift(3);
 
-            sut.Position.Should().Be(3);
+            sut.ShouldRaisePropertyChangeFor(x => x.Position, "sut should not change position, just notify on the base stream (position provider)");
             sut.Selection.Start.Should().Be(3);
             sut.Selection.End.Should().Be(6);
 
             // TODO: assert channels & labels
         }
+
     }
 }

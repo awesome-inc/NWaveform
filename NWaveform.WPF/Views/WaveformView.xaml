@@ -173,6 +173,19 @@
                 </Canvas.Left>
             </Rectangle>
 
+            <!-- The last write position marker -->
+            <Rectangle x:Name="LastWritePositionLine" Canvas.Top="0" Width="2" 
+                Height="{Binding ActualHeight, ElementName=WaveformCanvas}"
+                Fill="{Binding LastWriteBrush}"
+                Visibility="{Binding LiveTrackingEnabled, Converter={StaticResource BoolToVisibility}}">
+                <Canvas.Left>
+                    <MultiBinding Converter="{StaticResource ToWaveformSpaceScalar}">
+                        <Binding Path="LastWritePosition"/>
+                        <Binding Source="{StaticResource DurationProxy}" Path="Data"/>
+                        <Binding ElementName="WaveformCanvas" Path="ActualWidth"/>
+                    </MultiBinding>
+                </Canvas.Left>
+            </Rectangle>
         </Canvas>
     </Grid>
 </UserControl>

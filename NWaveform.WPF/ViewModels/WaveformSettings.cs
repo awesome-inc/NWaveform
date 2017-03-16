@@ -7,35 +7,19 @@ namespace NWaveform.ViewModels
         public static readonly Color DefaultBackgroundColor = Colors.Transparent;
         public static readonly Color DefaultLeftColor = Colors.IndianRed;
         public static readonly Color DefaultRightColor = Colors.RoyalBlue;
+        public static readonly Color DefaultTransparentBlack = Color.FromArgb(128, 0, 0, 0);
 
-        public double MaxMagnitude { get; set; }
-        public double TicksEach { get; set; }
+        public double TicksEach { get; set; } = 5.0;
 
-        public Color BackgroundColor { get; set; }
-        public Color LeftColor { get; set; }
-        public Color RightColor { get; set; }
-        public Color PositionColor { get; set; }
-        public Color SelectionColor { get; set; }
-        public Color UserColor { get; set; }
-        public Color SeparationLeftColor { get; set; }
-        public Color SeparationRightColor { get; set; }
-        public Color UserTextColor { get; set; }
-
-        public WaveformSettings()
-        {
-            MaxMagnitude = 1.0;
-            TicksEach = 5.0;
-
-            BackgroundColor = DefaultBackgroundColor; //Colors.DimGray;
-            LeftColor = DefaultLeftColor;
-            RightColor = DefaultRightColor;
-            PositionColor = Color.FromArgb(255, 192, 192, 0);// Colors.Yellow *0.8
-            SelectionColor = Color.FromArgb(80, 115, 192, 115); // Colors.LimeGreen * 0.8
-            UserColor = Color.FromArgb(192, 0, 0, 0);
-            UserTextColor = Colors.White;
-
-            SeparationLeftColor = Color.FromArgb(128, 0, 0, 0);
-            SeparationRightColor = Color.FromArgb(128, 0, 0, 0);
-        }
+        public Color BackgroundColor { get; set; } = DefaultBackgroundColor;
+        public Color LeftColor { get; set; } = DefaultLeftColor;
+        public Color RightColor { get; set; } = DefaultRightColor;
+        public Color PositionColor { get; set; } = Color.FromArgb(255, 192, 192, 0);
+        public Color SelectionColor { get; set; } = Color.FromArgb(80, 115, 192, 115);
+        public Color UserColor { get; set; } = Color.FromArgb(192, 0, 0, 0);
+        public Color SeparationLeftColor { get; set; } = DefaultTransparentBlack;
+        public Color SeparationRightColor { get; set; } = DefaultTransparentBlack;
+        public Color UserTextColor { get; set; } = Colors.White;
+        public Color LastWriteColor { get; set; } = DefaultTransparentBlack;
     }
 }

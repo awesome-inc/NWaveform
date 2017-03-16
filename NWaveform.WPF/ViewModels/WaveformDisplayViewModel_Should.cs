@@ -6,6 +6,7 @@ using NEdifis;
 using NEdifis.Attributes;
 using NUnit.Framework;
 using NWaveform.Events;
+using NWaveform.Model;
 
 namespace NWaveform.ViewModels
 {
@@ -34,5 +35,27 @@ namespace NWaveform.ViewModels
             sut.Duration = shift.TotalSeconds * 2;
             sut.HandleShift(e.Shift.TotalSeconds);
         }
+
+        [Test]
+        public void Support_live_tracking()
+        {
+            var ctx = new ContextFor<WaveformDisplayViewModel>();
+            var sut = ctx.BuildSut();
+
+            sut.LiveTrackingEnabled.Should().BeTrue("by default live tracking should be enabled");
+            sut.LastWritePosition.Should().Be(0);
+
+            var peaks = new[]{ new PeakInfo(-1f,1f) };
+            var uri = new Uri("channel://1/");
+            var e = new PeaksReceivedEvent(uri, 0, 1, peaks);
+            sut.Duration = e.End;
+            sut.HandlePeaks(e);
+            sut.LastWritePosition.Should().Be(e.End, "last write position should be updated for received peaks");
+
+
+            sut.HandleShift(sut.LastWritePosition);
+            sut.LastWritePosition.Should().Be(0);
+        }
+
     }
 }
