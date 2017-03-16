@@ -3,11 +3,48 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300">
+             xmlns:converter="clr-namespace:NWaveform.Converter"
+             xmlns:viewModels="clr-namespace:NWaveform.ViewModels"
+             xmlns:nWaveform="clr-namespace:NWaveform"
+             mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300"
+            d:DataContext="{d:DesignInstance viewModels:IWaveformDisplayViewModel, IsDesignTimeCreatable=False}">
+    <UserControl.Resources>
+        <!-- Canvas: Make the canvas render logical coordinates in [0,duration] x [-1,1] space -->
+        <converter:ArithmeticConverter Operation="Division" x:Key="Divide" Operand="2"/>
+        <ScaleTransform x:Key="ToWaveformSpace"
+                ScaleY="{Binding ElementName=WaveformCanvas, Path=ActualHeight, Converter={StaticResource Divide}}" 
+                CenterY="-1">
+            <ScaleTransform.ScaleX>
+                <MultiBinding Converter="{StaticResource Divide}">
+                    <Binding ElementName="WaveformCanvas" Path="ActualWidth"/>
+                    <Binding Path="Duration"/>
+                </MultiBinding>
+            </ScaleTransform.ScaleX>
+        </ScaleTransform>
+        <!-- converters needed for Labels -->
+        <converter:ScalarTransformConverter x:Key="ToWaveformSpaceScalar" Transform="{StaticResource ToWaveformSpace}"/>
+        <nWaveform:BindingProxy x:Key="DurationProxy" Data="{Binding Duration}"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    </UserControl.Resources>
     <Grid>
         <Grid.Background>
             <!-- The waveform image -->
             <ImageBrush x:Name="WaveformImage" Stretch="Fill"/>
         </Grid.Background>
+
+        <!-- The last write position marker -->
+        <Canvas x:Name="WaveformCanvas" Visibility="{Binding LiveTrackingEnabled, Converter={StaticResource BoolToVisibility}}">
+            <Rectangle x:Name="LastWritePositionLine" Canvas.Top="0" Width="2" 
+                Height="{Binding ActualHeight, ElementName=WaveformCanvas}"
+                Fill="{Binding LastWriteBrush}">
+                <Canvas.Left>
+                    <MultiBinding Converter="{StaticResource ToWaveformSpaceScalar}">
+                        <Binding Path="LastWritePosition"/>
+                        <Binding Source="{StaticResource DurationProxy}" Path="Data"/>
+                        <Binding ElementName="WaveformCanvas" Path="ActualWidth"/>
+                    </MultiBinding>
+                </Canvas.Left>
+            </Rectangle>
+        </Canvas>
     </Grid>
 </UserControl>

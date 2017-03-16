@@ -18,5 +18,9 @@ namespace NWaveform.ViewModels
         int[] LeftChannel { get; }
         int[] RightChannel { get; }
         bool HasDuration { get; }
+
+        bool LiveTrackingEnabled { get; set; }
+        double LastWritePosition { get; }
+        SolidColorBrush LastWriteBrush { get; set; }
     }
 }
