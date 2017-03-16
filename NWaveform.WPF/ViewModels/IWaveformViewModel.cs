@@ -1,15 +1,12 @@
 using System.Collections.Generic;
 using System.Windows.Media;
 using NWaveform.Interfaces;
-using NWaveform.Model;
 
 namespace NWaveform.ViewModels
 {
     public interface IWaveformViewModel : IWaveformDisplayViewModel
     {
         IPositionProvider PositionProvider { get; set; }
-
-        void SetWaveform(PeakInfo[] peaks, double duration);
 
         SolidColorBrush BackgroundBrush { get; set; }
 

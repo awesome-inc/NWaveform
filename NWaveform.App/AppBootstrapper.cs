@@ -5,7 +5,6 @@ using System.Windows;
 using Autofac;
 using Autofac.Core;
 using Caliburn.Micro;
-using NWaveform.NAudio;
 
 namespace NWaveform.App
 {

@@ -9,8 +9,9 @@ using NWaveform.Model;
 
 namespace NWaveform.ViewModels
 {
-    public class WaveformDisplayViewModel : Screen, IWaveformDisplayViewModel
+    public class WaveformDisplayViewModel : Screen, IWaveformDisplayViewModel, IDisposable
     {
+        private readonly IEventAggregator _events;
         private readonly IGetWaveform _getWaveform;
         private double _duration;
         private WriteableBitmap _waveformImage;
@@ -32,9 +33,10 @@ namespace NWaveform.ViewModels
         {
             if (events == null) throw new ArgumentNullException(nameof(events));
             if (getWaveform == null) throw new ArgumentNullException(nameof(getWaveform));
+            _events = events;
             _getWaveform = getWaveform;
-            WaveformImage = BitmapFactory.New(1920, 1080);
-            events.Subscribe(this);
+            WaveformImage = BitmapFactory.New(800, 200);
+            _events.Subscribe(this);
         }
 
         internal WriteableBitmap WaveformImage
@@ -189,7 +191,7 @@ namespace NWaveform.ViewModels
             Execute.OnUIThread(() => HandleShift(message.Shift.TotalSeconds));
         }
 
-        protected internal void HandlePeaks(PeaksReceivedEvent message)
+        protected internal virtual void HandlePeaks(PeaksReceivedEvent message)
         {
             var pointsReceivedEvent = message.ToPoints(Duration, WaveformImage.Width, WaveformImage.Height);
             Handle(pointsReceivedEvent);
@@ -258,6 +260,17 @@ namespace NWaveform.ViewModels
                     WriteableBitmapExtensions.DrawLine(ctx, w, h, x, h2, x, _rightChannel[x], rightColor);
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            OnDispose();
+        }
+
+        protected virtual void OnDispose()
+        {
+            _events.Unsubscribe(this);
+            _waveformImage = null;
         }
     }
 }

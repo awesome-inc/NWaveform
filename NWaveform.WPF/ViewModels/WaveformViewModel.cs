@@ -31,6 +31,7 @@ namespace NWaveform.ViewModels
         private SolidColorBrush _separationRightBrush;
         private SolidColorBrush _userTextBrush;
         private IPositionProvider _positionProvider = new EmptyPositionProvider();
+        private IMediaPlayer _player;
 
         public WaveformViewModel(IEventAggregator events, IGetWaveform getWaveform, WaveformSettings waveformSettings = null) : base(events, getWaveform)
         {
@@ -47,7 +48,10 @@ namespace NWaveform.ViewModels
             _separationRightBrush = new SolidColorBrush(settings.SeparationRightColor);
             _userTextBrush = new SolidColorBrush(settings.UserTextColor);
             LastWriteBrush = new SolidColorBrush(settings.LastWriteColor);
+            LiveDelta = settings.LiveDelta;
         }
+
+        private double LiveDelta { get; set; }
 
         public IPositionProvider PositionProvider
         {
@@ -58,9 +62,25 @@ namespace NWaveform.ViewModels
                 _positionProvider.PropertyChanged -= PositionProviderNotifyOfPropertyChange;
                 _positionProvider = value ?? new EmptyPositionProvider();
                 _positionProvider.PropertyChanged += PositionProviderNotifyOfPropertyChange;
+                _player = _positionProvider as IMediaPlayer;
                 NotifyOfPropertyChange();
                 NotifyOfPropertyChange(nameof(Position));
             }
+        }
+
+        protected internal override void HandlePeaks(PeaksReceivedEvent message)
+        {
+            base.HandlePeaks(message);
+            var isPartial = message.Start > 0 || message.End < Duration;
+            if (IsActive && LiveTrackingEnabled && isPartial)
+                CheckAutoPlay();
+        }
+
+        private void CheckAutoPlay()
+        {
+            if (_player == null || !_player.CanPlay) return;
+            _player.Position = LastWritePosition - LiveDelta;
+            _player.Play();
         }
 
         protected internal override void HandleShift(double shift)
@@ -214,13 +234,6 @@ namespace NWaveform.ViewModels
         {
             get { return _separationRightChannel; }
             set { _separationRightChannel = value; NotifyOfPropertyChange(); RenderWaveform(); }
-        }
-
-        public void SetWaveform(PeakInfo[] peaks, double duration)
-        {
-            Duration = duration;
-            var message = new PeaksReceivedEvent(Source, 0, Duration, peaks);
-            HandlePeaks(message);
         }
     }
 }

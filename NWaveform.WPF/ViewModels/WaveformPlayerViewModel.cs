@@ -22,7 +22,6 @@ namespace NWaveform.ViewModels
             }
         }
 
-        private readonly IEventAggregator _events;
         private readonly IAbsoluteTimeFormatter _formatTime;
         private readonly IGetTimeStamp _getTime;
         private DateTimeOffset? _startTime;
@@ -40,7 +39,6 @@ namespace NWaveform.ViewModels
             if (formatTime == null) throw new ArgumentNullException(nameof(formatTime));
             if (getTime == null) throw new ArgumentNullException(nameof(getTime));
 
-            _events = events;
             Player = player;
             Player.PropertyChanged += Player_PropertyChanged;
             Waveform = waveform;
@@ -48,11 +46,12 @@ namespace NWaveform.ViewModels
             _getTime = getTime;
 
             Waveform.PositionProvider = player;
+            Waveform.ConductWith(this);
 
             var menu = audioSelectionMenuProvider?.Menu;
             if (menu != null) Waveform.SelectionMenu = menu;
 
-            _events.Subscribe(this);
+            events.Subscribe(this);
         }
 
         private void Player_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -92,6 +91,10 @@ namespace NWaveform.ViewModels
             return Source != null && Source == source;
         }
 
-
+        protected override void OnDeactivate(bool close)
+        {
+            Player?.Pause();
+            base.OnDeactivate(close);
+        }
     }
 }
