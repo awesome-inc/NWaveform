@@ -18,7 +18,6 @@ namespace NWaveform.ViewModels
 
         private IAudioSelectionViewModel _selection = new AudioSelectionViewModel();
 
-        private readonly double _maxMagnitude;
         private double _ticksEach;
 
         private SolidColorBrush _positionBrush;
@@ -37,7 +36,6 @@ namespace NWaveform.ViewModels
         {
             var settings = waveformSettings ?? new WaveformSettings();
 
-            _maxMagnitude = settings.MaxMagnitude;
             _ticksEach = settings.TicksEach;
             BackgroundBrush = new SolidColorBrush(settings.BackgroundColor);
             LeftBrush = new SolidColorBrush(settings.LeftColor);
@@ -48,6 +46,7 @@ namespace NWaveform.ViewModels
             _separationLeftBrush = new SolidColorBrush(settings.SeparationLeftColor);
             _separationRightBrush = new SolidColorBrush(settings.SeparationRightColor);
             _userTextBrush = new SolidColorBrush(settings.UserTextColor);
+            LastWriteBrush = new SolidColorBrush(settings.LastWriteColor);
         }
 
         public IPositionProvider PositionProvider
@@ -68,7 +67,7 @@ namespace NWaveform.ViewModels
         {
             base.HandleShift(shift);
 
-            Position -= shift;
+            NotifyOfPropertyChange(nameof(Position));
 
             if (Selection != null)
             {
