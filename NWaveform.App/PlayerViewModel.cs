@@ -36,6 +36,7 @@ namespace NWaveform.App
             if (audioPlayer == null) throw new ArgumentNullException(nameof(audioPlayer));
             _events = events;
             AudioPlayer = audioPlayer;
+            AudioPlayer.ConductWith(this);
 
             // ReSharper disable VirtualMemberCallInConstructor
             DisplayName = "Player";
@@ -89,12 +90,6 @@ namespace NWaveform.App
             AudioPlayer.Waveform.SelectionMenu = selectionMenu;
         }
 
-        protected override void OnDeactivate(bool close)
-        {
-            AudioPlayer?.Player?.Pause();
-            base.OnDeactivate(close);
-        }
-
         private bool CanSelectWaypoint(IAudioSelectionViewModel selection)
         {
             return (selection != null && selection.Duration > 1.0);
@@ -140,10 +135,7 @@ namespace NWaveform.App
             var res = dlg.ShowDialog();
 
             if (res.HasValue && res.Value)
-            {
                 OpenUrl(dlg.FileName);
-                AudioPlayer.Waveform.LiveTrackingEnabled = false;
-            }
         }
 
         // ReSharper disable once UnusedMember.Global
@@ -151,10 +143,7 @@ namespace NWaveform.App
         {
             var url = Interaction.InputBox("Url", "Open Url", "channel://1/");
             if (!string.IsNullOrEmpty(url))
-            {
                 OpenUrl(url);
-                AudioPlayer.Waveform.LiveTrackingEnabled = true;
-            }
         }
 
         private void OpenUrl(string url)

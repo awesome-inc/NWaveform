@@ -31,6 +31,8 @@ namespace NWaveform.ViewModels
         private SolidColorBrush _separationRightBrush;
         private SolidColorBrush _userTextBrush;
         private IPositionProvider _positionProvider = new EmptyPositionProvider();
+        private IMediaPlayer _player;
+        private bool _flagAutoPlay;
 
         public WaveformViewModel(IEventAggregator events, IGetWaveform getWaveform, WaveformSettings waveformSettings = null) : base(events, getWaveform)
         {
@@ -47,7 +49,23 @@ namespace NWaveform.ViewModels
             _separationRightBrush = new SolidColorBrush(settings.SeparationRightColor);
             _userTextBrush = new SolidColorBrush(settings.UserTextColor);
             LastWriteBrush = new SolidColorBrush(settings.LastWriteColor);
+            LiveDelta = settings.LiveDelta;
         }
+
+        protected override void OnDispose()
+        {
+            base.OnDispose();
+            SelectionMenu = null;
+            Selection = null;
+            PositionProvider = null;
+            SelectedLabel = null;
+            Labels.Clear();
+            UserChannel = null;
+            SeparationLeftChannel = null;
+            SeparationRightChannel = null;
+        }
+
+        public double LiveDelta { get; }
 
         public IPositionProvider PositionProvider
         {
@@ -58,9 +76,32 @@ namespace NWaveform.ViewModels
                 _positionProvider.PropertyChanged -= PositionProviderNotifyOfPropertyChange;
                 _positionProvider = value ?? new EmptyPositionProvider();
                 _positionProvider.PropertyChanged += PositionProviderNotifyOfPropertyChange;
+                _player = _positionProvider as IMediaPlayer;
                 NotifyOfPropertyChange();
                 NotifyOfPropertyChange(nameof(Position));
+                Source = _positionProvider.Source;
             }
+        }
+
+        protected override void OnActivate()
+        {
+            base.OnActivate();
+            _flagAutoPlay = true;
+        }
+
+        protected internal override void HandlePeaks(PeaksReceivedEvent message)
+        {
+            base.HandlePeaks(message);
+            if (IsActive && _flagAutoPlay && IsLive)
+                CheckAutoPlay();
+        }
+
+        private void CheckAutoPlay()
+        {
+            if (_player == null || !_player.CanPlay) return;
+            _player.Position = LastWritePosition - LiveDelta;
+            _player.Play();
+            _flagAutoPlay = false;
         }
 
         protected internal override void HandleShift(double shift)
@@ -127,8 +168,7 @@ namespace NWaveform.ViewModels
             set
             {
                 _selection = value;
-                // TODO: channel from top/height?!
-                PositionProvider.AudioSelection = new AudioSelection(0, _selection.Start, _selection.End);
+                PositionProvider.AudioSelection = _selection == null ? AudioSelection.Empty : new AudioSelection(0, _selection.Start, _selection.End);
                 NotifyOfPropertyChange();
             }
         }
@@ -201,26 +241,19 @@ namespace NWaveform.ViewModels
         public PointCollection UserChannel
         {
             get { return _userChannel; }
-            set { _userChannel = value; NotifyOfPropertyChange(); RenderWaveform(); }
+            set { _userChannel = value; NotifyOfPropertyChange(); }
         }
 
         public PointCollection SeparationLeftChannel
         {
             get { return _separationLeftChannel; }
-            set { _separationLeftChannel = value; NotifyOfPropertyChange(); RenderWaveform(); }
+            set { _separationLeftChannel = value; NotifyOfPropertyChange(); }
         }
 
         public PointCollection SeparationRightChannel
         {
             get { return _separationRightChannel; }
-            set { _separationRightChannel = value; NotifyOfPropertyChange(); RenderWaveform(); }
-        }
-
-        public void SetWaveform(PeakInfo[] peaks, double duration)
-        {
-            Duration = duration;
-            var message = new PeaksReceivedEvent(Source, 0, Duration, peaks);
-            HandlePeaks(message);
+            set { _separationRightChannel = value; NotifyOfPropertyChange(); }
         }
     }
 }

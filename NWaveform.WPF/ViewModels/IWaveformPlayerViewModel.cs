@@ -1,12 +1,11 @@
 ﻿using System;
-using System.ComponentModel;
 using Caliburn.Micro;
 using NWaveform.Events;
 using NWaveform.Interfaces;
 
 namespace NWaveform.ViewModels
 {
-    public interface IWaveformPlayerViewModel : INotifyPropertyChanged
+    public interface IWaveformPlayerViewModel : IScreen
         , IHandle<AudioShiftedEvent>
     {
         Uri Source { get; set; }

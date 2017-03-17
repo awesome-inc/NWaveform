@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using System.Windows.Media;
 using Caliburn.Micro;
 using NWaveform.Events;
@@ -7,7 +6,7 @@ using NWaveform.Events;
 namespace NWaveform.ViewModels
 {
     public interface IWaveformDisplayViewModel
-        : INotifyPropertyChanged
+        : IScreen
         , IHandle<PeaksReceivedEvent>
         , IHandle<AudioShiftedEvent>
     {
@@ -19,7 +18,6 @@ namespace NWaveform.ViewModels
         int[] RightChannel { get; }
         bool HasDuration { get; }
 
-        bool LiveTrackingEnabled { get; set; }
         double LastWritePosition { get; }
         SolidColorBrush LastWriteBrush { get; set; }
     }

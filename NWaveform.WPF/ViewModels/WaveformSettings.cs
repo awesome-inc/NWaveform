@@ -10,6 +10,7 @@ namespace NWaveform.ViewModels
         public static readonly Color DefaultTransparentBlack = Color.FromArgb(128, 0, 0, 0);
 
         public double TicksEach { get; set; } = 5.0;
+        public double LiveDelta { get; set; } = 1.5;
 
         public Color BackgroundColor { get; set; } = DefaultBackgroundColor;
         public Color LeftColor { get; set; } = DefaultLeftColor;

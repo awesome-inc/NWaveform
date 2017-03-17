@@ -9,8 +9,9 @@ using NWaveform.Model;
 
 namespace NWaveform.ViewModels
 {
-    public class WaveformDisplayViewModel : Screen, IWaveformDisplayViewModel
+    public class WaveformDisplayViewModel : Screen, IWaveformDisplayViewModel, IDisposable
     {
+        private readonly IEventAggregator _events;
         private readonly IGetWaveform _getWaveform;
         private double _duration;
         private WriteableBitmap _waveformImage;
@@ -24,7 +25,7 @@ namespace NWaveform.ViewModels
         private SolidColorBrush _leftBrush = new SolidColorBrush(WaveformSettings.DefaultLeftColor);
         private SolidColorBrush _rightBrush = new SolidColorBrush(WaveformSettings.DefaultRightColor);
         private Uri _source;
-        private bool _liveTrackingEnabled = true;
+        private bool _isLive;
         private double _lastWritePosition;
         private SolidColorBrush _lastWriteBrush = new SolidColorBrush(WaveformSettings.DefaultTransparentBlack);
 
@@ -32,9 +33,10 @@ namespace NWaveform.ViewModels
         {
             if (events == null) throw new ArgumentNullException(nameof(events));
             if (getWaveform == null) throw new ArgumentNullException(nameof(getWaveform));
+            _events = events;
             _getWaveform = getWaveform;
-            WaveformImage = BitmapFactory.New(1920, 1080);
-            events.Subscribe(this);
+            WaveformImage = BitmapFactory.New(800, 200);
+            _events.Subscribe(this);
         }
 
         internal WriteableBitmap WaveformImage
@@ -132,13 +134,13 @@ namespace NWaveform.ViewModels
 
         public bool HasDuration => Duration > 0.0;
 
-        public bool LiveTrackingEnabled
+        public bool IsLive
         {
-            get { return _liveTrackingEnabled; }
+            get { return _isLive; }
             set
             {
-                if (value == _liveTrackingEnabled) return;
-                _liveTrackingEnabled = value;
+                if (value == _isLive) return;
+                _isLive = value;
                 NotifyOfPropertyChange();
             }
         }
@@ -189,7 +191,7 @@ namespace NWaveform.ViewModels
             Execute.OnUIThread(() => HandleShift(message.Shift.TotalSeconds));
         }
 
-        protected internal void HandlePeaks(PeaksReceivedEvent message)
+        protected internal virtual void HandlePeaks(PeaksReceivedEvent message)
         {
             var pointsReceivedEvent = message.ToPoints(Duration, WaveformImage.Width, WaveformImage.Height);
             Handle(pointsReceivedEvent);
@@ -197,6 +199,7 @@ namespace NWaveform.ViewModels
             Trace.WriteLine(
                 $"Received #{message.Peaks.Length} peaks ({message.Start}:{message.End}) for '{message.Source}' ");
 #endif
+            IsLive = message.Start > 0 || message.End < Duration;
             LastWritePosition = message.End;
         }
 
@@ -258,6 +261,17 @@ namespace NWaveform.ViewModels
                     WriteableBitmapExtensions.DrawLine(ctx, w, h, x, h2, x, _rightChannel[x], rightColor);
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            OnDispose();
+        }
+
+        protected virtual void OnDispose()
+        {
+            _events.Unsubscribe(this);
+            _waveformImage = null;
         }
     }
 }

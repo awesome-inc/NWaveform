@@ -117,7 +117,9 @@
     <Compile Include="IChannelsViewModel.cs" />
     <Compile Include="IChannelViewModel.cs" />
     <Compile Include="IPlayerViewModel.cs" />
+    <Compile Include="IScopedFactory.cs" />
     <Compile Include="NAudioModule.cs" />
+    <Compile Include="ScopedFactory.cs" />
     <Compile Include="StreamingModule.cs" />
     <Compile Include="StreamingWaveProviderFactory.cs" />
     <Compile Include="VlcModule.cs" />

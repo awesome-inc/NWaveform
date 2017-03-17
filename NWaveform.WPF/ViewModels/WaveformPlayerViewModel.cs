@@ -7,7 +7,7 @@ using NWaveform.Interfaces;
 namespace NWaveform.ViewModels
 {
     public class WaveformPlayerViewModel : Screen
-        , IWaveformPlayerViewModel
+        , IWaveformPlayerViewModel, IDisposable
     {
         public DateTimeOffset? StartTime
         {
@@ -22,10 +22,10 @@ namespace NWaveform.ViewModels
             }
         }
 
-        private readonly IEventAggregator _events;
         private readonly IAbsoluteTimeFormatter _formatTime;
         private readonly IGetTimeStamp _getTime;
         private DateTimeOffset? _startTime;
+        private readonly IEventAggregator _events;
 
         public WaveformPlayerViewModel(IEventAggregator events,
             IMediaPlayer player,
@@ -40,14 +40,15 @@ namespace NWaveform.ViewModels
             if (formatTime == null) throw new ArgumentNullException(nameof(formatTime));
             if (getTime == null) throw new ArgumentNullException(nameof(getTime));
 
-            _events = events;
             Player = player;
             Player.PropertyChanged += Player_PropertyChanged;
             Waveform = waveform;
             _formatTime = formatTime;
             _getTime = getTime;
+            _events = events;
 
             Waveform.PositionProvider = player;
+            Waveform.ConductWith(this);
 
             var menu = audioSelectionMenuProvider?.Menu;
             if (menu != null) Waveform.SelectionMenu = menu;
@@ -61,8 +62,8 @@ namespace NWaveform.ViewModels
                 NotifyOfPropertyChange(nameof(CurrentTime));
         }
 
-        public IMediaPlayer Player { get; }
-        public IWaveformViewModel Waveform { get; }
+        public IMediaPlayer Player { get; set; }
+        public IWaveformViewModel Waveform { get; set; }
 
         public Uri Source
         {
@@ -92,6 +93,17 @@ namespace NWaveform.ViewModels
             return Source != null && Source == source;
         }
 
+        protected override void OnDeactivate(bool close)
+        {
+            Player?.Pause();
+            base.OnDeactivate(close);
+        }
 
+        public void Dispose()
+        {
+            _events.Unsubscribe(this);
+            Player = null;
+            Waveform = null;
+       }
     }
 }

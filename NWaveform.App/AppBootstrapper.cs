@@ -5,7 +5,6 @@ using System.Windows;
 using Autofac;
 using Autofac.Core;
 using Caliburn.Micro;
-using NWaveform.NAudio;
 
 namespace NWaveform.App
 {
@@ -31,6 +30,7 @@ namespace NWaveform.App
             builder.RegisterType<EventAggregator>().As<IEventAggregator>().SingleInstance();
 
             builder.RegisterType<AppViewModel>().AsSelf().SingleInstance();
+            builder.RegisterGeneric(typeof(ScopedFactory<>)).As(typeof(IScopedFactory<>)).SingleInstance();
             builder.RegisterType<PlayerViewModel>().As<IPlayerViewModel>();
             builder.RegisterType<ChannelsViewModel>().As<IChannelsViewModel>();
 
