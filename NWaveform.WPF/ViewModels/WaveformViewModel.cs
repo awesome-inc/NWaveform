@@ -32,6 +32,7 @@ namespace NWaveform.ViewModels
         private SolidColorBrush _userTextBrush;
         private IPositionProvider _positionProvider = new EmptyPositionProvider();
         private IMediaPlayer _player;
+        private bool _flagAutoPlay;
 
         public WaveformViewModel(IEventAggregator events, IGetWaveform getWaveform, WaveformSettings waveformSettings = null) : base(events, getWaveform)
         {
@@ -51,7 +52,7 @@ namespace NWaveform.ViewModels
             LiveDelta = settings.LiveDelta;
         }
 
-        private double LiveDelta { get; set; }
+        public double LiveDelta { get; }
 
         public IPositionProvider PositionProvider
         {
@@ -65,14 +66,20 @@ namespace NWaveform.ViewModels
                 _player = _positionProvider as IMediaPlayer;
                 NotifyOfPropertyChange();
                 NotifyOfPropertyChange(nameof(Position));
+                Source = _positionProvider.Source;
             }
+        }
+
+        protected override void OnActivate()
+        {
+            base.OnActivate();
+            _flagAutoPlay = true;
         }
 
         protected internal override void HandlePeaks(PeaksReceivedEvent message)
         {
             base.HandlePeaks(message);
-            var isPartial = message.Start > 0 || message.End < Duration;
-            if (IsActive && LiveTrackingEnabled && isPartial)
+            if (IsActive && _flagAutoPlay && IsLive)
                 CheckAutoPlay();
         }
 
@@ -81,6 +88,7 @@ namespace NWaveform.ViewModels
             if (_player == null || !_player.CanPlay) return;
             _player.Position = LastWritePosition - LiveDelta;
             _player.Play();
+            _flagAutoPlay = false;
         }
 
         protected internal override void HandleShift(double shift)

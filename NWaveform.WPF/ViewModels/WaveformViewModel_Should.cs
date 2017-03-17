@@ -1,10 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using Caliburn.Micro;
 using FluentAssertions;
 using NEdifis;
@@ -32,8 +28,10 @@ namespace NWaveform.ViewModels
             sut.PositionProvider = positionPovider;
             sut.MonitorEvents();
 
-            positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(), new PropertyChangedEventArgs(nameof(sut.Position)));
-            sut.ShouldRaise(nameof(sut.PropertyChanged)).WithArgs<PropertyChangedEventArgs>(t => t.PropertyName == nameof(sut.Position));
+            positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(),
+                new PropertyChangedEventArgs(nameof(sut.Position)));
+            sut.ShouldRaise(nameof(sut.PropertyChanged))
+                .WithArgs<PropertyChangedEventArgs>(t => t.PropertyName == nameof(sut.Position));
         }
 
         [Test(Description = "verify duration change on player is handles because of media stream")]
@@ -48,9 +46,12 @@ namespace NWaveform.ViewModels
             sut.PositionProvider = positionPovider;
             sut.MonitorEvents();
 
-            positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(), new PropertyChangedEventArgs(nameof(sut.Duration)));
-            sut.ShouldRaise(nameof(sut.PropertyChanged)).WithArgs<PropertyChangedEventArgs>(t => t.PropertyName == nameof(sut.HasDuration));
-            sut.ShouldRaise(nameof(sut.PropertyChanged)).WithArgs<PropertyChangedEventArgs>(t => t.PropertyName == nameof(sut.Duration));
+            positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(),
+                new PropertyChangedEventArgs(nameof(sut.Duration)));
+            sut.ShouldRaise(nameof(sut.PropertyChanged))
+                .WithArgs<PropertyChangedEventArgs>(t => t.PropertyName == nameof(sut.HasDuration));
+            sut.ShouldRaise(nameof(sut.PropertyChanged))
+                .WithArgs<PropertyChangedEventArgs>(t => t.PropertyName == nameof(sut.Duration));
             sut.Duration.Should().Be(expectedDuration);
             sut.HasDuration.Should().BeTrue();
         }
@@ -68,7 +69,8 @@ namespace NWaveform.ViewModels
             sut.PositionProvider = positionPovider;
             sut.MonitorEvents();
 
-            positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(), new PropertyChangedEventArgs(nameof(sut.Duration)));
+            positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(),
+                new PropertyChangedEventArgs(nameof(sut.Duration)));
             sut.ShouldNotRaise(nameof(sut.PropertyChanged));
             sut.ShouldNotRaise(nameof(sut.PropertyChanged));
             sut.Duration.Should().Be(expectedDuration);
@@ -98,90 +100,30 @@ namespace NWaveform.ViewModels
         }
 
         [Test]
-        public void Handle_live_sample_updates()
+        public void Use_Providers_Source()
         {
+            var positionPovider = Substitute.For<IMediaPlayer>();
+            var source = new Uri("my://source/");
+            positionPovider.Source.Returns(source);
+
             var ctx = new ContextFor<WaveformViewModel>();
+
             var sut = ctx.BuildSut();
 
-            sut.Should().BeAssignableTo<IHandle<PeaksReceivedEvent>>();
-            ctx.For<IEventAggregator>().Received().Subscribe(sut);
+            // 1. test update on setting positionprovider
+            sut.PositionProvider = positionPovider;
+            sut.Source.Should().Be(source);
+            // ReSharper disable once RedundantAssignment // needed to match NSubstitute syntax!
+            source = positionPovider.Received(1).Source;
 
-            // |----------         |
-            // |-------------------|
-            // |          ---------|   
-            sut.BackgroundBrush = new SolidColorBrush(Colors.Black);
-            sut.LeftBrush = new SolidColorBrush(Colors.Red);
-            sut.RightBrush = new SolidColorBrush(Colors.Blue);
-            sut.WaveformImage = BitmapFactory.New(20, 20);
-            var w2 = (int)(sut.WaveformImage.Width / 2);
-            var h2 = (int)(sut.WaveformImage.Height / 2);
-
-            var peaks = Enumerable.Repeat(1f, 2 * w2).Concat(Enumerable.Repeat(0f, 2 * w2))
-                .Select(m => new PeakInfo(m - 1f, m)).ToArray();
-            var e = new PeaksReceivedEvent(new Uri("source://test/"), 0, 2, peaks);
-            sut.PositionProvider.Source = e.Source;
-            sut.Duration = e.End;
-            sut.HandlePeaks(e);
-
-            // assert the image rendered
-            sut.WaveformImage.RectShouldHaveColor(1, 1, w2, h2, sut.LeftBrush.Color);
-            sut.WaveformImage.RectShouldHaveColor(w2 + 1, h2 + 1, 2 * w2, 2 * h2, sut.RightBrush.Color);
-            sut.WaveformImage.RectShouldHaveColor(1, h2 + 1, w2 - 1, 2 * h2 - 1, sut.BackgroundBrush.Color);
-            sut.WaveformImage.RectShouldHaveColor(w2 + 1, 1, 2 * w2, h2, sut.BackgroundBrush.Color);
-
-            // assert the points are filled
-            sut.LeftChannel.Take(10).ShouldAllBeEquivalentTo(0);
-            sut.RightChannel.Take(10).ShouldAllBeEquivalentTo(h2);
-            sut.LeftChannel.Skip(10).Take(10).ShouldAllBeEquivalentTo(h2);
-            sut.RightChannel.Skip(10).Take(10).ShouldAllBeEquivalentTo(2 * h2);
-        }
-
-        [Test]
-        public void Only_Handle_events_for_same_source()
-        {
-            var ctx = new ContextFor<WaveformViewModel>();
-            var sut = ctx.BuildSut();
-
-            sut.BackgroundBrush = new SolidColorBrush(Colors.Black);
-            sut.WaveformImage = BitmapFactory.New(20, 20);
-            var e = new PeaksReceivedEvent(new Uri("source://test/"), 0, 1, new PeakInfo[0]);
-            sut.PositionProvider.Source = new Uri("other://source/");
-            sut.Handle(e);
-            sut.WaveformImage.RectShouldHaveColor(0, 0, 20, 20, sut.BackgroundBrush.Color);
-        }
-
-        [Test]
-        public void Refresh_waveform_when_receiving_earlier_samples_than_before()
-        {
-            var ctx = new ContextFor<WaveformViewModel>();
-            var sut = ctx.BuildSut();
-
-            sut.BackgroundBrush = new SolidColorBrush(Colors.Black);
-            var color = Colors.Red;
-            sut.LeftBrush = sut.RightBrush = new SolidColorBrush(color);
-            sut.WaveformImage = BitmapFactory.New(30, 20);
-
-            var uri = new Uri("source://test/");
-            var w3 = (int)(sut.WaveformImage.Width / 3);
-            var peaks = Enumerable.Repeat(1f, w3).Select(m => new PeakInfo(-m, m)).ToArray();
-
-            sut.Duration = 3;
-            // 1/3
-            var e = new PeaksReceivedEvent(uri, 0, 1, peaks);
-            sut.HandlePeaks(e);
-            sut.WaveformImage.RectShouldHaveColor(0, 0, w3 - 1, 20, color);
-            sut.WaveformImage.RectShouldHaveColor(w3, 0, 3 * w3, 20, sut.BackgroundBrush.Color);
-            // 3/3
-            e = new PeaksReceivedEvent(uri, 2, 3, peaks);
-            sut.HandlePeaks(e);
-            sut.WaveformImage.RectShouldHaveColor(0, 0, w3 - 1, 20, color);
-            sut.WaveformImage.RectShouldHaveColor(w3, 0, 2 * w3 - 1, 20, sut.BackgroundBrush.Color);
-            sut.WaveformImage.RectShouldHaveColor(2 * w3, 0, 3 * w3, 20, color);
-            // 2/3
-            e = new PeaksReceivedEvent(uri, 1, 2, peaks);
-            sut.HandlePeaks(e);
-            sut.WaveformImage.RectShouldHaveColor(0, 0, 2 * w3 - 1, 20, color);
-            sut.WaveformImage.RectShouldHaveColor(2 * w3, 0, 3 * w3, 20, sut.BackgroundBrush.Color);
+            // 2. test update on setting positionprovider.Source
+            source = new Uri("other://source/");
+            positionPovider.Source = source;
+            positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(this,
+                new PropertyChangedEventArgs(nameof(IPositionProvider.Source)));
+            sut.Source.Should().Be(source);
+            // ReSharper disable once RedundantAssignment // needed to match NSubstitute syntax!
+            source = positionPovider.Received(2).Source;
         }
 
         [Test]
@@ -198,12 +140,129 @@ namespace NWaveform.ViewModels
             sut.MonitorEvents();
             sut.HandleShift(3);
 
-            sut.ShouldRaisePropertyChangeFor(x => x.Position, "sut should not change position, just notify on the base stream (position provider)");
+            sut.ShouldRaisePropertyChangeFor(x => x.Position,
+                "sut should not change position, just notify on the base stream (position provider)");
             sut.Selection.Start.Should().Be(3);
             sut.Selection.End.Should().Be(6);
 
             // TODO: assert channels & labels
         }
 
+        [Test]
+        public void Support_auto_play()
+        {
+            var ctx = new ContextFor<WaveformViewModel>();
+            var sut = ctx.BuildSut();
+
+            var uri = new Uri("channel://1/");
+
+            // set player
+            var player = Substitute.For<IMediaPlayer>();
+            player.Source = uri;
+            sut.PositionProvider = player;
+            player.CanPlay.Returns(true);
+
+            // activate
+            ((IActivate)sut).Activate();
+            sut.IsActive.Should().BeTrue();
+
+            // now, after receiving partial peaks, should start autplaying
+            var peaks = new[] { new PeakInfo(-1f, 1f) };
+            var e = new PeaksReceivedEvent(uri, 0, 1, peaks);
+            sut.Duration = e.End * 2;
+            sut.HandlePeaks(e);
+            player.Received().Play();
+            sut.Position.Should().Be(sut.LastWritePosition - sut.LiveDelta);
+            
+            player.ClearReceivedCalls();
+            sut.HandlePeaks(e);
+            // only play once after activation
+            player.DidNotReceive().Play();
+
+            // deactivate/activate & check autoplay again
+            ((IDeactivate) sut).Deactivate(false);
+            ((IActivate)sut).Activate();
+            sut.HandlePeaks(e);
+            player.Received().Play();
+            sut.Position.Should().Be(sut.LastWritePosition - sut.LiveDelta);
+        }
+
+        [Test]
+        public void Notify_property_changes()
+        {
+            var ctx = new ContextFor<WaveformViewModel>();
+            var sut = ctx.BuildSut();
+
+            sut.MonitorEvents();
+
+            //var positionProvider = Substitute.For<IPositionProvider>();
+            //sut.PositionProvider = positionProvider;
+
+            var selection = new AudioSelectionViewModel();
+            sut.Selection = selection;
+            sut.Selection.Should().Be(selection);
+            sut.ShouldRaisePropertyChangeFor(x => x.Selection);
+            //positionProvider.Received().AudioSelection =
+
+            var selectionMenu = Substitute.For<IMenuViewModel>();
+            sut.SelectionMenu = selectionMenu;
+            sut.SelectionMenu.Should().Be(selectionMenu);
+            sut.ShouldRaisePropertyChangeFor(x => x.SelectionMenu);
+
+            sut.TicksEach = 42.0;
+            sut.TicksEach.Should().Be(42);
+            sut.ShouldRaisePropertyChangeFor(x => x.TicksEach);
+
+            var label = Substitute.For<ILabelVievModel>();
+            var labels = new[] {label};
+            sut.Labels = labels;
+            sut.Labels.ShouldBeEquivalentTo(labels);
+
+            sut.SelectedLabel = label;
+            sut.SelectedLabel.Should().Be(label);
+            sut.ShouldRaisePropertyChangeFor(x => x.SelectedLabel);
+
+            var brush = new SolidColorBrush(Colors.Red);
+            sut.UserBrush = brush;
+            sut.UserBrush.Should().Be(brush);
+            sut.ShouldRaisePropertyChangeFor(x => x.UserBrush);
+
+            sut.SeparationLeftBrush = brush;
+            sut.SeparationLeftBrush.Should().Be(brush);
+            sut.ShouldRaisePropertyChangeFor(x => x.SeparationLeftBrush);
+
+            sut.SeparationRightBrush = brush;
+            sut.SeparationRightBrush.Should().Be(brush);
+            sut.ShouldRaisePropertyChangeFor(x => x.SeparationRightBrush);
+
+            sut.UserTextBrush = brush;
+            sut.UserTextBrush.Should().Be(brush);
+            sut.ShouldRaisePropertyChangeFor(x => x.UserTextBrush);
+
+            sut.PositionBrush = brush;
+            sut.PositionBrush.Should().Be(brush);
+            sut.ShouldRaisePropertyChangeFor(x => x.PositionBrush);
+
+            sut.SelectionBrush = brush;
+            sut.SelectionBrush.Should().Be(brush);
+            sut.ShouldRaisePropertyChangeFor(x => x.SelectionBrush);
+
+            sut.SeparationRightBrush = brush;
+            sut.SeparationRightBrush.Should().Be(brush);
+            sut.ShouldRaisePropertyChangeFor(x => x.SeparationRightBrush);
+
+            var points = new PointCollection();
+            sut.UserChannel = points;
+            sut.UserChannel.ShouldBeEquivalentTo(points);
+            sut.ShouldRaisePropertyChangeFor(x => x.UserChannel);
+
+            sut.SeparationLeftChannel = points;
+            sut.SeparationLeftChannel.ShouldBeEquivalentTo(points);
+            sut.ShouldRaisePropertyChangeFor(x => x.SeparationLeftChannel);
+
+            sut.SeparationRightChannel = points;
+            sut.SeparationRightChannel.ShouldBeEquivalentTo(points);
+            sut.ShouldRaisePropertyChangeFor(x => x.SeparationRightChannel);
+        }
     }
 }

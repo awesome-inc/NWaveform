@@ -25,7 +25,7 @@ namespace NWaveform.ViewModels
         private SolidColorBrush _leftBrush = new SolidColorBrush(WaveformSettings.DefaultLeftColor);
         private SolidColorBrush _rightBrush = new SolidColorBrush(WaveformSettings.DefaultRightColor);
         private Uri _source;
-        private bool _liveTrackingEnabled = true;
+        private bool _isLive;
         private double _lastWritePosition;
         private SolidColorBrush _lastWriteBrush = new SolidColorBrush(WaveformSettings.DefaultTransparentBlack);
 
@@ -134,13 +134,13 @@ namespace NWaveform.ViewModels
 
         public bool HasDuration => Duration > 0.0;
 
-        public bool LiveTrackingEnabled
+        public bool IsLive
         {
-            get { return _liveTrackingEnabled; }
+            get { return _isLive; }
             set
             {
-                if (value == _liveTrackingEnabled) return;
-                _liveTrackingEnabled = value;
+                if (value == _isLive) return;
+                _isLive = value;
                 NotifyOfPropertyChange();
             }
         }
@@ -199,6 +199,7 @@ namespace NWaveform.ViewModels
             Trace.WriteLine(
                 $"Received #{message.Peaks.Length} peaks ({message.Start}:{message.End}) for '{message.Source}' ");
 #endif
+            IsLive = message.Start > 0 || message.End < Duration;
             LastWritePosition = message.End;
         }
 
