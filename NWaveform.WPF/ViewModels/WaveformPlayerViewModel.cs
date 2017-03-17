@@ -7,7 +7,7 @@ using NWaveform.Interfaces;
 namespace NWaveform.ViewModels
 {
     public class WaveformPlayerViewModel : Screen
-        , IWaveformPlayerViewModel
+        , IWaveformPlayerViewModel, IDisposable
     {
         public DateTimeOffset? StartTime
         {
@@ -25,6 +25,7 @@ namespace NWaveform.ViewModels
         private readonly IAbsoluteTimeFormatter _formatTime;
         private readonly IGetTimeStamp _getTime;
         private DateTimeOffset? _startTime;
+        private readonly IEventAggregator _events;
 
         public WaveformPlayerViewModel(IEventAggregator events,
             IMediaPlayer player,
@@ -44,6 +45,7 @@ namespace NWaveform.ViewModels
             Waveform = waveform;
             _formatTime = formatTime;
             _getTime = getTime;
+            _events = events;
 
             Waveform.PositionProvider = player;
             Waveform.ConductWith(this);
@@ -51,7 +53,7 @@ namespace NWaveform.ViewModels
             var menu = audioSelectionMenuProvider?.Menu;
             if (menu != null) Waveform.SelectionMenu = menu;
 
-            events.Subscribe(this);
+            _events.Subscribe(this);
         }
 
         private void Player_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -60,8 +62,8 @@ namespace NWaveform.ViewModels
                 NotifyOfPropertyChange(nameof(CurrentTime));
         }
 
-        public IMediaPlayer Player { get; }
-        public IWaveformViewModel Waveform { get; }
+        public IMediaPlayer Player { get; set; }
+        public IWaveformViewModel Waveform { get; set; }
 
         public Uri Source
         {
@@ -96,5 +98,12 @@ namespace NWaveform.ViewModels
             Player?.Pause();
             base.OnDeactivate(close);
         }
+
+        public void Dispose()
+        {
+            _events.Unsubscribe(this);
+            Player = null;
+            Waveform = null;
+       }
     }
 }

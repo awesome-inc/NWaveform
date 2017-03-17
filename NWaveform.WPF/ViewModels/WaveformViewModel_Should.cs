@@ -264,5 +264,17 @@ namespace NWaveform.ViewModels
             sut.SeparationRightChannel.ShouldBeEquivalentTo(points);
             sut.ShouldRaisePropertyChangeFor(x => x.SeparationRightChannel);
         }
+
+        [Test]
+        public void Cleanup()
+        {
+            var ctx = new ContextFor<WaveformViewModel>();
+            WaveformViewModel sut;
+
+            var events = ctx.For<IEventAggregator>();
+            using (sut = ctx.BuildSut())
+                events.Received().Subscribe(sut);
+            events.Received().Unsubscribe(sut);
+        }
     }
 }

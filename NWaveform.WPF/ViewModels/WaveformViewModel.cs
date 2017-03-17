@@ -52,6 +52,19 @@ namespace NWaveform.ViewModels
             LiveDelta = settings.LiveDelta;
         }
 
+        protected override void OnDispose()
+        {
+            base.OnDispose();
+            SelectionMenu = null;
+            Selection = null;
+            PositionProvider = null;
+            SelectedLabel = null;
+            Labels.Clear();
+            UserChannel = null;
+            SeparationLeftChannel = null;
+            SeparationRightChannel = null;
+        }
+
         public double LiveDelta { get; }
 
         public IPositionProvider PositionProvider
@@ -155,8 +168,7 @@ namespace NWaveform.ViewModels
             set
             {
                 _selection = value;
-                // TODO: channel from top/height?!
-                PositionProvider.AudioSelection = new AudioSelection(0, _selection.Start, _selection.End);
+                PositionProvider.AudioSelection = _selection == null ? AudioSelection.Empty : new AudioSelection(0, _selection.Start, _selection.End);
                 NotifyOfPropertyChange();
             }
         }
@@ -229,19 +241,19 @@ namespace NWaveform.ViewModels
         public PointCollection UserChannel
         {
             get { return _userChannel; }
-            set { _userChannel = value; NotifyOfPropertyChange(); RenderWaveform(); }
+            set { _userChannel = value; NotifyOfPropertyChange(); }
         }
 
         public PointCollection SeparationLeftChannel
         {
             get { return _separationLeftChannel; }
-            set { _separationLeftChannel = value; NotifyOfPropertyChange(); RenderWaveform(); }
+            set { _separationLeftChannel = value; NotifyOfPropertyChange(); }
         }
 
         public PointCollection SeparationRightChannel
         {
             get { return _separationRightChannel; }
-            set { _separationRightChannel = value; NotifyOfPropertyChange(); RenderWaveform(); }
+            set { _separationRightChannel = value; NotifyOfPropertyChange(); }
         }
     }
 }

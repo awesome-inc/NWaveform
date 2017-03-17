@@ -30,6 +30,7 @@ namespace NWaveform.App
             builder.RegisterType<EventAggregator>().As<IEventAggregator>().SingleInstance();
 
             builder.RegisterType<AppViewModel>().AsSelf().SingleInstance();
+            builder.RegisterGeneric(typeof(ScopedFactory<>)).As(typeof(IScopedFactory<>)).SingleInstance();
             builder.RegisterType<PlayerViewModel>().As<IPlayerViewModel>();
             builder.RegisterType<ChannelsViewModel>().As<IChannelsViewModel>();
 
