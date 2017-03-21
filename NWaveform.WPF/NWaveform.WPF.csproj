@@ -136,6 +136,7 @@
     <Compile Include="Model\Progress.cs" />
     <Compile Include="Model\WaveformData.cs" />
     <Compile Include="Model\WaveformData_Should.cs" />
+    <Compile Include="NAudio\IWavePlayerFactory.cs" />
     <Compile Include="NAudio\NAudioToMp3Cropper.cs" />
     <Compile Include="NAudio\AudioStream.cs" />
     <Compile Include="NAudio\BufferedStreamingChannel.cs" />
@@ -156,6 +157,7 @@
     <Compile Include="NAudio\SeekableCircularBuffer.cs" />
     <Compile Include="NAudio\SeekableCircularBuffer_Should.cs" />
     <Compile Include="NAudio\TestExtensions.cs" />
+    <Compile Include="NAudio\WavePlayerFactory.cs" />
     <Compile Include="NAudio\WaveProviderEx.cs" />
     <Compile Include="NAudio\WaveProviderFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
