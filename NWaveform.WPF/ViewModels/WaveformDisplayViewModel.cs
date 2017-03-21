@@ -72,7 +72,7 @@ namespace NWaveform.ViewModels
 
         private void SetWaveform(Uri source)
         {
-            _waveformImage.Clear(BackgroundBrush.Color);
+            _waveformImage?.Clear(BackgroundBrush.Color);
             Duration = 0.0;
             if (source == null) return;
 

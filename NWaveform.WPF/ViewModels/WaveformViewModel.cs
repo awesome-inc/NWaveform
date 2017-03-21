@@ -146,6 +146,7 @@ namespace NWaveform.ViewModels
                     break;
                 case nameof(IPositionProvider.Source):
                     Source = PositionProvider.Source;
+                    if (Source != null) _flagAutoPlay = true;
                     break;
             }
         }

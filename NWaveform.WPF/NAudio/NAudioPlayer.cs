@@ -11,6 +11,7 @@ namespace NWaveform.NAudio
 {
     public class NAudioPlayer : PropertyChangedBase, IMediaPlayer, IDisposable
     {
+        private readonly IWavePlayerFactory _playerFactory;
         private readonly IWaveProviderFactory _factory;
         public double MaxRate => 4;
         public double MinRate => 0.25;
@@ -18,7 +19,7 @@ namespace NWaveform.NAudio
 
         private const double DefaultVolume = 0.5;
         private Uri _source;
-        private readonly IWavePlayer _player;
+        private IWavePlayer _player;
         private IWaveProviderEx _waveProvider;
         private readonly DispatcherTimer _positionTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle);
         private bool _isPlaying;
@@ -26,20 +27,12 @@ namespace NWaveform.NAudio
         private bool _isStopped;
         private double _restoreVolume = DefaultVolume;
 
-        public NAudioPlayer(IWavePlayer wavePlayer = null, IWaveProviderFactory factory = null)
+        public NAudioPlayer(IWaveProviderFactory waveFactory = null, IWavePlayerFactory playerFactory = null)
         {
-            // as a default player DirectSoundOut seems to be the least problematic,
-            //  - WaveOut may stutter if doing parallel work on the UI thread since it is UI-synchronuous
-            //  - WaveOutEvent seems to have problems on Dispose (NullReference on CloseWaveOut)
-            // see also: http://mark-dot-net.blogspot.de/2011/05/naudio-audio-output-devices.html
-            _player = wavePlayer ?? new DirectSoundOut(200);
-            _player.PlaybackStopped += OnStopped;
-            _positionTimer.Interval = TimeSpan.FromMilliseconds(250);
+            _factory = waveFactory ?? new WaveProviderFactory();
+            _playerFactory = playerFactory ?? new WavePlayerFactory<WasapiOut>();
+            _positionTimer.Interval = TimeSpan.FromSeconds(0.25);
             _positionTimer.Tick += PositionTimerTick;
-
-            _factory = factory ?? new WaveProviderFactory();
-
-
             Error = AudioError.NoError;
         }
 
@@ -47,6 +40,8 @@ namespace NWaveform.NAudio
 
         public void Play()
         {
+            if (!CanPlay) return;
+
             _player.Play();
             _positionTimer.Start();
 
@@ -71,6 +66,8 @@ namespace NWaveform.NAudio
 
         public void Pause()
         {
+            if (!CanPause) return;
+
             _player.Pause();
             _positionTimer.Stop();
 
@@ -101,6 +98,8 @@ namespace NWaveform.NAudio
 
         public void Stop()
         {
+            if (!CanStop) return;
+
             _player.Stop();
             _positionTimer.Stop();
 
@@ -167,11 +166,16 @@ namespace NWaveform.NAudio
                 if (uri != null)
                 {
                     _waveProvider = _factory.Create(uri);
+                    _player = _playerFactory.Create();
                     _player.Init(_waveProvider);
+                    _player.PlaybackStopped += OnStopped;
                 }
                 Error.Exception = null;
             }
-            catch (Exception ex) { Error.Exception = new AudioException("Could not open audio", ex); }
+            catch (Exception ex)
+            {
+                Error.Exception = new AudioException("Could not open audio", ex);
+            }
         }
 
         public double Position
@@ -243,12 +247,16 @@ namespace NWaveform.NAudio
         public void Dispose()
         {
             DisposeMedia();
-            SafeDispose(_player);
         }
 
         private void DisposeMedia()
         {
-            if (IsPlaying) _player.Stop();
+            Stop();
+
+            if (_player != null) _player.PlaybackStopped -= OnStopped;
+            SafeDispose(_player);
+            _player = null;
+
             SafeDispose(_waveProvider);
             _waveProvider = null;
         }

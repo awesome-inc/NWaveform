@@ -63,12 +63,14 @@ namespace NWaveform.App
             if (_task.Status == TaskStatus.Running)
             {
                 _tokenSource.Cancel();
-                _task.Wait();
+                _task.Wait(TimeSpan.FromSeconds(1));
+                if (_task.Status < TaskStatus.RanToCompletion)
+                    Trace.TraceWarning($"Aborted task of '{nameof(EndlessFileLoopChannel)}'.");
+                else
+                    _task.Dispose();
             }
             _tokenSource.Dispose();
-
             _audioStream?.Dispose();
-
             base.Dispose();
         }
     }

@@ -1,10 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
+using System.Text;
 using System.Windows;
 using Autofac;
 using Autofac.Core;
 using Caliburn.Micro;
+using NLog;
+using NLog.Config;
+using NLog.Targets;
+using NWaveform.App.MiniMods;
 
 namespace NWaveform.App
 {
@@ -14,9 +20,47 @@ namespace NWaveform.App
 
         public AppBootstrapper()
         {
+            InitializeLogging();
+
             Initialize();
         }
 
+        private static void InitializeLogging()
+        {
+            var caliburnLogger = new TraceLogger();
+            Caliburn.Micro.LogManager.GetLog = type => caliburnLogger;
+            NLog.LogManager.Configuration = DefaultLogging();
+            Trace.Listeners.Add(new NLogTraceListener());
+        }
+
+        private static LoggingConfiguration DefaultLogging(LogLevel logLevel = null)
+        {
+            // cf.: http://stackoverflow.com/questions/24070349/nlog-switching-from-nlog-config-to-programmatic-configuration
+            var config = new LoggingConfiguration();
+
+            var fileTarget = new FileTarget
+            {
+                Layout = "${longdate} [${threadid}] ${uppercase:${level}} - ${message}",
+                FileName = "NWaveform.App.log",
+                Header = "[Open Log]",
+                Footer = "[Close Log]",
+                ArchiveFileName = "NWaveform.App.{#}.log",
+                ArchiveAboveSize = 1048576,
+                ArchiveEvery = FileArchivePeriod.None,
+                ArchiveNumbering = ArchiveNumberingMode.Rolling,
+                MaxArchiveFiles = 5,
+                ConcurrentWrites = false,
+                KeepFileOpen = true,
+                Encoding = Encoding.UTF8
+            };
+
+            config.AddTarget("f", fileTarget);
+
+            var rule = new LoggingRule("*", logLevel ?? LogLevel.Debug, fileTarget);
+            config.LoggingRules.Add(rule);
+
+            return config;
+        }
         protected override void OnStartup(object sender, StartupEventArgs e)
         {
             DisplayRootViewFor<AppViewModel>();
