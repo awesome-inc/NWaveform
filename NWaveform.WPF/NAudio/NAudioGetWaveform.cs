@@ -27,25 +27,41 @@ namespace NWaveform.NAudio
 
         private WaveformData Generate(IWaveProviderEx audioStream)
         {
-            var stopWatch = Stopwatch.StartNew();
-
-            var peaks = new List<PeakInfo>();
-            var buffer = new byte[audioStream.WaveFormat.AverageBytesPerSecond];
+            var position = audioStream.Position;
+            var volume = audioStream.Volume;
+            var pan = audioStream.Pan;
             audioStream.Position = 0;
-            var bytesRead = audioStream.Read(buffer, 0, buffer.Length);
-            while (bytesRead > 0 && audioStream.Position < audioStream.Length)
+            audioStream.Volume = 1f;
+            audioStream.Pan = 0;
+
+            try
             {
-                var data = bytesRead == buffer.Length ? buffer : buffer.Take(bytesRead).ToArray();
-                var p = _peakProvider.Sample(audioStream.WaveFormat, data);
-                peaks.AddRange(p);
-                bytesRead = audioStream.Read(buffer, 0, buffer.Length);
+                var stopWatch = Stopwatch.StartNew();
+
+                var peaks = new List<PeakInfo>();
+                var buffer = new byte[audioStream.WaveFormat.AverageBytesPerSecond];
+
+                int bytesRead;
+                do
+                {
+                    bytesRead = audioStream.Read(buffer, 0, buffer.Length);
+                    var data = bytesRead == buffer.Length ? buffer : buffer.Take(bytesRead).ToArray();
+                    var p = _peakProvider.Sample(audioStream.WaveFormat, data);
+                    peaks.AddRange(p);
+                } while (bytesRead > 0 && audioStream.Position < audioStream.Length);
+
+                var elapsed = stopWatch.Elapsed;
+                var mibPerSecond = audioStream.Length / elapsed.TotalSeconds / 1024 / 1024;
+                Trace.WriteLine($"Sampled '{audioStream.TotalTime}' of wave data in '{elapsed}' ({mibPerSecond:F1} MiB/sec).");
+
+                return new WaveformData(audioStream.TotalTime, peaks);
             }
-
-            var elapsed = stopWatch.Elapsed;
-            var mibPerSecond = audioStream.Length / elapsed.TotalSeconds / 1024 / 1024;
-            Trace.WriteLine($"Sampled '{audioStream.TotalTime}' of wave data in '{elapsed}' ({mibPerSecond:F1} MiB/sec).");
-
-            return new WaveformData(audioStream.TotalTime, peaks);
+            finally
+            {
+                audioStream.Position = position;
+                audioStream.Volume = volume;
+                audioStream.Pan = pan;
+            }
         }
     }
 }

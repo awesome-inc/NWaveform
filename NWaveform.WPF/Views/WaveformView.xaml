@@ -177,7 +177,7 @@
             <Rectangle x:Name="LastWritePositionLine" Canvas.Top="0" Width="2" 
                 Height="{Binding ActualHeight, ElementName=WaveformCanvas}"
                 Fill="{Binding LastWriteBrush}"
-                Visibility="{Binding LiveTrackingEnabled, Converter={StaticResource BoolToVisibility}}">
+                Visibility="{Binding IsLive, Converter={StaticResource BoolToVisibility}}">
                 <Canvas.Left>
                     <MultiBinding Converter="{StaticResource ToWaveformSpaceScalar}">
                         <Binding Path="LastWritePosition"/>

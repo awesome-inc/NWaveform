@@ -20,5 +20,6 @@ namespace NWaveform.ViewModels
 
         double LastWritePosition { get; }
         SolidColorBrush LastWriteBrush { get; set; }
+        bool IsLive { get; set; }
     }
 }

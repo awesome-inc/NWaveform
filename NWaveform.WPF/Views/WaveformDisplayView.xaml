@@ -33,7 +33,7 @@
         </Grid.Background>
 
         <!-- The last write position marker -->
-        <Canvas x:Name="WaveformCanvas" Visibility="{Binding LiveTrackingEnabled, Converter={StaticResource BoolToVisibility}}">
+        <Canvas x:Name="WaveformCanvas" Visibility="{Binding IsLive, Converter={StaticResource BoolToVisibility}}">
             <Rectangle x:Name="LastWritePositionLine" Canvas.Top="0" Width="2" 
                 Height="{Binding ActualHeight, ElementName=WaveformCanvas}"
                 Fill="{Binding LastWriteBrush}">
