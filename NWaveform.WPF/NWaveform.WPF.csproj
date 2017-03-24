@@ -178,6 +178,7 @@
     <Compile Include="ViewModels\MenuExtensions.cs" />
     <Compile Include="ViewModels\MenuExtensions_Should.cs" />
     <Compile Include="ViewModels\MenuItemViewModel.cs" />
+    <Compile Include="ViewModels\MenuItemViewModel_Should.cs" />
     <Compile Include="ViewModels\MenuViewModel.cs" />
     <Compile Include="ViewModels\PolylineHelper_Should.cs" />
     <Compile Include="ViewModels\WaveformDisplayViewModel.cs" />
