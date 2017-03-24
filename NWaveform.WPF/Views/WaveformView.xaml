@@ -112,6 +112,7 @@
         </Style>
 
     </UserControl.Resources>
+        
     <Grid>
         <Grid.Background>
             <!-- The waveform image -->

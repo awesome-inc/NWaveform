@@ -13,6 +13,7 @@ namespace NWaveform
 
         public string Title { get; set; }
         public string Description { get; set; }
+        public IconChar IconChar { get; set; }
 
         #region constructor
 
@@ -133,8 +134,6 @@ namespace NWaveform
         }
 
         public int Order { get; set; }
-
-        public IconChar IconChar { get; set; }
 
         #endregion
     }
