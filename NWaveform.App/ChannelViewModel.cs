@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Caliburn.Micro;
 using NWaveform.ViewModels;
 
@@ -23,9 +24,13 @@ namespace NWaveform.App
                 case nameof(IWaveformDisplayViewModel.Duration):
                     NotifyOfPropertyChange(nameof(Duration));
                     break;
+                case nameof(IWaveformDisplayViewModel.CurrentStreamTime):
+                    NotifyOfPropertyChange(nameof(StreamStartTime));
+                    break;
             }
         }
 
+        public string StreamStartTime => Waveform.CurrentStreamTime.AddSeconds(-Waveform.Duration).ToString(CultureInfo.CurrentUICulture);
         public string Source => Waveform.Source?.ToString();
         public TimeSpan Duration => TimeSpan.FromSeconds(Waveform.Duration);
         public IWaveformDisplayViewModel Waveform { get; }

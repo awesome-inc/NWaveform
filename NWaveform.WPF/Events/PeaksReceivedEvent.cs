@@ -10,8 +10,9 @@ namespace NWaveform.Events
         public double Start { get; }
         public double End { get; }
         public PeakInfo[] Peaks { get; }
+        public DateTime? AudioSampleTime { get; }
 
-        public PeaksReceivedEvent(Uri source, double start, double end, PeakInfo[] peaks)
+        public PeaksReceivedEvent(Uri source, double start, double end, PeakInfo[] peaks, DateTime? audioSampleTime = null)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (start < 0) throw new ArgumentOutOfRangeException(nameof(start), "Must not be negative");
@@ -22,6 +23,7 @@ namespace NWaveform.Events
             Start = start;
             End = end;
             Peaks = peaks;
+            AudioSampleTime = audioSampleTime;
         }
     }
 }

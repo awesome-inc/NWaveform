@@ -32,6 +32,7 @@ namespace NWaveform.ViewModels
             sut.Source = uri;
 
             getWaveform.Received().For(uri);
+            sut.CurrentStreamTime.Should().BeCloseTo(DateTime.UtcNow, 200);
             sut.Duration.Should().Be(waveform.Duration.TotalSeconds);
         }
 

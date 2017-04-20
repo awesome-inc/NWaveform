@@ -12,7 +12,7 @@ namespace NWaveform.NAudio
         protected internal readonly BufferedWaveStream BufferedStream;
         private readonly IEventAggregator _events;
 
-        public DateTimeOffset? StartTime { get; private set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset? StartTime { get; private set; } = DateTimeOffset.UtcNow; // here it is !!!
         public Uri Source { get; }
         public IWaveProviderEx Stream => _waveProvider;
 
@@ -33,7 +33,7 @@ namespace NWaveform.NAudio
             _waveProvider = new WaveProviderEx(BufferedStream) { Closeable = false };
         }
 
-        public int AddSamples(byte[] buffer, int offset = 0, int length = 0)
+        public int AddSamples(byte[] buffer, int offset = 0, int length = 0, DateTime? audioSampleTimeStamp = null)
         {
             var pos = BufferedStream.WritePosition;
             var count = length > 0 ? length : buffer.Length - offset;
@@ -42,7 +42,14 @@ namespace NWaveform.NAudio
             if (exceeding <= 0)
             {
                 var time = BufferedStream.CurrentWriteTime;
-                SafePublish(new SamplesReceivedEvent(Source, time, BufferedStream.WaveFormat, buffer, offset, count), "Could not add samples");
+                var audioTime = DateTime.UtcNow;
+                if (audioSampleTimeStamp.HasValue)
+                {
+                    // here we assume that the stream is continuous without any missing packages
+                    audioTime = audioSampleTimeStamp.Value;
+                    StartTime = audioSampleTimeStamp.Value - time;
+                }
+                SafePublish(new SamplesReceivedEvent(Source, time, BufferedStream.WaveFormat, buffer, offset, count, currentAudioTime: audioTime), "Could not add samples");
                 return BufferedStream.AddSamples(buffer, offset, count);
             }
 
