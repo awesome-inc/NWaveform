@@ -26,7 +26,7 @@ namespace NWaveform
             var end = start + ((double)samples.Data.Length / samples.WaveFormat.AverageBytesPerSecond);
             var peaks = _peakProvider.Sample(samples.WaveFormat, samples.Data);
             if (peaks.Any())
-                _events.PublishOnCurrentThread(new PeaksReceivedEvent(samples.Source, start,end, peaks));
+                _events.PublishOnCurrentThread(new PeaksReceivedEvent(samples.Source, start,end, peaks,samples.CurrentAudioTime));
         }
     }
 }

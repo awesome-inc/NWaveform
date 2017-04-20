@@ -12,6 +12,7 @@ namespace NWaveform.ViewModels
     {
         Uri Source { get; set; }
         double Duration { get; set; }
+        DateTime CurrentStreamTime { get; set; }
         SolidColorBrush LeftBrush { get; set; }
         SolidColorBrush RightBrush { get; set; }
         int[] LeftChannel { get; }

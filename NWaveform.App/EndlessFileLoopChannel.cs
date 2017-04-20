@@ -13,6 +13,7 @@ namespace NWaveform.App
         private readonly WaveStream _audioStream;
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
         private readonly Task _task;
+        private readonly TimeSpan _timeShift;
 
         public EndlessFileLoopChannel(IEventAggregator events, Uri source, WaveStream audioStream, TimeSpan bufferSize)
             : base(events, source, audioStream.WaveFormat, bufferSize)
@@ -24,6 +25,12 @@ namespace NWaveform.App
         public EndlessFileLoopChannel(IEventAggregator events, Uri source, string fileName, TimeSpan bufferSize)
             : this(events, source, new AudioFileReader(fileName), bufferSize)
         {
+        }
+
+        public EndlessFileLoopChannel(IEventAggregator events, Uri source, string fileName, TimeSpan bufferSize, TimeSpan timeShift) 
+            : this(events, source, fileName, bufferSize)
+        {
+            _timeShift = timeShift;
         }
 
         private void PublishFromStream()
@@ -49,7 +56,7 @@ namespace NWaveform.App
                     if (bytesRead == 0) continue;
                 }
 
-                AddSamples(buffer, 0, bytesRead);
+                AddSamples(buffer, 0, bytesRead, DateTime.UtcNow.AddSeconds(_timeShift.TotalSeconds));
                 Trace.WriteLine($"Buffered '{Source}' ({loops}, {timeAfterRead} / {BufferedStream.CurrentWriteTime})...");
 
                 timeDelta -= sw.Elapsed;

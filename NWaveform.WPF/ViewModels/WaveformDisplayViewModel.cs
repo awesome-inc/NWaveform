@@ -28,6 +28,7 @@ namespace NWaveform.ViewModels
         private bool _isLive;
         private double _lastWritePosition;
         private SolidColorBrush _lastWriteBrush = new SolidColorBrush(WaveformSettings.DefaultTransparentBlack);
+        private DateTime _currentStreamTime;
 
         public WaveformDisplayViewModel(IEventAggregator events, IGetWaveform getWaveform)
         {
@@ -46,8 +47,8 @@ namespace NWaveform.ViewModels
             {
                 if (value == null) throw new ArgumentNullException();
                 _waveformImage = value;
-                ZeroMagnitude = (int) (_waveformImage.Height / 2.0);
-                _width = (int) _waveformImage.Width;
+                ZeroMagnitude = (int)(_waveformImage.Height / 2.0);
+                _width = (int)_waveformImage.Width;
                 if (_leftChannel == null) _leftChannel = new int[_width];
                 else Array.Resize(ref _leftChannel, _width);
                 if (_rightChannel == null) _rightChannel = new int[_width];
@@ -132,6 +133,17 @@ namespace NWaveform.ViewModels
             }
         }
 
+        public DateTime CurrentStreamTime
+        {
+            get { return _currentStreamTime; }
+            set
+            {
+                if (value.Equals(_currentStreamTime)) return;
+                _currentStreamTime = value;
+                NotifyOfPropertyChange(() => CurrentStreamTime);
+            }
+        }
+
         public bool HasDuration => Duration > 0.0;
 
         public bool IsLive
@@ -195,6 +207,7 @@ namespace NWaveform.ViewModels
         {
             var pointsReceivedEvent = message.ToPoints(Duration, WaveformImage.Width, WaveformImage.Height);
             Handle(pointsReceivedEvent);
+            CurrentStreamTime = message.AudioSampleTime ?? DateTime.UtcNow;
 #if DEBUG
             Trace.WriteLine(
                 $"Received #{message.Peaks.Length} peaks ({message.Start}:{message.End}) for '{message.Source}' ");
@@ -242,8 +255,8 @@ namespace NWaveform.ViewModels
 
         protected void RenderWaveform(int x0 = 0, int len = 0)
         {
-            var w = (int) WaveformImage.Width;
-            var h = (int) WaveformImage.Height;
+            var w = (int)WaveformImage.Width;
+            var h = (int)WaveformImage.Height;
             var h2 = h / 2;
 
             // clear background from x0 to x1

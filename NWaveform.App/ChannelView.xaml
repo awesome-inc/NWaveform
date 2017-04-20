@@ -11,11 +11,13 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="150" Width="150"/>
+            <ColumnDefinition MinWidth="150" Width="100"/>
             <ColumnDefinition MinWidth="60" Width="60"/>
             <ColumnDefinition Width="*" MinWidth="250"/>
         </Grid.ColumnDefinitions>
         <TextBlock x:Name="Source"/>
-        <TextBlock x:Name="Duration" Grid.Column="1"/>
-        <ContentControl x:Name="Waveform" Grid.Column="2" MinHeight="48" Margin="4"/>
+        <TextBlock x:Name="StreamStartTime" Grid.Column="1"/>
+        <TextBlock x:Name="Duration" Grid.Column="2"/>
+        <ContentControl x:Name="Waveform" Grid.Column="3" MinHeight="48" Margin="4"/>
     </Grid>
 </UserControl>
