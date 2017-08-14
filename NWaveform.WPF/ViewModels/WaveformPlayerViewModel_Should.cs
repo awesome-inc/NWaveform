@@ -81,7 +81,7 @@ namespace NWaveform.ViewModels
             sut.HasCurrentTime.Should().BeTrue();
             sut.StartTime.Should().Be(d);
 
-            var shiftedEvent = new AudioShiftedEvent(uri, TimeSpan.FromSeconds(3));
+            var shiftedEvent = new AudioShiftedEvent(uri, TimeSpan.FromSeconds(3), sut.StartTime);
             sut.Handle(shiftedEvent);
             sut.StartTime.Should().Be(d + shiftedEvent.Shift);
         }
