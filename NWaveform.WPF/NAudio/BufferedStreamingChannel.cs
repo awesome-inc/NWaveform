@@ -70,7 +70,7 @@ namespace NWaveform.NAudio
         {
             StartTime += BufferedStream.SkippedDuration;
             _waveProvider.CurrentTime -= BufferedStream.SkippedDuration;
-            SafePublish(new AudioShiftedEvent(Source, BufferedStream.SkippedDuration), "Could not wrap around buffer");
+            SafePublish(new AudioShiftedEvent(Source, BufferedStream.SkippedDuration, StartTime), "Could not wrap around buffer");
         }
 
         private void SafePublish(object message, string couldNot)

@@ -132,7 +132,8 @@ namespace NWaveform.ViewModels
 
             var source = new Uri("http://some/audio/");
             var shift = TimeSpan.FromSeconds(3);
-            var e = new AudioShiftedEvent(source, shift);
+            var newStartTime =DateTimeOffset.Now;
+            var e = new AudioShiftedEvent(source, shift, newStartTime);
             sut.Source.Should().BeNull("skip shift if not same source");
             sut.Handle(e);
 
