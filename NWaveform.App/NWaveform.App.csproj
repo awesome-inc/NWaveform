@@ -122,7 +122,10 @@
     <Compile Include="IChannelViewModel.cs" />
     <Compile Include="IPlayerViewModel.cs" />
     <Compile Include="IScopedFactory.cs" />
+    <Compile Include="Mp3StreamChannel.cs" />
+    <Compile Include="Mp3StreamChannelFactory.cs" />
     <Compile Include="NAudioModule.cs" />
+    <Compile Include="ReadFullyStream.cs" />
     <Compile Include="ScopedFactory.cs" />
     <Compile Include="StreamingModule.cs" />
     <Compile Include="StreamingWaveProviderFactory.cs" />
