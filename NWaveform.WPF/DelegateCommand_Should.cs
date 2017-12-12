@@ -24,6 +24,7 @@ namespace NWaveform
             var action = Substitute.For<Action<object>>();
             var sut = new DelegateCommand(action);
 
+            // ReSharper disable once ConvertToLocalFunction
             EventHandler handler = (sender, args) => { };
             sut.CanExecuteChanged += handler;
             sut.CanExecuteChanged -= handler;
