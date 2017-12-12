@@ -1,17 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NWaveform.NAudio;
 
 namespace NWaveform.App
 {
     public class StreamingWaveProviderFactory : WaveProviderFactory
     {
+        private readonly IChannelFactory _channelFactory;
         private readonly Dictionary<string, IStreamingAudioChannel> _channels = new Dictionary<string, IStreamingAudioChannel>();
 
-        public StreamingWaveProviderFactory(IEnumerable<IStreamingAudioChannel> channels)
+        public StreamingWaveProviderFactory(IEnumerable<IStreamingAudioChannel> channels, 
+            IChannelFactory channelFactory)
         {
-            foreach(var channel in channels)
-                _channels.Add(channel.Source.ToString(), channel);
+            _channelFactory = channelFactory ?? throw new ArgumentNullException(nameof(channelFactory));
+            channels.ToList().ForEach(AddChannel);
         }
 
         public override IWaveProviderEx Create(Uri source)
@@ -26,9 +29,15 @@ namespace NWaveform.App
 
         private IStreamingAudioChannel GetChannelFor(Uri source)
         {
-            IStreamingAudioChannel channel;
-            _channels.TryGetValue(source.ToString(), out channel);
+            if (_channels.TryGetValue(source.ToString(), out var channel)) return channel;
+            channel = _channelFactory.Create(source);
+            AddChannel(channel);
             return channel;
+        }
+
+        private void AddChannel(IStreamingAudioChannel channel)
+        {
+            _channels.Add(channel.Source.ToString(), channel);
         }
     }
 }

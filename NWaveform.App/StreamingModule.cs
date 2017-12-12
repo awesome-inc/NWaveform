@@ -13,7 +13,6 @@ namespace NWaveform.App
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<StreamingWaveProviderFactory>().AsImplementedInterfaces().SingleInstance();
-            var v = new {TimeSpan = TimeSpan.FromSeconds(10), TimeShift = TimeSpan.FromHours(10)};
             var channels = new Dictionary<Uri, dynamic>
             {
                 // we have channel 1 & 2 with a time shift because they are in the past (10 hours and 5 mins)
@@ -28,6 +27,11 @@ namespace NWaveform.App
                 builder.Register(c => CreateChannel(c, kvp.Key, kvp.Value.TimeSpan, kvp.Value.TimeShift)).As<IStreamingAudioChannel>();
                 builder.Register(c => CreateChannelViewModel(c, kvp.Key, kvp.Value.TimeSpan.TotalSeconds)).As<IChannelViewModel>();
             }
+
+            builder.RegisterType<Mp3StreamChannelFactory>()
+                .WithParameter(new NamedParameter("bufferSize", TimeSpan.FromMinutes(2)))
+                .As<IChannelFactory>()
+                .SingleInstance();
 
             builder.RegisterType<SamplesHandlerPeakPublisher>().AsSelf().AutoActivate().SingleInstance();
             builder.RegisterType<PeakProvider>().As<IPeakProvider>();

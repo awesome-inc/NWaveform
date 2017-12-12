@@ -143,6 +143,7 @@
     <Compile Include="Model\Progress.cs" />
     <Compile Include="Model\WaveformData.cs" />
     <Compile Include="Model\WaveformData_Should.cs" />
+    <Compile Include="NAudio\IChannelFactory.cs" />
     <Compile Include="NAudio\IWavePlayerFactory.cs" />
     <Compile Include="NAudio\NAudioGetWaveform_Should.cs" />
     <Compile Include="NAudio\NAudioToMp3Cropper.cs" />
