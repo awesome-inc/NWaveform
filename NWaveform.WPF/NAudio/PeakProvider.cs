@@ -22,7 +22,7 @@ namespace NWaveform.NAudio
 
         public PeakInfo[] Sample(WaveFormat waveFormat, byte[] data)
         {
-            var sampleProvider = GetSampleProvider(waveFormat, data);
+            var sampleProvider = waveFormat.GetSampleProvider(data);
 
             var numSamples = waveFormat.SampleRate * waveFormat.Channels / PeaksPerSecond;
             var samples = new float[numSamples];
@@ -56,19 +56,6 @@ namespace NWaveform.NAudio
             var leftPeak = Filter(leftSamples);
             var rightPeak = Filter(rightSamples);
             return new PeakInfo(-rightPeak, leftPeak);
-        }
-
-        private static ISampleProvider GetSampleProvider(WaveFormat waveFormat, byte[] data)
-        {
-            var waveProvider = new BufferedWaveProvider(waveFormat)
-            {
-                BufferLength = data.Length,
-                ReadFully = false
-            };
-            waveProvider.ClearBuffer();
-            waveProvider.AddSamples(data, 0, data.Length);
-            var sampleProvider = waveProvider.ToSampleProvider();
-            return sampleProvider;
         }
     }
 }

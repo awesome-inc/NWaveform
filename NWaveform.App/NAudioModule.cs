@@ -26,6 +26,7 @@ namespace NWaveform.App
 
             Trace.TraceInformation($"Using '{playerType}' as '{nameof(IWavePlayer)}'");
             builder.Register(c => new WavePlayerFactory(playerType)).As<IWavePlayerFactory>();
+            builder.RegisterType(playerType).As<IWavePlayer>();
 
             builder.RegisterType<NAudioPlayer>().As<IMediaPlayer>();
             builder.RegisterType<NAudioGetWaveform>().As<IGetWaveform>().SingleInstance();

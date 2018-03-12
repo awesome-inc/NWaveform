@@ -162,6 +162,8 @@
     <Compile Include="NAudio\NAudioGetWaveform.cs" />
     <Compile Include="NAudio\PeakProvider.cs" />
     <Compile Include="NAudio\PeakProvider_Should.cs" />
+    <Compile Include="NAudio\ResamplingExtensions.cs" />
+    <Compile Include="NAudio\ResamplingExtensions_Should.cs" />
     <Compile Include="NAudio\SamplesReceivedEvent.cs" />
     <Compile Include="NAudio\SeekableCircularBuffer.cs" />
     <Compile Include="NAudio\SeekableCircularBuffer_Should.cs" />

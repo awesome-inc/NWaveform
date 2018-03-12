@@ -122,19 +122,24 @@
       <DependentUpon>AppView.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppViewModel.cs" />
+    <Compile Include="ChannelMixer.cs" />
     <Compile Include="ChannelsView.xaml.cs">
       <DependentUpon>ChannelsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ChannelsViewModel.cs" />
+    <Compile Include="ChannelsViewModel_Should.cs" />
     <Compile Include="ChannelView.xaml.cs">
       <DependentUpon>ChannelView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ChannelViewModel.cs" />
     <Compile Include="EndlessFileLoopChannel.cs" />
+    <Compile Include="IChannelMixer.cs" />
     <Compile Include="IChannelsViewModel.cs" />
     <Compile Include="IChannelViewModel.cs" />
+    <Compile Include="IMixerChannel.cs" />
     <Compile Include="IPlayerViewModel.cs" />
     <Compile Include="IScopedFactory.cs" />
+    <Compile Include="MixerChannel.cs" />
     <Compile Include="Mp3StreamChannel.cs" />
     <Compile Include="Mp3StreamChannelFactory.cs" />
     <Compile Include="NAudioModule.cs" />

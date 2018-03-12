@@ -1,5 +1,58 @@
-﻿<UserControl x:Class="NWaveform.App.ChannelsView"
+<UserControl x:Class="NWaveform.App.ChannelsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <ListBox x:Name="Channels" HorizontalContentAlignment="Stretch"/>
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:cal="http://www.caliburnproject.org"
+             xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
+             xmlns:converter="clr-namespace:NWaveform.Converter;assembly=NWaveform.WPF">
+    <UserControl.Resources>
+        <converter:BooleanToVisibilityConverter x:Key="BoolToVisible" True="Visible" False="Collapsed"/>
+        <converter:BooleanToVisibilityConverter x:Key="InverseBoolToVisible" True="Collapsed" False="Visible"/>
+        <Style TargetType="Button">
+            <Setter Property="FontFamily" Value="/FontAwesome.Sharp;component/fonts/#FontAwesome"/>
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Margin" Value="4,0,4,0" />
+            <Setter Property="Padding" Value="4,0,4,0" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="Foreground" Value="DeepSkyBlue"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="LightSkyBlue"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ProminentButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="FontSize" Value="18" />
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <Button cal:Message.Attach="Play"
+                    Content="{fa:ToText Play}" ToolTip="Play" Style="{StaticResource ProminentButton}"
+                    Visibility="{Binding IsPlaying, Converter={StaticResource InverseBoolToVisible}}" />
+
+            <Button cal:Message.Attach="Pause"
+                    Content="{fa:ToText Pause}" ToolTip="Pause" Style="{StaticResource ProminentButton}"
+                    Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisible}}" />
+        </StackPanel>
+
+        <ListBox Grid.Row="1" x:Name="Channels" HorizontalContentAlignment="Stretch" IsTabStop="False">
+            <!-- To trigger Open on Mouse Double Click we need to use ItemContainerStyle, cf: https://caliburnmicro.codeplex.com/discussions/237126 -->
+            <!-- http://stackoverflow.com/questions/25238991/how-to-synchronize-listbox-selecteditem-and-the-focused-item-in-wpf#25240136 -->
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                    <Setter Property="cal:Message.Attach" Value="[Event MouseDoubleClick] = [Action ActivateSelected]; [Shortcut Enter] = [Action ActivateSelected]"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
+    </Grid>
 </UserControl>
