@@ -15,10 +15,8 @@ namespace NWaveform.NAudio
 
         public NAudioToMp3Cropper(IEventAggregator events, IWaveProviderFactory factory)
         {
-            if (events == null) throw new ArgumentNullException(nameof(events));
-            if (factory == null) throw new ArgumentNullException(nameof(factory));
-            _events = events;
-            _factory = factory;
+            _events = events ?? throw new ArgumentNullException(nameof(events));
+            _factory = factory ?? throw new ArgumentNullException(nameof(factory));
             _events.Subscribe(this);
         }
 

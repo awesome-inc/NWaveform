@@ -11,7 +11,7 @@ namespace NWaveform.NAudio
 
         public int ReadPosition
         {
-            get { return _readPosition; }
+            get => _readPosition;
             set
             {
                 lock (_lockObject)

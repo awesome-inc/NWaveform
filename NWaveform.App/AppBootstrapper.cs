@@ -89,14 +89,12 @@ namespace NWaveform.App
 
             if (string.IsNullOrWhiteSpace(key))
             {
-                object result;
-                if (_container.TryResolve(service, out result))
+                if (_container.TryResolve(service, out var result))
                     return result;
             }
             else
             {
-                object result;
-                if (_container.TryResolveNamed(key, service, out result))
+                if (_container.TryResolveNamed(key, service, out var result))
                     return result;
             }
             throw new DependencyResolutionException(string.Format(CultureInfo.CurrentCulture, "Could not locate any instances of contract {0}.", key ?? service.Name));

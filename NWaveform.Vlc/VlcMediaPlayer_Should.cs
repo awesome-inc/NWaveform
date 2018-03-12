@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -43,10 +43,10 @@ namespace NWaveform.Vlc
 
         private class CreationContext
         {
-            public IVideoPlayer Player { get; set; }
-            public IMediaPlayerFactory Factory { get; set; }
+            public IVideoPlayer Player { get; }
+            public IMediaPlayerFactory Factory { get; }
             public AudioEndpointVolume VolumeEndpoint { get; set; }
-            public Func<string, IMedia> CreateMedia { get; set; }
+            public Func<string, IMedia> CreateMedia { get; }
 
             public CreationContext()
             {

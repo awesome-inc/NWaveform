@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using NWaveform.Extensions;
@@ -92,7 +92,7 @@ namespace NWaveform.NAudio
         /// </summary>
         public override long Position
         {
-            get { return SourceToDest(_readerStream.Position); }
+            get => SourceToDest(_readerStream.Position);
             set { lock (_lockObject) { _readerStream.Position = DestToSource(value); }  }
         }
 
@@ -131,8 +131,8 @@ namespace NWaveform.NAudio
         /// </summary>
         public float Volume
         {
-            get { return _sampleChannel.Volume; }
-            set { _sampleChannel.Volume = value; } 
+            get => _sampleChannel.Volume;
+            set => _sampleChannel.Volume = value;
         }
 
         /// <summary>

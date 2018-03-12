@@ -18,15 +18,14 @@ namespace NWaveform.NAudio
 
         public TimeSpan PreserveAfterWrapAround
         {
-            get { return BufferedStream.PreserveAfterWrapAround; }
-            set { BufferedStream.PreserveAfterWrapAround = value; }
+            get => BufferedStream.PreserveAfterWrapAround;
+            set => BufferedStream.PreserveAfterWrapAround = value;
         }
 
         public BufferedStreamingChannel(IEventAggregator events, Uri source, WaveFormat waveFormat, TimeSpan bufferSize)
         {
-            if (events == null) throw new ArgumentNullException(nameof(events));
             if (source == null) throw new ArgumentNullException(nameof(source));
-            _events = events;
+            _events = events ?? throw new ArgumentNullException(nameof(events));
             Source = source;
             BufferedStream = new BufferedWaveStream(waveFormat, bufferSize);
             BufferedStream.WrappedAround += BufferedStream_WrappedAround;

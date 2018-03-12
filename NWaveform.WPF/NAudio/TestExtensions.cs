@@ -4,7 +4,7 @@ using NAudio.Wave.SampleProviders;
 
 namespace NWaveform.NAudio
 {
-    internal static class TestExtensions
+    public static class TestExtensions
     {
         public static byte[] Generate(this WaveFormat waveFormat, TimeSpan interval,
             SignalGeneratorType type = SignalGeneratorType.Sin, double frequency = 1.0)

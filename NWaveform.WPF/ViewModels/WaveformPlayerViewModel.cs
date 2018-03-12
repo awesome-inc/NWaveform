@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Caliburn.Micro;
 using NWaveform.Events;
 using NWaveform.Extender;
@@ -11,7 +11,7 @@ namespace NWaveform.ViewModels
     {
         public DateTimeOffset? StartTime
         {
-            get { return _startTime; }
+            get => _startTime;
             set
             {
                 if (value.Equals(_startTime)) return;
@@ -34,18 +34,12 @@ namespace NWaveform.ViewModels
             IAbsoluteTimeFormatter formatTime,
             IGetTimeStamp getTime)
         {
-            if (events == null) throw new ArgumentNullException(nameof(events));
-            if (player == null) throw new ArgumentNullException(nameof(player));
-            if (waveform == null) throw new ArgumentNullException(nameof(waveform));
-            if (formatTime == null) throw new ArgumentNullException(nameof(formatTime));
-            if (getTime == null) throw new ArgumentNullException(nameof(getTime));
-
-            Player = player;
+            Player = player ?? throw new ArgumentNullException(nameof(player));
             Player.PropertyChanged += Player_PropertyChanged;
-            Waveform = waveform;
-            _formatTime = formatTime;
-            _getTime = getTime;
-            _events = events;
+            Waveform = waveform ?? throw new ArgumentNullException(nameof(waveform));
+            _formatTime = formatTime ?? throw new ArgumentNullException(nameof(formatTime));
+            _getTime = getTime ?? throw new ArgumentNullException(nameof(getTime));
+            _events = events ?? throw new ArgumentNullException(nameof(events));
 
             Waveform.PositionProvider = player;
             Waveform.ConductWith(this);
@@ -67,7 +61,7 @@ namespace NWaveform.ViewModels
 
         public Uri Source
         {
-            get { return Player.Source; }
+            get => Player.Source;
             set
             {
                 if (Player.Source == value) return;

@@ -20,7 +20,7 @@ namespace NWaveform.App
 
         public Uri Source
         {
-            get { return AudioPlayer?.Source; }
+            get => AudioPlayer?.Source;
             set
             {
                 AudioPlayer.Source = value;
@@ -32,10 +32,8 @@ namespace NWaveform.App
 
         public PlayerViewModel(IEventAggregator events, IWaveformPlayerViewModel audioPlayer)
         {
-            if (events == null) throw new ArgumentNullException(nameof(events));
-            if (audioPlayer == null) throw new ArgumentNullException(nameof(audioPlayer));
-            _events = events;
-            AudioPlayer = audioPlayer;
+            _events = events ?? throw new ArgumentNullException(nameof(events));
+            AudioPlayer = audioPlayer ?? throw new ArgumentNullException(nameof(audioPlayer));
             AudioPlayer.ConductWith(this);
 
             // ReSharper disable VirtualMemberCallInConstructor

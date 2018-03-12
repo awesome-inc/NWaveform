@@ -18,8 +18,8 @@ namespace NWaveform
 
         public object AutoToolTip
         {
-            get { return GetValue(AutoToolTipProperty); }
-            set { SetValue(AutoToolTipProperty, value); }
+            get => GetValue(AutoToolTipProperty);
+            set => SetValue(AutoToolTipProperty, value);
         }
 
         private ToolTip _autoToolTip;

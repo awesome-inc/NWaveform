@@ -12,9 +12,8 @@ namespace NWaveform
         public CropAudioRequest(Uri source, IAudioSelectionViewModel selection, string outputFilename = null)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
-            if (selection == null) throw new ArgumentNullException(nameof(selection));
             Source = source;
-            Selection = selection;
+            Selection = selection ?? throw new ArgumentNullException(nameof(selection));
             OutputFilename = outputFilename;
         }
     }

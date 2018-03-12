@@ -18,7 +18,7 @@ namespace NWaveform.ViewModels
 
         public string Header
         {
-            get { return _header; }
+            get => _header;
             set
             {
                 if (_header == value) return;
@@ -29,7 +29,7 @@ namespace NWaveform.ViewModels
 
         public ICommand Command
         {
-            get { return _command; }
+            get => _command;
             set
             {
                 if (_command == value) return;
@@ -50,7 +50,7 @@ namespace NWaveform.ViewModels
 
         public IconChar Icon
         {
-            get { return _icon; }
+            get => _icon;
             set
             {
                 if (_icon == value) return;
@@ -61,7 +61,7 @@ namespace NWaveform.ViewModels
 
         public string Description
         {
-            get { return _description; }
+            get => _description;
             set
             {
                 if (_description == value) return;

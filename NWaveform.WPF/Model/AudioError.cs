@@ -16,7 +16,7 @@ namespace NWaveform.Model
 
         public Exception Exception
         {
-            get { return _exception; }
+            get => _exception;
             set
             {
                 if (_exception == value) return;

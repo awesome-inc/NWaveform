@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+using System;
 using System.Diagnostics;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -55,7 +54,7 @@ namespace NWaveform.Default
 
         public double Position
         {
-            get { return _player.Position.TotalSeconds; }
+            get => _player.Position.TotalSeconds;
             set
             {
                 _player.Position = TimeSpan.FromSeconds(value);
@@ -65,7 +64,7 @@ namespace NWaveform.Default
 
         public double Volume
         {
-            get { return _player.Volume; }
+            get => _player.Volume;
             set
             {
                 _player.Volume = value;
@@ -79,7 +78,7 @@ namespace NWaveform.Default
         public bool SupportsBalance => true;
         public double Balance
         {
-            get { return _player.Balance; }
+            get => _player.Balance;
             set
             {
                 _player.Balance = value;
@@ -100,7 +99,7 @@ namespace NWaveform.Default
 
         public double Rate
         {
-            get { return _rate; }
+            get => _rate;
             set
             {
                 var newValue = Math.Max(MinRate, Math.Min(MaxRate, value));
@@ -120,7 +119,7 @@ namespace NWaveform.Default
 
         public Uri Source
         {
-            get { return _player.Source; }
+            get => _player.Source;
             set
             {
                 VerifyUri(value);
@@ -156,7 +155,7 @@ namespace NWaveform.Default
 
         public bool IsPlaying
         {
-            get { return _isPlaying; }
+            get => _isPlaying;
             private set
             {
                 _isPlaying = value;
@@ -179,7 +178,7 @@ namespace NWaveform.Default
 
         public bool IsPaused
         {
-            get { return _isPaused; }
+            get => _isPaused;
             private set
             {
                 _isPaused = value;
@@ -205,7 +204,7 @@ namespace NWaveform.Default
 
         public bool IsStopped
         {
-            get { return _isStopped; }
+            get => _isStopped;
             private set
             {
                 _isStopped = value;
