@@ -11,8 +11,7 @@ namespace NWaveform.App
 
         public ScopedFactory(ILifetimeScope rootScope)
         {
-            if (rootScope == null) throw new ArgumentNullException(nameof(rootScope));
-            _rootScope = rootScope;
+            _rootScope = rootScope ?? throw new ArgumentNullException(nameof(rootScope));
         }
 
         public T Resolve()

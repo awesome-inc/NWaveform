@@ -28,61 +28,61 @@ namespace NWaveform.ViewModels
 
         public string Text
         {
-            get { return _text; }
+            get => _text;
             set { _text = value; NotifyOfPropertyChange(); }
         }
 
         public string Tooltip
         {
-            get { return _tooltip; }
+            get => _tooltip;
             set { _tooltip = value; NotifyOfPropertyChange(); }
         }
 
         public double Position
         {
-            get { return _position; }
+            get => _position;
             set { _position = value; NotifyOfPropertyChange(); }
         }
 
         public double Magnitude
         {
-            get { return _magnitude; }
+            get => _magnitude;
             set { _magnitude = value; NotifyOfPropertyChange(); }
         }
 
         public IconChar Icon
         {
-            get { return _icon; }
+            get => _icon;
             set { _icon = value; NotifyOfPropertyChange(); }
         }
 
         public Brush Background
         {
-            get { return _background; }
+            get => _background;
             set { _background = value; NotifyOfPropertyChange(); }
         }
 
         public Brush Foreground
         {
-            get { return _foreground; }
+            get => _foreground;
             set { _foreground = value; NotifyOfPropertyChange(); }
         }
 
         public IMenuViewModel Menu
         {
-            get { return _menu; }
+            get => _menu;
             set { _menu = value; NotifyOfPropertyChange(); }
         }
 
         public IAudioSelectionViewModel Selection
         {
-            get { return _selection; }
+            get => _selection;
             set { _selection = value; NotifyOfPropertyChange(); }
         }
 
         public int FontSize
         {
-            get { return _fontSize; }
+            get => _fontSize;
             set
             {
                 _fontSize = value;
@@ -93,7 +93,7 @@ namespace NWaveform.ViewModels
 
         public FontWeight FontWeight
         {
-            get { return _fontWeight; }
+            get => _fontWeight;
             set
             {
                 if (value.Equals(_fontWeight)) return;
@@ -110,7 +110,7 @@ namespace NWaveform.ViewModels
 
         public double IconRotation
         {
-            get { return _iconRotation; }
+            get => _iconRotation;
             set
             {
                 if (value.Equals(_iconRotation)) return;
@@ -121,7 +121,7 @@ namespace NWaveform.ViewModels
 
         public FlipOrientation IconFlipOrientation
         {
-            get { return _iconFlipOrientation; }
+            get => _iconFlipOrientation;
             set
             {
                 if (value == _iconFlipOrientation) return;
@@ -132,7 +132,7 @@ namespace NWaveform.ViewModels
 
         public bool IconSpin
         {
-            get { return _iconSpin; }
+            get => _iconSpin;
             set
             {
                 if (value == _iconSpin) return;
@@ -143,7 +143,7 @@ namespace NWaveform.ViewModels
 
         public double IconSpinDuration
         {
-            get { return _iconSpinDuration; }
+            get => _iconSpinDuration;
             set
             {
                 if (value.Equals(_iconSpinDuration)) return;

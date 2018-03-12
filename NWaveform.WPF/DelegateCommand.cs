@@ -19,11 +19,8 @@ namespace NWaveform
 
         public DelegateCommand(Action<object> execute, Predicate<object> canExecute = null)
         {
-            if (execute == null)
-                throw new ArgumentNullException(nameof(execute));
-
             CanExecutePredicate = canExecute ?? (context => true);
-            DoExecuteAction = execute;
+            DoExecuteAction = execute ?? throw new ArgumentNullException(nameof(execute));
 
             Title = string.Empty;
             Description = string.Empty;
@@ -47,8 +44,8 @@ namespace NWaveform
         // cf.: http://stackoverflow.com/questions/2587916/wpf-viewmodel-commands-canexecute-issue
         public event EventHandler CanExecuteChanged
         {
-            add { CommandManager.RequerySuggested += value; }
-            remove { CommandManager.RequerySuggested -= value; }
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
         }
 
         protected static void OnCanExecuteChanged()

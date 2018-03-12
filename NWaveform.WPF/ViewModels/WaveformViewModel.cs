@@ -69,7 +69,7 @@ namespace NWaveform.ViewModels
 
         public IPositionProvider PositionProvider
         {
-            get { return _positionProvider; }
+            get => _positionProvider;
             set
             {
                 if (Equals(value, _positionProvider)) return;
@@ -153,7 +153,7 @@ namespace NWaveform.ViewModels
 
         public double Position
         {
-            get { return PositionProvider.Position; }
+            get => PositionProvider.Position;
             set
             {
                 var pos = Position;
@@ -165,7 +165,7 @@ namespace NWaveform.ViewModels
 
         public IAudioSelectionViewModel Selection
         {
-            get { return _selection; }
+            get => _selection;
             set
             {
                 _selection = value;
@@ -176,19 +176,19 @@ namespace NWaveform.ViewModels
 
         public IMenuViewModel SelectionMenu
         {
-            get { return _selectionMenu; }
+            get => _selectionMenu;
             set { _selectionMenu = value; NotifyOfPropertyChange(); }
         }
 
         public double TicksEach
         {
-            get { return _ticksEach; }
+            get => _ticksEach;
             set { _ticksEach = value; NotifyOfPropertyChange(); }
         }
 
         public IList<ILabelVievModel> Labels
         {
-            get { return _labels; }
+            get => _labels;
             set
             {
                 _labels.Clear();
@@ -199,61 +199,61 @@ namespace NWaveform.ViewModels
 
         public ILabelVievModel SelectedLabel
         {
-            get { return _selectedLabel; }
+            get => _selectedLabel;
             set { _selectedLabel = value; NotifyOfPropertyChange(); }
         }
 
         public SolidColorBrush UserBrush
         {
-            get { return _userBrush; }
+            get => _userBrush;
             set { _userBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
         public SolidColorBrush SeparationLeftBrush
         {
-            get { return _separationLeftBrush; }
+            get => _separationLeftBrush;
             set { _separationLeftBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
         public SolidColorBrush SeparationRightBrush
         {
-            get { return _separationRightBrush; }
+            get => _separationRightBrush;
             set { _separationRightBrush = value; NotifyOfPropertyChange(); RenderWaveform(); }
         }
 
         public SolidColorBrush UserTextBrush
         {
-            get { return _userTextBrush; }
+            get => _userTextBrush;
             set { _userTextBrush = value; NotifyOfPropertyChange(); }
         }
 
         public SolidColorBrush PositionBrush
         {
-            get { return _positionBrush; }
+            get => _positionBrush;
             set { _positionBrush = value; NotifyOfPropertyChange(); }
         }
 
         public SolidColorBrush SelectionBrush
         {
-            get { return _selectionBrush; }
+            get => _selectionBrush;
             set { _selectionBrush = value; NotifyOfPropertyChange(); }
         }
 
         public PointCollection UserChannel
         {
-            get { return _userChannel; }
+            get => _userChannel;
             set { _userChannel = value; NotifyOfPropertyChange(); }
         }
 
         public PointCollection SeparationLeftChannel
         {
-            get { return _separationLeftChannel; }
+            get => _separationLeftChannel;
             set { _separationLeftChannel = value; NotifyOfPropertyChange(); }
         }
 
         public PointCollection SeparationRightChannel
         {
-            get { return _separationRightChannel; }
+            get => _separationRightChannel;
             set { _separationRightChannel = value; NotifyOfPropertyChange(); }
         }
     }

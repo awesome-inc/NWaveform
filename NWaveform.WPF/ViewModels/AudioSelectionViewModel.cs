@@ -13,7 +13,7 @@ namespace NWaveform.ViewModels
 
         public double Start
         {
-            get { return _start; }
+            get => _start;
             set
             {
                 if (Math.Abs(_start - value) < double.Epsilon) return;
@@ -25,7 +25,7 @@ namespace NWaveform.ViewModels
 
         public double End
         {
-            get { return _end; }
+            get => _end;
             set
             {
                 if (Math.Abs(_end - value) < double.Epsilon) return;
@@ -39,19 +39,19 @@ namespace NWaveform.ViewModels
 
         public double Top
         {
-            get { return _top; }
+            get => _top;
             set { _top = value; NotifyOfPropertyChange(); }
         }
 
         public double Height
         {
-            get { return _height; }
+            get => _height;
             set { _height = value; NotifyOfPropertyChange(); }
         }
 
         public IMenuViewModel Menu
         {
-            get { return _menu; }
+            get => _menu;
             set { _menu = value; NotifyOfPropertyChange(); }
         }
     }

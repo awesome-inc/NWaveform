@@ -13,10 +13,8 @@ namespace NWaveform
 
         public SamplesHandlerPeakPublisher(IEventAggregator events, IPeakProvider peakProvider)
         {
-            if (events == null) throw new ArgumentNullException(nameof(events));
-            if (peakProvider == null) throw new ArgumentNullException(nameof(peakProvider));
-            _events = events;
-            _peakProvider = peakProvider;
+            _events = events ?? throw new ArgumentNullException(nameof(events));
+            _peakProvider = peakProvider ?? throw new ArgumentNullException(nameof(peakProvider));
             _events.Subscribe(this);
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Windows.Threading;
 using Caliburn.Micro;
@@ -54,7 +54,7 @@ namespace NWaveform.NAudio
 
         public bool IsPlaying
         {
-            get { return _isPlaying; }
+            get => _isPlaying;
             private set
             {
                 if (_isPlaying == value) return;
@@ -80,7 +80,7 @@ namespace NWaveform.NAudio
 
         public bool IsPaused
         {
-            get { return _isPaused; }
+            get => _isPaused;
             private set
             {
                 _isPaused = value;
@@ -114,7 +114,7 @@ namespace NWaveform.NAudio
 
         public bool IsStopped
         {
-            get { return _isStopped; }
+            get => _isStopped;
             private set
             {
                 _isStopped = value;
@@ -137,7 +137,7 @@ namespace NWaveform.NAudio
 
         public Uri Source
         {
-            get { return _source; }
+            get => _source;
             set
             {
                 DisposeMedia();
@@ -180,7 +180,7 @@ namespace NWaveform.NAudio
 
         public double Position
         {
-            get { return _waveProvider?.CurrentTime.TotalSeconds ?? 0.0; }
+            get => _waveProvider?.CurrentTime.TotalSeconds ?? 0.0;
             set
             {
                 if (_source == null || _waveProvider == null) return;
@@ -210,7 +210,7 @@ namespace NWaveform.NAudio
 
         public double Rate
         {
-            get { return 1.0; }
+            get => 1.0;
             set
             {
                 // todo: not builtin to NAudio, use SoundTouch like Practice#, cf.: https://soundtouchdotnet.codeplex.com/
@@ -219,7 +219,7 @@ namespace NWaveform.NAudio
 
         public double Volume
         {
-            get { return _waveProvider?.Volume ?? DefaultVolume; }
+            get => _waveProvider?.Volume ?? DefaultVolume;
             set
             {
                 if (_waveProvider == null) return;
@@ -235,7 +235,7 @@ namespace NWaveform.NAudio
 
         public double Balance
         {
-            get { return _waveProvider?.Pan ?? 0.0; }
+            get => _waveProvider?.Pan ?? 0.0;
             set
             {
                 if (_waveProvider == null) return;

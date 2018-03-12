@@ -19,7 +19,7 @@ namespace NWaveform.App
 
         public IChannelViewModel SelectedChannel
         {
-            get { return _selectedChannel; }
+            get => _selectedChannel;
             set
             {
                 if (Equals(value, _selectedChannel)) return;

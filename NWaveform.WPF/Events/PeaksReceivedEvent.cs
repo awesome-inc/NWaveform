@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using NWaveform.Model;
 
@@ -17,12 +17,11 @@ namespace NWaveform.Events
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (start < 0) throw new ArgumentOutOfRangeException(nameof(start), "Must not be negative");
             if (end <= start) throw new ArgumentOutOfRangeException(nameof(end), $"Must be greater than {nameof(start)}");
-            if (peaks == null) throw new ArgumentNullException(nameof(peaks));
 
             Source = source;
             Start = start;
             End = end;
-            Peaks = peaks;
+            Peaks = peaks ?? throw new ArgumentNullException(nameof(peaks));
             AudioSampleTime = audioSampleTime;
         }
     }

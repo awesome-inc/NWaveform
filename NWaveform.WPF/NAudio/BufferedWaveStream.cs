@@ -19,7 +19,7 @@ namespace NWaveform.NAudio
         #region Stream
         public override long Length => BufferLength;
         public override long Position {
-            get { return _circularBuffer.ReadPosition; }
+            get => _circularBuffer.ReadPosition;
             set
             {
                 value -= value % WaveFormat.BlockAlign;
@@ -31,7 +31,7 @@ namespace NWaveform.NAudio
         public event EventHandler WrappedAround;
         public TimeSpan PreserveAfterWrapAround
         {
-            get { return _preserveAfterWrapAround; }
+            get => _preserveAfterWrapAround;
             set
             {
                 if (value >= BufferDuration) throw new ArgumentOutOfRangeException(nameof(value), $"{nameof(PreserveAfterWrapAround)} must be less than {nameof(BufferDuration)}");
@@ -59,8 +59,8 @@ namespace NWaveform.NAudio
         public int BufferLength { get; private set; }
         public TimeSpan BufferDuration
         {
-            get { return TimeSpan.FromSeconds((double)BufferLength / WaveFormat.AverageBytesPerSecond); }
-            private set { BufferLength = (int)(value.TotalSeconds * WaveFormat.AverageBytesPerSecond); }
+            get => TimeSpan.FromSeconds((double)BufferLength / WaveFormat.AverageBytesPerSecond);
+            private set => BufferLength = (int)(value.TotalSeconds * WaveFormat.AverageBytesPerSecond);
         }
 
 

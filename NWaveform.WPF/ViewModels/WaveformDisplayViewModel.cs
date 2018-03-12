@@ -32,21 +32,18 @@ namespace NWaveform.ViewModels
 
         public WaveformDisplayViewModel(IEventAggregator events, IGetWaveform getWaveform)
         {
-            if (events == null) throw new ArgumentNullException(nameof(events));
-            if (getWaveform == null) throw new ArgumentNullException(nameof(getWaveform));
-            _events = events;
-            _getWaveform = getWaveform;
+            _events = events ?? throw new ArgumentNullException(nameof(events));
+            _getWaveform = getWaveform ?? throw new ArgumentNullException(nameof(getWaveform));
             WaveformImage = BitmapFactory.New(800, 200);
             _events.Subscribe(this);
         }
 
         internal WriteableBitmap WaveformImage
         {
-            get { return _waveformImage; }
+            get => _waveformImage;
             set
             {
-                if (value == null) throw new ArgumentNullException();
-                _waveformImage = value;
+                _waveformImage = value ?? throw new ArgumentNullException();
                 ZeroMagnitude = (int)(_waveformImage.Height / 2.0);
                 _width = (int)_waveformImage.Width;
                 if (_leftChannel == null) _leftChannel = new int[_width];
@@ -61,7 +58,7 @@ namespace NWaveform.ViewModels
 
         public Uri Source
         {
-            get { return _source; }
+            get => _source;
             set
             {
                 if (Equals(value, _source)) return;
@@ -87,7 +84,7 @@ namespace NWaveform.ViewModels
 
         public double Duration
         {
-            get { return _duration; }
+            get => _duration;
             set
             {
                 if (Math.Abs(_duration - value) < double.Epsilon) return;
@@ -99,7 +96,7 @@ namespace NWaveform.ViewModels
 
         public SolidColorBrush LeftBrush
         {
-            get { return _leftBrush; }
+            get => _leftBrush;
             set
             {
                 _leftBrush = value;
@@ -110,7 +107,7 @@ namespace NWaveform.ViewModels
 
         public SolidColorBrush RightBrush
         {
-            get { return _rightBrush; }
+            get => _rightBrush;
             set
             {
                 _rightBrush = value;
@@ -124,7 +121,7 @@ namespace NWaveform.ViewModels
 
         public SolidColorBrush BackgroundBrush
         {
-            get { return _backgroundBrush; }
+            get => _backgroundBrush;
             set
             {
                 _backgroundBrush = value;
@@ -135,7 +132,7 @@ namespace NWaveform.ViewModels
 
         public DateTime CurrentStreamTime
         {
-            get { return _currentStreamTime; }
+            get => _currentStreamTime;
             set
             {
                 if (value.Equals(_currentStreamTime)) return;
@@ -148,7 +145,7 @@ namespace NWaveform.ViewModels
 
         public bool IsLive
         {
-            get { return _isLive; }
+            get => _isLive;
             set
             {
                 if (value == _isLive) return;
@@ -159,7 +156,7 @@ namespace NWaveform.ViewModels
 
         public double LastWritePosition
         {
-            get { return _lastWritePosition; }
+            get => _lastWritePosition;
             private set
             {
                 if (value.Equals(_lastWritePosition)) return;
@@ -170,7 +167,7 @@ namespace NWaveform.ViewModels
 
         public SolidColorBrush LastWriteBrush
         {
-            get { return _lastWriteBrush; }
+            get => _lastWriteBrush;
             set
             {
                 if (Equals(value, _lastWriteBrush)) return;
@@ -181,8 +178,7 @@ namespace NWaveform.ViewModels
 
         protected override void OnViewLoaded(object view)
         {
-            var myView = view as IHaveWaveformImage;
-            if (myView != null)
+            if (view is IHaveWaveformImage myView)
                 myView.WaveformImageBrush.ImageSource = WaveformImage;
         }
 

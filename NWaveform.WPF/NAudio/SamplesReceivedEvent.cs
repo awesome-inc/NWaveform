@@ -15,12 +15,11 @@ namespace NWaveform.NAudio
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (start < TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(start), "Must not be negative");
-            if (waveFormat == null) throw new ArgumentNullException(nameof(waveFormat));
             if (data == null) throw new ArgumentNullException(nameof(data));
 
             Source = source;
             Start = start;
-            WaveFormat = waveFormat;
+            WaveFormat = waveFormat ?? throw new ArgumentNullException(nameof(waveFormat));
             CurrentAudioTime = currentAudioTime;
             var n = count > 0 ? count : data.Length - offset;
             Data = new byte[n];

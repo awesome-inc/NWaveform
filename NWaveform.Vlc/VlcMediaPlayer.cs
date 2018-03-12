@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
@@ -83,7 +83,7 @@ namespace NWaveform.Vlc
 
         #region Properties
 
-        private TimeSpan OpenTimeOut { get; set; }
+        private TimeSpan OpenTimeOut { get; }
 
         /// <summary>
         /// used to make he player for testing syncronously
@@ -117,7 +117,7 @@ namespace NWaveform.Vlc
 
         public AudioSelection AudioSelection
         {
-            get { return _audioSelection; }
+            get => _audioSelection;
             set
             {
                 _audioSelection = value;
@@ -133,7 +133,7 @@ namespace NWaveform.Vlc
 
         public bool IsLooping
         {
-            get { return _isLooping; }
+            get => _isLooping;
             private set
             {
                 _isLooping = value;
@@ -143,7 +143,7 @@ namespace NWaveform.Vlc
 
         public Uri Source
         {
-            get { return _source; }
+            get => _source;
             set
             {
                 try
@@ -180,7 +180,7 @@ namespace NWaveform.Vlc
         /// </summary>
         public double Duration
         {
-            get { return _duration; }
+            get => _duration;
             set
             {
                 if (CloseTo(_duration, value, TimeEps)) return;
@@ -197,7 +197,7 @@ namespace NWaveform.Vlc
         /// </summary>
         public double Position
         {
-            get { return _position; }
+            get => _position;
             set
             {
                 // when playing this raises PositionChanged
@@ -274,7 +274,7 @@ namespace NWaveform.Vlc
         /// <remarks>this needs video player</remarks>
         public double Rate
         {
-            get { return _rate; }
+            get => _rate;
             set
             {
                 var newValue = Math.Max(MinRate, Math.Min(MaxRate, value));

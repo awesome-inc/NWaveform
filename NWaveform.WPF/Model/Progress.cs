@@ -7,6 +7,6 @@ namespace NWaveform.Model
             ProgressPercentage = progressPercentage;
         }
 
-        public int ProgressPercentage { get; private set; }
+        public int ProgressPercentage { get; }
     }
 }

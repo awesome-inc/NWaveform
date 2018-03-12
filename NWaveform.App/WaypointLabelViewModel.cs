@@ -11,8 +11,7 @@ namespace NWaveform.App
 
         public WaypointLabelViewModel(Waypoint waypoint)
         {
-            if (waypoint == null) throw new ArgumentNullException(nameof(waypoint));
-            Waypoint = waypoint;
+            Waypoint = waypoint ?? throw new ArgumentNullException(nameof(waypoint));
 
             Magnitude = 0.75;
             Tooltip = $"Waypoint: {Waypoint.Heading:F}°\r\n@Lon: {Waypoint.Reference.Latitude:F}, Lat: {Waypoint.Reference.Longitude:F}";
@@ -29,9 +28,8 @@ namespace NWaveform.App
 
         public Waypoint(double heading, Location reference)
         {
-            if (reference == null) throw new ArgumentNullException(nameof(reference));
             Heading = heading;
-            Reference = reference;
+            Reference = reference ?? throw new ArgumentNullException(nameof(reference));
         }
     }
 
