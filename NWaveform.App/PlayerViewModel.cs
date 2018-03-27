@@ -30,6 +30,12 @@ namespace NWaveform.App
             }
         }
 
+        public void Handle(ActivateChannel message)
+        {
+            if (!IsActive) return;
+            OpenUrl(message.Source);
+        }
+
         public PlayerViewModel(IEventAggregator events, IWaveformPlayerViewModel audioPlayer)
         {
             _events = events ?? throw new ArgumentNullException(nameof(events));
@@ -86,6 +92,8 @@ namespace NWaveform.App
             });
 
             AudioPlayer.Waveform.SelectionMenu = selectionMenu;
+
+            _events.Subscribe(this);
         }
 
         private bool CanSelectWaypoint(IAudioSelectionViewModel selection)

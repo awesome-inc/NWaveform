@@ -12,7 +12,7 @@ namespace NWaveform.NAudio
         protected internal readonly BufferedWaveStream BufferedStream;
         private readonly IEventAggregator _events;
 
-        public DateTimeOffset? StartTime { get; private set; } = DateTimeOffset.UtcNow; // here it is !!!
+        public DateTimeOffset? StartTime { get; protected set; } = DateTimeOffset.UtcNow;
         public Uri Source { get; }
         public IWaveProviderEx Stream => _waveProvider;
 
@@ -24,9 +24,8 @@ namespace NWaveform.NAudio
 
         public BufferedStreamingChannel(IEventAggregator events, Uri source, WaveFormat waveFormat, TimeSpan bufferSize)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
             _events = events ?? throw new ArgumentNullException(nameof(events));
-            Source = source;
+            Source = source ?? throw new ArgumentNullException(nameof(source));
             BufferedStream = new BufferedWaveStream(waveFormat, bufferSize);
             BufferedStream.WrappedAround += BufferedStream_WrappedAround;
             _waveProvider = new WaveProviderEx(BufferedStream) { Closeable = false };
@@ -41,14 +40,13 @@ namespace NWaveform.NAudio
             if (exceeding <= 0)
             {
                 var time = BufferedStream.CurrentWriteTime;
-                var audioTime = DateTime.UtcNow;
+                var audioTime = StartTime?.DateTime + time;
                 if (audioSampleTimeStamp.HasValue)
                 {
-                    // here we assume that the stream is continuous without any missing packages
-                    audioTime = audioSampleTimeStamp.Value;
-                    StartTime = audioSampleTimeStamp.Value - time;
+                    audioTime = audioSampleTimeStamp;
+                    StartTime = audioSampleTimeStamp - time;
                 }
-                SafePublish(new SamplesReceivedEvent(Source, time, BufferedStream.WaveFormat, buffer, offset, count, currentAudioTime: audioTime), "Could not add samples");
+                SafePublish(new SamplesReceivedEvent(Source, time, BufferedStream.WaveFormat, buffer, offset, count, audioTime), "Could not add samples");
                 return BufferedStream.AddSamples(buffer, offset, count);
             }
 
