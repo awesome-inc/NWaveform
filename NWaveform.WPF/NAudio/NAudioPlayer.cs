@@ -156,6 +156,7 @@ namespace NWaveform.NAudio
                 NotifyOfPropertyChange(nameof(CanMute));
                 NotifyOfPropertyChange(nameof(CanUnMute));
                 NotifyOfPropertyChange(nameof(SupportsBalance));
+                NotifyOfPropertyChange(nameof(Balance));
             }
         }
 
