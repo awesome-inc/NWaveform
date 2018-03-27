@@ -3,7 +3,7 @@ using Caliburn.Micro;
 
 namespace NWaveform.App
 {
-    public interface IPlayerViewModel : IScreen
+    public interface IPlayerViewModel : IScreen, IHandle<ActivateChannel>
     {
         string ToolTip { get; }
         Uri Source { get; set; }

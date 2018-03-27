@@ -11,5 +11,7 @@ namespace NWaveform.App
         bool IsPlaying { get; }
         void Play();
         void Pause();
+
+        void ActivateSelected();
     }
 }
