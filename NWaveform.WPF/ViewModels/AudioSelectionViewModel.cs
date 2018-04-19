@@ -3,13 +3,30 @@ using Caliburn.Micro;
 
 namespace NWaveform.ViewModels
 {
-    public class AudioSelectionViewModel : PropertyChangedBase, IAudioSelectionViewModel
+    public class AudioSelectionViewModel: PropertyChangedBase, IAudioSelectionViewModel
     {
         private double _start;
         private double _end;
         private double _top = -1.0;
         private double _height = 2.0;
         private IMenuViewModel _menu;
+
+        public void Copy(IAudioSelectionViewModel value)
+        {
+            if (value == null)
+            {
+                Start = End = 0;
+                return;
+            }
+
+            if (value.Source != Source) throw new InvalidOperationException("Cannot change source");
+            Start = value.Start;
+            End = value.End;
+            Top = value.Top;
+            Height = value.Height;
+        }
+
+        public Uri Source { get; set; }
 
         public double Start
         {

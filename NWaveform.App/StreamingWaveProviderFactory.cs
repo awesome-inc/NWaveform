@@ -31,6 +31,7 @@ namespace NWaveform.App
         {
             if (_channels.TryGetValue(source.ToString(), out var channel)) return channel;
             channel = _channelFactory.Create(source);
+            if (channel == null) return null;
             AddChannel(channel);
             return channel;
         }

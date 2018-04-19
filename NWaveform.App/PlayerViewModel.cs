@@ -113,7 +113,7 @@ namespace NWaveform.App
 
         private void CropToFile(IAudioSelectionViewModel selection)
         {
-            var message = new CropAudioRequest(AudioPlayer.Source, selection);
+            var message = new CropAudioRequest(selection);
             _events.PublishOnUIThread(message);
         }
 
@@ -182,6 +182,7 @@ namespace NWaveform.App
             {
                 Start = Math.Min(a, b),
                 End = Math.Max(a, b),
+                Source = AudioPlayer.Source
             };
 
             AudioPlayer.Waveform.UserChannel = TestData.GetRandomWaypoints(r, duration, (int)(0.2 * duration), 0.5, 0.85);

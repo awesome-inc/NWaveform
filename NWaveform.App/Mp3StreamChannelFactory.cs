@@ -18,6 +18,8 @@ namespace NWaveform.App
 
         public IStreamingAudioChannel Create(Uri source)
         {
+            if (source.IsFile)
+                return null;
             var waveFormat = GetWaveFormat(source);
             return new Mp3StreamChannel(_events, source, waveFormat, _bufferSize);
         }
