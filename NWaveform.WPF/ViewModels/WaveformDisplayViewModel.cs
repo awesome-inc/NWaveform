@@ -63,10 +63,13 @@ namespace NWaveform.ViewModels
             {
                 if (Equals(value, _source)) return;
                 _source = value;
+                OnSourceChanged();
                 SetWaveform(_source);
                 NotifyOfPropertyChange();
             }
         }
+
+        protected virtual void OnSourceChanged() { }
 
         private void SetWaveform(Uri source)
         {

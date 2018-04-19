@@ -16,7 +16,7 @@ namespace NWaveform.ViewModels
         private PointCollection _separationLeftChannel = new PointCollection();
         private PointCollection _separationRightChannel = new PointCollection();
 
-        private IAudioSelectionViewModel _selection = new AudioSelectionViewModel();
+        private readonly AudioSelectionViewModel _selection = new AudioSelectionViewModel();
 
         private double _ticksEach;
 
@@ -168,11 +168,18 @@ namespace NWaveform.ViewModels
             get => _selection;
             set
             {
-                _selection = value;
-                PositionProvider.AudioSelection = _selection == null ? AudioSelection.Empty : new AudioSelection(0, _selection.Start, _selection.End);
+
+                _selection.Copy(value);
+                PositionProvider.AudioSelection = _selection.IsEmpty() ? AudioSelection.Empty : new AudioSelection(0, _selection.Start, _selection.End);
                 NotifyOfPropertyChange();
             }
         }
+
+        protected override void OnSourceChanged()
+        {
+            _selection.Source = Source;
+        }
+
 
         public IMenuViewModel SelectionMenu
         {

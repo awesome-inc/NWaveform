@@ -29,7 +29,7 @@ namespace NWaveform.NAudio
 
         private void CropToFile(CropAudioRequest message, string fileName)
         {
-            var reader = _factory.Create(message.Source);
+            var reader = _factory.Create(message.Selection.Source);
             using (reader as IDisposable)
             using (var writer = new LameMP3FileWriter(fileName, reader.WaveFormat, BitRate))
             {

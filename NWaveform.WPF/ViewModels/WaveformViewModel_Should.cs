@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Windows.Media;
 using Caliburn.Micro;
@@ -200,7 +200,7 @@ namespace NWaveform.ViewModels
 
             var selection = new AudioSelectionViewModel();
             sut.Selection = selection;
-            sut.Selection.Should().Be(selection);
+            sut.Selection.ShouldBeEquivalentTo(selection);
             sut.ShouldRaisePropertyChangeFor(x => x.Selection);
             //positionProvider.Received().AudioSelection =
 
@@ -275,6 +275,22 @@ namespace NWaveform.ViewModels
             using (sut = ctx.BuildSut())
                 events.Received().Subscribe(sut);
             events.Received().Unsubscribe(sut);
+        }
+
+        [Test]
+        public void Set_Source_on_Selection()
+        {
+            var ctx = new ContextFor<WaveformViewModel>();
+            var sut = ctx.BuildSut();
+            sut.Selection.Source.Should().BeNull();
+
+            var source = new Uri("my://source/");
+
+            sut.Source = source;
+            sut.Selection.Source.Should().Be(source);
+
+            sut.Source = null;
+            sut.Selection.Source.Should().BeNull();
         }
     }
 }

@@ -175,6 +175,7 @@
     <Compile Include="SamplesHandlerPeakPublisher.cs" />
     <Compile Include="SamplesHandlerPeakPublisher_Should.cs" />
     <Compile Include="ViewModels\ArrayExtensions.cs" />
+    <Compile Include="ViewModels\AudioSelectionViewModelExtensions.cs" />
     <Compile Include="ViewModels\AudioSelectionViewModel_Should.cs" />
     <Compile Include="ViewModels\DateTimeFormatter.cs" />
     <Compile Include="ViewModels\DateTimeFormatter_Should.cs" />
