@@ -23,10 +23,10 @@ for:
   branches:
     only:
       - master
-      - /hotfix/
-      - /release/
   build_script:
     - build.bat /t:CoverageUpload;Deploy /v:m
+  skip_non_tags: true
+
 # all other branches
 -
   build_script:
