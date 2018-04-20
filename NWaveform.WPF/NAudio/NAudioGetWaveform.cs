@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -52,8 +52,9 @@ namespace NWaveform.NAudio
 
                 var elapsed = stopWatch.Elapsed;
                 var mibPerSecond = audioStream.Length / elapsed.TotalSeconds / 1024 / 1024;
+#if DEBUG
                 Trace.WriteLine($"Sampled '{audioStream.TotalTime}' of wave data in '{elapsed}' ({mibPerSecond:F1} MiB/sec).");
-
+#endif
                 return new WaveformData(audioStream.TotalTime, peaks);
             }
             finally

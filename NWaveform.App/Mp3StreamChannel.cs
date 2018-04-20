@@ -60,9 +60,13 @@ namespace NWaveform.App
                     continue;
                 }
                 AddSamples(_buffer, 0, bytesRead);
+#if DEBUG
                 Trace.WriteLine($"Buffered '{Source}' ({BufferedStream.CurrentWriteTime})...");
+#endif
             }
+#if DEBUG
             Trace.WriteLine($"Stopped reading from '{Source}' ({BufferedStream.CurrentWriteTime}).");
+#endif
         }
 
         private static Stream CreateStream(Uri source)

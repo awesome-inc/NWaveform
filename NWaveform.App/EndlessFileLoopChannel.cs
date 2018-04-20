@@ -59,8 +59,9 @@ namespace NWaveform.App
 
                 var time = DateTime.UtcNow.AddSeconds(_timeShift.TotalSeconds);
                 AddSamples(buffer, 0, bytesRead, time);
+#if DEBUG
                 Trace.WriteLine($"Buffered '{Source}' ({loops}, {timeAfterRead} / {BufferedStream.CurrentWriteTime})...");
-
+#endif
                 timeDelta -= sw.Elapsed;
                 if (timeDelta.TotalSeconds > 0)
                     Thread.Sleep(timeDelta);
