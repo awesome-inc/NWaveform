@@ -35,7 +35,8 @@ namespace NWaveform.App
 
         private void PublishFromStream()
         {
-            var buffer = new byte[_audioStream.WaveFormat.AverageBytesPerSecond];
+            var bufsize = _audioStream.WaveFormat.AverageBytesPerSecond; // / 25;
+            var buffer = new byte[bufsize];
             var loops = 0;
 
             var sw = Stopwatch.StartNew();
@@ -56,7 +57,8 @@ namespace NWaveform.App
                     if (bytesRead == 0) continue;
                 }
 
-                AddSamples(buffer, 0, bytesRead, DateTime.UtcNow.AddSeconds(_timeShift.TotalSeconds));
+                var time = DateTime.UtcNow.AddSeconds(_timeShift.TotalSeconds);
+                AddSamples(buffer, 0, bytesRead, time);
                 Trace.WriteLine($"Buffered '{Source}' ({loops}, {timeAfterRead} / {BufferedStream.CurrentWriteTime})...");
 
                 timeDelta -= sw.Elapsed;

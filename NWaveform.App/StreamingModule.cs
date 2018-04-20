@@ -19,14 +19,16 @@ namespace NWaveform.App
                 {
                     new Uri("channel://1/"), new
                     {
-                        TimeSpan = TimeSpan.FromSeconds(10),
+                        TimeSpan = TimeSpan.FromMinutes(5),
+                        WrapAround = TimeSpan.FromSeconds(290),
                         TimeShift = TimeSpan.FromHours(-10)
                     }
                 },
                 {
                     new Uri("channel://2/"), new
                     {
-                        TimeSpan = TimeSpan.FromSeconds(20),
+                        TimeSpan = TimeSpan.FromSeconds(60),
+                        WrapAround = TimeSpan.FromSeconds(58),
                         TimeShift = TimeSpan.FromMinutes(-5)
                     }
                 },
@@ -34,6 +36,7 @@ namespace NWaveform.App
                     new Uri("channel://3/"), new
                     {
                         TimeSpan = TimeSpan.FromSeconds(33),
+                        WrapAround = TimeSpan.FromSeconds(25),
                         TimeShift = TimeSpan.FromHours(0)
                     }
                 },
@@ -41,6 +44,7 @@ namespace NWaveform.App
                     new Uri("channel://4/"), new
                     {
                         TimeSpan = TimeSpan.FromSeconds(5),
+                        WrapAround = TimeSpan.FromSeconds(4),
                         TimeShift = TimeSpan.FromHours(0)
                     }
                 }
@@ -48,7 +52,7 @@ namespace NWaveform.App
 
             foreach (var kvp in channels)
             {
-                builder.Register(c => CreateChannel(c, kvp.Key, kvp.Value.TimeSpan, kvp.Value.TimeShift))
+                builder.Register(c => CreateChannel(c, kvp.Key, kvp.Value.TimeSpan, kvp.Value.WrapAround, kvp.Value.TimeShift))
                     .As<IStreamingAudioChannel>();
                 builder.Register(c => CreateChannelViewModel(c, kvp.Key, kvp.Value.TimeSpan.TotalSeconds))
                     .As<IChannelViewModel>();
@@ -67,13 +71,12 @@ namespace NWaveform.App
         }
 
         private static EndlessFileLoopChannel CreateChannel(IComponentContext c, Uri source, TimeSpan bufferSize,
-            TimeSpan timeShift)
+            TimeSpan wrapAround, TimeSpan timeShift)
         {
             var events = c.Resolve<IEventAggregator>();
             const string fileName = @"Data\Pulp_Fiction_Jimmys_Coffee.mp3";
-            var preserveWrapAround = TimeSpan.FromSeconds(bufferSize.TotalSeconds * 0.9);
             return new EndlessFileLoopChannel(events, source, fileName, bufferSize, timeShift)
-                {PreserveAfterWrapAround = preserveWrapAround};
+                {PreserveAfterWrapAround = wrapAround};
         }
 
         private static IChannelViewModel CreateChannelViewModel(IComponentContext c, Uri source, double duration)
