@@ -46,14 +46,16 @@ namespace NWaveform.NAudio
                     audioTime = audioSampleTimeStamp;
                     StartTime = audioSampleTimeStamp - time;
                 }
+                var bytesWritten = BufferedStream.AddSamples(buffer, offset, count);
                 SafePublish(new SamplesReceivedEvent(Source, time, BufferedStream.WaveFormat, buffer, offset, count, audioTime), "Could not add samples");
-                return BufferedStream.AddSamples(buffer, offset, count);
+                return bytesWritten;
             }
 
             // split in two writes: a) until full, b) exceeding
             var delta = count - exceeding;
-            var written = AddSamples(buffer, offset, delta);
-            written += AddSamples(buffer, offset + delta, exceeding);
+            var written = AddSamples(buffer, offset, delta, audioSampleTimeStamp);
+            if (audioSampleTimeStamp.HasValue) audioSampleTimeStamp += TimeSpan.FromSeconds((double)delta / BufferedStream.WaveFormat.AverageBytesPerSecond);
+            written += AddSamples(buffer, offset + delta, exceeding, audioSampleTimeStamp);
             return written;
         }
 
