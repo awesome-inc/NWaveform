@@ -29,6 +29,7 @@ namespace NWaveform.ViewModels
         private double _lastWritePosition;
         private SolidColorBrush _lastWriteBrush = new SolidColorBrush(WaveformSettings.DefaultTransparentBlack);
         private DateTime _currentStreamTime;
+        private double _shiftError;
 
         public WaveformDisplayViewModel(IEventAggregator events, IGetWaveform getWaveform)
         {
@@ -73,6 +74,7 @@ namespace NWaveform.ViewModels
 
         private void SetWaveform(Uri source)
         {
+            _shiftError = 0.0;
             _waveformImage?.Clear(BackgroundBrush.Color);
             Duration = 0.0;
             if (source == null) return;
@@ -218,7 +220,9 @@ namespace NWaveform.ViewModels
         protected internal virtual void HandleShift(double shift)
         {
             if (Duration < double.Epsilon) return;
-            var dx = (int)(WaveformImage.Width * shift / Duration);
+            var dt = WaveformImage.Width * shift / Duration + _shiftError;
+            var dx = (int)Math.Round(dt);
+            _shiftError += dt - dx;
             if (dx == 0) return; // no shift
 
             var x0 = (dx > 0 ? dx : 0);
@@ -235,7 +239,8 @@ namespace NWaveform.ViewModels
             _waveformImage.Clear(BackgroundBrush.Color);
             RenderWaveform();
 #if DEBUG
-            Trace.WriteLine($"Shifted audio {shift} seconds.");
+            var shiftError = _shiftError * Duration / WaveformImage.Width;
+            Trace.WriteLine($"Shifted audio {shift} seconds (error: {shiftError:0.00} seconds).");
 #endif
             LastWritePosition -= shift;
         }

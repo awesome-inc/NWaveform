@@ -20,15 +20,15 @@ namespace NWaveform.App
                     new Uri("channel://1/"), new
                     {
                         TimeSpan = TimeSpan.FromMinutes(5),
-                        WrapAround = TimeSpan.FromSeconds(290),
+                        WrapAround = new TimeSpan(0, 4, 50),
                         TimeShift = TimeSpan.FromHours(-10)
                     }
                 },
                 {
                     new Uri("channel://2/"), new
                     {
-                        TimeSpan = TimeSpan.FromSeconds(60),
-                        WrapAround = TimeSpan.FromSeconds(58),
+                        TimeSpan = TimeSpan.FromSeconds(30),
+                        WrapAround = TimeSpan.FromSeconds(29),
                         TimeShift = TimeSpan.FromMinutes(-5)
                     }
                 },
@@ -76,7 +76,7 @@ namespace NWaveform.App
             var events = c.Resolve<IEventAggregator>();
             const string fileName = @"Data\Pulp_Fiction_Jimmys_Coffee.mp3";
             return new EndlessFileLoopChannel(events, source, fileName, bufferSize, timeShift)
-                {PreserveAfterWrapAround = wrapAround};
+            { PreserveAfterWrapAround = wrapAround };
         }
 
         private static IChannelViewModel CreateChannelViewModel(IComponentContext c, Uri source, double duration)
