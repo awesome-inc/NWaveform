@@ -8,10 +8,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("Release")]
 #endif
 
-[assembly: AssemblyDescription(@"© Awesome Incremented 2017")]
+[assembly: AssemblyDescription(@"© Awesome Incremented 2018")]
 [assembly: AssemblyCompany("Awesome Incremented")]
 [assembly: AssemblyProduct("NWaveform")]
-[assembly: AssemblyCopyright("Copyright © Awesome Incremented 2017")]
+[assembly: AssemblyCopyright("Copyright © Awesome Incremented 2018")]
 [assembly: AssemblyTrademark("Awesome Incremented")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
