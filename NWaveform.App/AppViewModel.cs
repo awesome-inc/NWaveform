@@ -32,6 +32,7 @@ namespace NWaveform.App
             ActivateItem(viewModels.First());
 
             Channels = channels;
+            Channels.ConductWith(this);
 
             events.Subscribe(this);
         }

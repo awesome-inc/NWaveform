@@ -1,3 +1,4 @@
+using Caliburn.Micro;
 using FluentAssertions;
 using NAudio.Wave;
 using NEdifis;
@@ -23,14 +24,19 @@ namespace NWaveform.App
             player.When(x => x.Pause()).Do(x => player.PlaybackState.Returns(PlaybackState.Paused));
 
             var sut = ctx.BuildSut();
+            sut.IsPlaying.Should().Be(sut.IsActive);
 
-            sut.IsPlaying.Should().BeTrue("Should initialy play");
+            ((IActivate)sut).Activate();
+            sut.IsPlaying.Should().Be(sut.IsActive);
 
             sut.Pause();
             sut.IsPlaying.Should().BeFalse();
 
             sut.Play();
             sut.IsPlaying.Should().BeTrue();
+
+            ((IDeactivate)sut).Deactivate(false);
+            sut.IsPlaying.Should().Be(sut.IsActive);
         }
     }
 }

@@ -25,7 +25,6 @@ namespace NWaveform.App
             SelectedChannel = Channels.FirstOrDefault();
 
             _player.Init(_mixer.SampleProvider);
-            Play();
         }
 
         public IEnumerable<IChannelViewModel> Channels => _channels;
@@ -60,6 +59,18 @@ namespace NWaveform.App
         public void ActivateSelected()
         {
             _events.PublishOnUIThread(new ActivateChannel(SelectedChannel.Source));
+        }
+
+        protected override void OnActivate()
+        {
+            base.OnActivate();
+            Play();
+        }
+
+        protected override void OnDeactivate(bool close)
+        {
+            Pause();
+            base.OnDeactivate(close);
         }
 
         private void AddChannel(IChannelViewModel channel)
