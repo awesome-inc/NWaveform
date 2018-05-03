@@ -210,8 +210,8 @@ namespace NWaveform.ViewModels
             Handle(pointsReceivedEvent);
             CurrentStreamTime = message.AudioSampleTime ?? DateTime.UtcNow;
 #if DEBUG
-            Trace.WriteLine(
-                $"Received #{message.Peaks.Length} peaks ({message.Start}:{message.End}) for '{message.Source}' ");
+           Trace.WriteLine(
+               $"Received #{message.Peaks.Length} peaks ({message.Start}:{message.End}) for '{message.Source}' ");
 #endif
             IsLive = message.Start > 0 || message.End < Duration;
             LastWritePosition = message.End;
@@ -220,8 +220,8 @@ namespace NWaveform.ViewModels
         protected internal virtual void HandleShift(double shift)
         {
             if (Duration < double.Epsilon) return;
-            var dt = WaveformImage.Width * shift / Duration + _shiftError;
-            var dx = (int)Math.Round(dt);
+            var dt = WaveformImage.Width * shift / Duration;
+            var dx = (int)Math.Round(dt + _shiftError);
             _shiftError += dt - dx;
             if (dx == 0) return; // no shift
 
