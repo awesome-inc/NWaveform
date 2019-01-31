@@ -27,7 +27,7 @@ namespace NWaveform.ViewModels
         {
             // cf.: https://msdn.microsoft.com/en-us/library/system.globalization.datetimeformatinfo(v=vs.110).aspx
             // ReSharper disable once ObjectCreationAsStatement
-            0.Invoking(x => new DateTimeFormatter(formatString)).ShouldThrow<FormatException>();
+            0.Invoking(x => new DateTimeFormatter(formatString)).Should().Throw<FormatException>();
         }
     }
 }

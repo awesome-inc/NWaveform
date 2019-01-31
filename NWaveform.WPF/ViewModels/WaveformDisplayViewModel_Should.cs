@@ -68,10 +68,10 @@ namespace NWaveform.ViewModels
             sut.WaveformImage.RectShouldHaveColor(w2 + 1, 1, 2 * w2, h2, sut.BackgroundBrush.Color);
 
             // assert the points are filled
-            sut.LeftChannel.Take(10).ShouldAllBeEquivalentTo(0);
-            sut.RightChannel.Take(10).ShouldAllBeEquivalentTo(h2);
-            sut.LeftChannel.Skip(10).Take(10).ShouldAllBeEquivalentTo(h2);
-            sut.RightChannel.Skip(10).Take(10).ShouldAllBeEquivalentTo(2 * h2);
+            sut.LeftChannel.Take(10).Should().AllBeEquivalentTo(0);
+            sut.RightChannel.Take(10).Should().AllBeEquivalentTo(h2);
+            sut.LeftChannel.Skip(10).Take(10).Should().AllBeEquivalentTo(h2);
+            sut.RightChannel.Skip(10).Take(10).Should().AllBeEquivalentTo(2 * h2);
         }
 
         [Test]

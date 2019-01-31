@@ -1,26 +1,20 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using LibVlcWrapper;
 using Microsoft.Win32;
 
 namespace NWaveform.Vlc
 {
     /// <summary>
-    ///     Configuration class for VLC native dependencies
+    /// Configuration class for VLC native dependencies
     /// </summary>
     public class VlcConfiguration
     {
-        private const string UserEnvRegKey = @"HKEY_CURRENT_USER\Environment";
-
-        private const string SystemEnvRegKey =
-            @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment";
-
-        private readonly string _homePath;
         private string _libVlcVersion;
         private bool _vlcChecked;
+        private readonly string _homePath;
 
         public VlcConfiguration(string homePath = null)
         {
@@ -33,7 +27,7 @@ namespace NWaveform.Vlc
             {
                 if (_libVlcVersion != null) return _libVlcVersion;
                 // This uses nVLC, cf.: https://www.nuget.org/packages/nVLC/
-                var pStr = LibVlcMethods.libvlc_get_version();
+                var pStr = LibVlcWrapper.LibVlcMethods.libvlc_get_version();
                 _libVlcVersion = Marshal.PtrToStringAnsi(pStr);
                 return _libVlcVersion;
             }
@@ -50,7 +44,7 @@ namespace NWaveform.Vlc
                 throw new InvalidOperationException("Cannot find VLC directory.");
         }
 
-        private void CheckVlc()
+        void CheckVlc()
         {
             var vlcPath = Path.Combine(_homePath, "vlc");
             var nativePath = Path.Combine(vlcPath, GetPlatform());
@@ -76,27 +70,25 @@ namespace NWaveform.Vlc
         private static string GetDefaultHomePath()
         {
             var homePath = GetSafeEnv("VLC_HOME");
-            if (string.IsNullOrWhiteSpace(homePath))
-            {
-                var executingAssemblyFile = new Uri(Assembly.GetEntryAssembly().GetName().CodeBase).LocalPath;
-                homePath = Path.GetDirectoryName(executingAssemblyFile);
-            }
+            if (!string.IsNullOrWhiteSpace(homePath)) return homePath;
+            var executingAssemblyFile = new Uri(Assembly.GetEntryAssembly().GetName().CodeBase).LocalPath;
+            homePath = Path.GetDirectoryName(executingAssemblyFile);
             return homePath;
         }
 
-        private static string GetPlatform()
-        {
-            return Environment.Is64BitProcess ? "x64" : "x86";
-        }
+        private static string GetPlatform() { return Environment.Is64BitProcess ? "x64" : "x86"; }
+
+        private const string UserEnvRegKey = @"HKEY_CURRENT_USER\Environment";
+        private const string SystemEnvRegKey = @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment";
 
         private static string GetSafeEnv(string envVar)
         {
             var value = Environment.GetEnvironmentVariable(envVar);
             if (string.IsNullOrWhiteSpace(value))
             {
-                value = (string) Registry.GetValue(UserEnvRegKey, envVar, null);
+                value = (string)Registry.GetValue(UserEnvRegKey, envVar, null);
                 if (string.IsNullOrWhiteSpace(value))
-                    value = (string) Registry.GetValue(SystemEnvRegKey, envVar, null);
+                    value = (string)Registry.GetValue(SystemEnvRegKey, envVar, null);
             }
             return value ?? string.Empty;
         }

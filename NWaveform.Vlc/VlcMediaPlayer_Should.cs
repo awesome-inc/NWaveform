@@ -148,16 +148,17 @@ namespace NWaveform.Vlc
             sut.Position = 0;
             sut.Duration = 100;
 
-            sut.MonitorEvents();
+            using (var monitor = sut.Monitor())
+            {
+                sut.Stop();
+                ctx.Player.Events.PlayerStopped += Raise.Event();
 
-            sut.Stop();
-            ctx.Player.Events.PlayerStopped += Raise.Event();
-
-            sut.ShouldRaisePropertyChangeFor(x => x.IsPaused);
-            sut.ShouldRaisePropertyChangeFor(x => x.IsStopped);
-            sut.ShouldRaisePropertyChangeFor(x => x.CanPause);
-            sut.ShouldRaisePropertyChangeFor(x => x.CanStop);
-            sut.ShouldRaisePropertyChangeFor(x => x.CanPause);
+                monitor.Should().RaisePropertyChangeFor(x => x.IsPaused);
+                monitor.Should().RaisePropertyChangeFor(x => x.IsStopped);
+                monitor.Should().RaisePropertyChangeFor(x => x.CanPause);
+                monitor.Should().RaisePropertyChangeFor(x => x.CanStop);
+                monitor.Should().RaisePropertyChangeFor(x => x.CanPause);
+            }
         }
 
         [Test(Description = "in case the player pauses, the status properties state changed")]
@@ -171,16 +172,19 @@ namespace NWaveform.Vlc
             sut.Error.Exception.Should().BeNull();
             ctx.Player.Events.PlayerPlaying += Raise.Event();
             sut.IsPlaying.Should().BeTrue();
-            sut.MonitorEvents();
 
-            sut.Pause();
-            ctx.Player.Events.PlayerPaused += Raise.Event();
+            using (var monitor = sut.Monitor())
+            {
 
-            sut.ShouldRaisePropertyChangeFor(x => x.IsPaused);
-            sut.ShouldRaisePropertyChangeFor(x => x.IsStopped);
-            sut.ShouldRaisePropertyChangeFor(x => x.CanPause);
-            sut.ShouldRaisePropertyChangeFor(x => x.CanStop);
-            sut.ShouldRaisePropertyChangeFor(x => x.CanPause);
+                sut.Pause();
+                ctx.Player.Events.PlayerPaused += Raise.Event();
+
+                monitor.Should().RaisePropertyChangeFor(x => x.IsPaused);
+                monitor.Should().RaisePropertyChangeFor(x => x.IsStopped);
+                monitor.Should().RaisePropertyChangeFor(x => x.CanPause);
+                monitor.Should().RaisePropertyChangeFor(x => x.CanStop);
+                monitor.Should().RaisePropertyChangeFor(x => x.CanPause);
+            }
         }
 
         [Test(Description = "in case the player played, the status properties state changed")]
@@ -191,14 +195,16 @@ namespace NWaveform.Vlc
             sut.Position = 0;
             sut.Duration = 100;
 
-            sut.MonitorEvents();
-            ctx.Player.Events.PlayerPlaying += Raise.Event();
+            using (var monitor = sut.Monitor())
+            {
+                ctx.Player.Events.PlayerPlaying += Raise.Event();
 
-            sut.ShouldRaisePropertyChangeFor(x => x.IsPaused);
-            sut.ShouldRaisePropertyChangeFor(x => x.IsStopped);
-            sut.ShouldRaisePropertyChangeFor(x => x.CanPause);
-            sut.ShouldRaisePropertyChangeFor(x => x.CanStop);
-            sut.ShouldRaisePropertyChangeFor(x => x.CanPause);
+                monitor.Should().RaisePropertyChangeFor(x => x.IsPaused);
+                monitor.Should().RaisePropertyChangeFor(x => x.IsStopped);
+                monitor.Should().RaisePropertyChangeFor(x => x.CanPause);
+                monitor.Should().RaisePropertyChangeFor(x => x.CanStop);
+                monitor.Should().RaisePropertyChangeFor(x => x.CanPause);
+            }
         }
 
         #endregion
@@ -337,11 +343,13 @@ namespace NWaveform.Vlc
             var ctx = new CreationContext();
             var sut = ctx.Create();
 
-            sut.MonitorEvents();
-            ctx.Player.Events.PlayerLengthChanged += Raise.EventWith(new MediaPlayerLengthChanged(15000));
+            using (var monitor = sut.Monitor())
+            {
+                ctx.Player.Events.PlayerLengthChanged += Raise.EventWith(new MediaPlayerLengthChanged(15000));
 
-            sut.Duration.Should().Be(15);
-            sut.ShouldRaisePropertyChangeFor(player => player.Duration);
+                sut.Duration.Should().Be(15);
+                monitor.Should().RaisePropertyChangeFor(player => player.Duration);
+            }
         }
 
         [Test(Description = "")]
@@ -534,48 +542,57 @@ namespace NWaveform.Vlc
 
             sut.Source = null;
 
-            sut.MonitorEvents();
-            sut.Source = DefaultSource;
+            using (var monitor = sut.Monitor())
+            {
+                sut.Source = DefaultSource;
 
-            sut.ShouldRaisePropertyChangeFor(p => p.Volume);
-            sut.ShouldRaisePropertyChangeFor(p => p.CanMute);
-            sut.ShouldRaisePropertyChangeFor(p => p.CanUnMute);
+                monitor.Should().RaisePropertyChangeFor(p => p.Volume);
+                monitor.Should().RaisePropertyChangeFor(p => p.CanMute);
+                monitor.Should().RaisePropertyChangeFor(p => p.CanUnMute);
 
-            sut.ShouldRaisePropertyChangeFor(p => p.CanFaster);
-            sut.ShouldRaisePropertyChangeFor(p => p.CanSlower);
-            sut.ShouldRaisePropertyChangeFor(p => p.CanPlay);
-            sut.ShouldRaisePropertyChangeFor(p => p.CanPause);
-            sut.ShouldRaisePropertyChangeFor(p => p.CanStop);
+                monitor.Should().RaisePropertyChangeFor(p => p.CanFaster);
+                monitor.Should().RaisePropertyChangeFor(p => p.CanSlower);
+                monitor.Should().RaisePropertyChangeFor(p => p.CanPlay);
+                monitor.Should().RaisePropertyChangeFor(p => p.CanPause);
+                monitor.Should().RaisePropertyChangeFor(p => p.CanStop);
+            }
 
             sut.Volume.Should().Be(VlcMediaPlayer.DefaultVolume);
             VlcMediaPlayer.DefaultVolume.Should().Be(1.0, "this seems to be VLCs default");
-            
+
             VlcMediaPlayer.VolumeEps.Should().BeLessOrEqualTo(0.1, "At minimum support 10% volume changes");
 
-            sut.MonitorEvents();
-            sut.Volume = 0.5;
-            sut.ShouldRaisePropertyChangeFor(p => p.Volume);
-            sut.Volume.Should().Be(0.5);
+            using (var monitor = sut.Monitor())
+            {
+                sut.Volume = 0.5;
+                monitor.Should().RaisePropertyChangeFor(p => p.Volume);
+                sut.Volume.Should().Be(0.5);
+            }
 
-            // check that updating player state/volume notifies the UI
-            ctx.Player.Volume.Returns(10);
-            sut.MonitorEvents();
-            sut.PlayWithTask().Wait();
-            sut.ShouldRaisePropertyChangeFor(p => p.Volume);
-            sut.Volume.Should().Be(0.5);
+            using (var monitor = sut.Monitor())
+            {
+                // check that updating player state/volume notifies the UI
+                ctx.Player.Volume.Returns(10);
+                sut.PlayWithTask().Wait();
+                monitor.Should().RaisePropertyChangeFor(p => p.Volume);
+                sut.Volume.Should().Be(0.5);
 
-            sut.Volume = 0.2;
-            sut.Volume.Should().Be(0.2);
+                sut.Volume = 0.2;
+                sut.Volume.Should().Be(0.2);
+            }
 
-            // check that any play/pause changes notify on Volume
-            sut.MonitorEvents();
-            sut.Pause();
-            sut.ShouldRaisePropertyChangeFor(p => p.Volume);
+            using (var monitor = sut.Monitor())
+            {
+                // check that any play/pause changes notify on Volume
+                sut.Pause();
+                monitor.Should().RaisePropertyChangeFor(p => p.Volume);
+            }
 
-            sut.MonitorEvents();
-            sut.Stop();
-            sut.ShouldRaisePropertyChangeFor(p => p.Volume);
-
+            using (var monitor = sut.Monitor())
+            {
+                sut.Stop();
+                monitor.Should().RaisePropertyChangeFor(p => p.Volume);
+            }
         }
 
 
@@ -588,7 +605,7 @@ namespace NWaveform.Vlc
             Assert.Inconclusive("skip for NCrunch");
 #endif
 
-            var ctx = new CreationContext {VolumeEndpoint = CoreAudio.GetDefaultVolumeEndpoint()};
+            var ctx = new CreationContext { VolumeEndpoint = CoreAudio.GetDefaultVolumeEndpoint() };
 
             var sut = ctx.Create();
 

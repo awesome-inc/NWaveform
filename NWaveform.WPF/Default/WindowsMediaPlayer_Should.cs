@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -62,16 +62,19 @@ namespace NWaveform.Default
             var file = new FileInfo(".\\Tests\\Pulp_Fiction_Jimmys_Coffee.mp3");
             file.Exists.Should().BeTrue();
 
-            IMediaPlayer player = new WindowsMediaPlayer();
-            player.MonitorEvents();
-            player.Source = new Uri(file.FullName);
+            IMediaPlayer sut = new WindowsMediaPlayer();
 
-            player.Play();
-            Thread.Sleep(5000);
+            using (var monitor = sut.Monitor())
+            {
+                sut.Source = new Uri(file.FullName);
 
-            // does not work!
-            //player.ShouldRaise("PositionChanged").WithSender(player).WithArgs<EventArgs>(e=> e.Equals(EventArgs.Empty))
-            player.Stop();
+                sut.Play();
+                Thread.Sleep(5000);
+
+                // does not work!
+                monitor.Should().Raise("PositionChanged").WithSender(sut).WithArgs<EventArgs>(e => e.Equals(EventArgs.Empty));
+                sut.Stop();
+            }
         }
 
         [Test]

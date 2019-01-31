@@ -20,7 +20,7 @@ namespace NWaveform.NAudio
             var sut = new BufferedWaveStream(waveFormat, duration);
             sut.BufferDuration.Should().Be(duration);
             sut.Length.Should().Be(sut.BufferLength);
-            sut.BufferLength.Should().Be((int) (waveFormat.AverageBytesPerSecond * duration.TotalSeconds));
+            sut.BufferLength.Should().Be((int)(waveFormat.AverageBytesPerSecond * duration.TotalSeconds));
 
             sut.Position.Should().Be(0);
             sut.Position = sut.BufferLength + 1;
@@ -41,7 +41,7 @@ namespace NWaveform.NAudio
                     .Be(TimeSpan.Zero, "default preserve should be zero (no preservation)");
 
                 sut.Invoking(x => x.PreserveAfterWrapAround = bufferSize)
-                    .ShouldThrow<ArgumentOutOfRangeException>("preserve must be less than buffer size");
+                    .Should().Throw<ArgumentOutOfRangeException>("preserve must be less than buffer size");
 
                 // 1. no wrap around
                 var expectedBytes = waveFormat.Generate(bufferSize);
@@ -61,15 +61,20 @@ namespace NWaveform.NAudio
                 var time = TimeSpan.FromSeconds(0.5 * (skippedTime.TotalSeconds + sut.BufferDuration.TotalSeconds));
                 sut.CurrentTime = time;
 
-                sut.MonitorEvents();
-                sut.AddSamples(expectedBytes, 0, expectedBytes.Length-1);
-                sut.WritePosition.Should().Be(expectedBytes.Length-1);
-                sut.ShouldNotRaise(nameof(sut.WrappedAround));
+                using (var monitor = sut.Monitor())
+                {
+                    sut.AddSamples(expectedBytes, 0, expectedBytes.Length - 1);
+                    sut.WritePosition.Should().Be(expectedBytes.Length - 1);
+                    monitor.Should().NotRaise(nameof(sut.WrappedAround));
+                }
 
-                sut.AddSamples(expectedBytes, expectedBytes.Length-1, 1);
-                sut.ShouldRaise(nameof(sut.WrappedAround));
-                sut.CurrentWriteTime.Should().Be(sut.PreserveAfterWrapAround);
-                sut.CurrentTime.Should().Be(time - skippedTime, "position should be wrapped");
+                using (var monitor = sut.Monitor())
+                {
+                    sut.AddSamples(expectedBytes, expectedBytes.Length - 1, 1);
+                    monitor.Should().Raise(nameof(sut.WrappedAround));
+                    sut.CurrentWriteTime.Should().Be(sut.PreserveAfterWrapAround);
+                    sut.CurrentTime.Should().Be(time - skippedTime, "position should be wrapped");
+                }
 
                 Array.Resize(ref actualBytes, sut.PreservedBytes);
                 sut.Position = 0;

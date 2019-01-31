@@ -20,11 +20,11 @@
       <frameworkAssembly assemblyName="WindowsBase"/>
     </frameworkAssemblies>
     <dependencies>
-      <dependency id="NAudio" version="1.8.0" />
-      <dependency id="NAudio.Lame" version="1.0.4" />
-      <dependency id="Caliburn.Micro" version="3.0.3" />
-      <dependency id="FontAwesome.Sharp" version="4.7.0" />
-      <dependency id="WriteableBitmapEx" version="1.5.0.0" />
+      <dependency id="NAudio" version="[1.8.0,1.9.0)" />
+      <dependency id="NAudio.Lame" version="[1.0.5,1.1.0)" />
+      <dependency id="Caliburn.Micro" version="[3.0.0,4.0.0)" />
+      <dependency id="FontAwesome.Sharp" version="[5.0.0,6.0.0)" />
+      <dependency id="WriteableBitmapEx" version="[1.6.0,1.7.0)" />
     </dependencies>
   </metadata>
   <files>

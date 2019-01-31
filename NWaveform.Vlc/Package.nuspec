@@ -14,9 +14,9 @@
     <copyright>Awesome Incremented</copyright>
     <dependencies>
       <dependency id="NWaveform.WPF" version="$Version$" />
-      <dependency id="nVLC" version="2.1.0.3" />
-      <dependency id="VLC.Native" version="2.2.0.1" />
-      <dependency id="NAudio" version="1.8.0" />
+      <dependency id="nVLC" version="[3.0.0,4.0.0)" />
+      <dependency id="VLC.Native" version="[3.0.0,4.0.0)" />
+      <dependency id="NAudio" version="[1.8.0,1.9.0)" />
     </dependencies>
   </metadata>
   <files>

@@ -26,12 +26,15 @@ namespace NWaveform.ViewModels
             var ctx = new ContextFor<WaveformViewModel>();
             var sut = ctx.BuildSut();
             sut.PositionProvider = positionPovider;
-            sut.MonitorEvents();
 
-            positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(),
-                new PropertyChangedEventArgs(nameof(sut.Position)));
-            sut.ShouldRaise(nameof(sut.PropertyChanged))
-                .WithArgs<PropertyChangedEventArgs>(t => t.PropertyName == nameof(sut.Position));
+            using (var monitor = sut.Monitor())
+            {
+                positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(),
+                    new PropertyChangedEventArgs(nameof(sut.Position)));
+
+                monitor.Should().Raise(nameof(sut.PropertyChanged))
+                    .WithArgs<PropertyChangedEventArgs>(t => t.PropertyName == nameof(sut.Position));
+            }
         }
 
         [Test(Description = "verify duration change on player is handles because of media stream")]
@@ -44,16 +47,18 @@ namespace NWaveform.ViewModels
             var ctx = new ContextFor<WaveformViewModel>();
             var sut = ctx.BuildSut();
             sut.PositionProvider = positionPovider;
-            sut.MonitorEvents();
 
-            positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(),
-                new PropertyChangedEventArgs(nameof(sut.Duration)));
-            sut.ShouldRaise(nameof(sut.PropertyChanged))
-                .WithArgs<PropertyChangedEventArgs>(t => t.PropertyName == nameof(sut.HasDuration));
-            sut.ShouldRaise(nameof(sut.PropertyChanged))
-                .WithArgs<PropertyChangedEventArgs>(t => t.PropertyName == nameof(sut.Duration));
-            sut.Duration.Should().Be(expectedDuration);
-            sut.HasDuration.Should().BeTrue();
+            using (var monitor = sut.Monitor())
+            {
+                positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(),
+                    new PropertyChangedEventArgs(nameof(sut.Duration)));
+                monitor.Should().Raise(nameof(sut.PropertyChanged))
+                    .WithArgs<PropertyChangedEventArgs>(t => t.PropertyName == nameof(sut.HasDuration));
+                monitor.Should().Raise(nameof(sut.PropertyChanged))
+                    .WithArgs<PropertyChangedEventArgs>(t => t.PropertyName == nameof(sut.Duration));
+                sut.Duration.Should().Be(expectedDuration);
+                sut.HasDuration.Should().BeTrue();
+            }
         }
 
         [Test]
@@ -67,14 +72,16 @@ namespace NWaveform.ViewModels
             var sut = ctx.BuildSut();
             sut.Duration = 4.0;
             sut.PositionProvider = positionPovider;
-            sut.MonitorEvents();
 
-            positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(),
-                new PropertyChangedEventArgs(nameof(sut.Duration)));
-            sut.ShouldNotRaise(nameof(sut.PropertyChanged));
-            sut.ShouldNotRaise(nameof(sut.PropertyChanged));
-            sut.Duration.Should().Be(expectedDuration);
-            sut.HasDuration.Should().BeTrue();
+            using (var monitor = sut.Monitor())
+            {
+                positionPovider.PropertyChanged += Raise.Event<PropertyChangedEventHandler>(new object(),
+                    new PropertyChangedEventArgs(nameof(sut.Duration)));
+                monitor.Should().NotRaise(nameof(sut.PropertyChanged));
+                monitor.Should().NotRaise(nameof(sut.PropertyChanged));
+                sut.Duration.Should().Be(expectedDuration);
+                sut.HasDuration.Should().BeTrue();
+            }
         }
 
         [Test]
@@ -87,7 +94,6 @@ namespace NWaveform.ViewModels
             var ctx = new ContextFor<WaveformViewModel>();
             var sut = ctx.BuildSut();
             sut.PositionProvider = positionPovider;
-            sut.MonitorEvents();
 
             sut.Position.Should().Be(42);
 
@@ -137,15 +143,17 @@ namespace NWaveform.ViewModels
             sut.Selection.Start = 6;
             sut.Selection.End = 9;
 
-            sut.MonitorEvents();
-            sut.HandleShift(3);
+            using (var monitor = sut.Monitor())
+            {
+                sut.HandleShift(3);
 
-            sut.ShouldRaisePropertyChangeFor(x => x.Position,
-                "sut should not change position, just notify on the base stream (position provider)");
-            sut.Selection.Start.Should().Be(3);
-            sut.Selection.End.Should().Be(6);
+                monitor.Should().RaisePropertyChangeFor(x => x.Position,
+                    "sut should not change position, just notify on the base stream (position provider)");
+                sut.Selection.Start.Should().Be(3);
+                sut.Selection.End.Should().Be(6);
 
-            // TODO: assert channels & labels
+                // TODO: assert channels & labels
+            }
         }
 
         [Test]
@@ -173,14 +181,14 @@ namespace NWaveform.ViewModels
             sut.HandlePeaks(e);
             player.Received().Play();
             sut.Position.Should().Be(sut.LastWritePosition - sut.LiveDelta);
-            
+
             player.ClearReceivedCalls();
             sut.HandlePeaks(e);
             // only play once after activation
             player.DidNotReceive().Play();
 
             // deactivate/activate & check autoplay again
-            ((IDeactivate) sut).Deactivate(false);
+            ((IDeactivate)sut).Deactivate(false);
             ((IActivate)sut).Activate();
             sut.HandlePeaks(e);
             player.Received().Play();
@@ -193,76 +201,112 @@ namespace NWaveform.ViewModels
             var ctx = new ContextFor<WaveformViewModel>();
             var sut = ctx.BuildSut();
 
-            sut.MonitorEvents();
+            using (var monitor = sut.Monitor())
+            {
+                var selection = new AudioSelectionViewModel();
+                sut.Selection = selection;
+                sut.Selection.Should().BeEquivalentTo(selection);
+                monitor.Should().RaisePropertyChangeFor(x => x.Selection);
+            }
 
-            //var positionProvider = Substitute.For<IPositionProvider>();
-            //sut.PositionProvider = positionProvider;
+            using (var monitor = sut.Monitor())
+            {
+                var selectionMenu = Substitute.For<IMenuViewModel>();
+                sut.SelectionMenu = selectionMenu;
+                sut.SelectionMenu.Should().Be(selectionMenu);
+                monitor.Should().RaisePropertyChangeFor(x => x.SelectionMenu);
+            }
 
-            var selection = new AudioSelectionViewModel();
-            sut.Selection = selection;
-            sut.Selection.ShouldBeEquivalentTo(selection);
-            sut.ShouldRaisePropertyChangeFor(x => x.Selection);
-            //positionProvider.Received().AudioSelection =
-
-            var selectionMenu = Substitute.For<IMenuViewModel>();
-            sut.SelectionMenu = selectionMenu;
-            sut.SelectionMenu.Should().Be(selectionMenu);
-            sut.ShouldRaisePropertyChangeFor(x => x.SelectionMenu);
-
-            sut.TicksEach = 42.0;
-            sut.TicksEach.Should().Be(42);
-            sut.ShouldRaisePropertyChangeFor(x => x.TicksEach);
-
-            var label = Substitute.For<ILabelVievModel>();
-            var labels = new[] {label};
-            sut.Labels = labels;
-            sut.Labels.ShouldBeEquivalentTo(labels);
-
-            sut.SelectedLabel = label;
-            sut.SelectedLabel.Should().Be(label);
-            sut.ShouldRaisePropertyChangeFor(x => x.SelectedLabel);
+            using (var monitor = sut.Monitor())
+            {
+                sut.TicksEach = 42.0;
+                sut.TicksEach.Should().Be(42);
+                monitor.Should().RaisePropertyChangeFor(x => x.TicksEach);
+            }
 
             var brush = new SolidColorBrush(Colors.Red);
-            sut.UserBrush = brush;
-            sut.UserBrush.Should().Be(brush);
-            sut.ShouldRaisePropertyChangeFor(x => x.UserBrush);
-
-            sut.SeparationLeftBrush = brush;
-            sut.SeparationLeftBrush.Should().Be(brush);
-            sut.ShouldRaisePropertyChangeFor(x => x.SeparationLeftBrush);
-
-            sut.SeparationRightBrush = brush;
-            sut.SeparationRightBrush.Should().Be(brush);
-            sut.ShouldRaisePropertyChangeFor(x => x.SeparationRightBrush);
-
-            sut.UserTextBrush = brush;
-            sut.UserTextBrush.Should().Be(brush);
-            sut.ShouldRaisePropertyChangeFor(x => x.UserTextBrush);
-
-            sut.PositionBrush = brush;
-            sut.PositionBrush.Should().Be(brush);
-            sut.ShouldRaisePropertyChangeFor(x => x.PositionBrush);
-
-            sut.SelectionBrush = brush;
-            sut.SelectionBrush.Should().Be(brush);
-            sut.ShouldRaisePropertyChangeFor(x => x.SelectionBrush);
-
-            sut.SeparationRightBrush = brush;
-            sut.SeparationRightBrush.Should().Be(brush);
-            sut.ShouldRaisePropertyChangeFor(x => x.SeparationRightBrush);
-
             var points = new PointCollection();
-            sut.UserChannel = points;
-            sut.UserChannel.ShouldBeEquivalentTo(points);
-            sut.ShouldRaisePropertyChangeFor(x => x.UserChannel);
+            var label = Substitute.For<ILabelVievModel>();
+            var labels = new[] { label };
+            sut.Labels = labels;
+            sut.Labels.Should().BeEquivalentTo(labels);
 
-            sut.SeparationLeftChannel = points;
-            sut.SeparationLeftChannel.ShouldBeEquivalentTo(points);
-            sut.ShouldRaisePropertyChangeFor(x => x.SeparationLeftChannel);
+            using (var monitor = sut.Monitor())
+            {
+                sut.SelectedLabel = label;
+                sut.SelectedLabel.Should().Be(label);
+                monitor.Should().RaisePropertyChangeFor(x => x.SelectedLabel);
+            }
 
-            sut.SeparationRightChannel = points;
-            sut.SeparationRightChannel.ShouldBeEquivalentTo(points);
-            sut.ShouldRaisePropertyChangeFor(x => x.SeparationRightChannel);
+            using (var monitor = sut.Monitor())
+            {
+                sut.UserBrush = brush;
+                sut.UserBrush.Should().Be(brush);
+                monitor.Should().RaisePropertyChangeFor(x => x.UserBrush);
+            }
+
+            using (var monitor = sut.Monitor())
+            {
+                sut.SeparationLeftBrush = brush;
+                sut.SeparationLeftBrush.Should().Be(brush);
+                monitor.Should().RaisePropertyChangeFor(x => x.SeparationLeftBrush);
+            }
+
+            using (var monitor = sut.Monitor())
+            {
+                sut.SeparationRightBrush = brush;
+                sut.SeparationRightBrush.Should().Be(brush);
+                monitor.Should().RaisePropertyChangeFor(x => x.SeparationRightBrush);
+            }
+
+            using (var monitor = sut.Monitor())
+            {
+                sut.UserTextBrush = brush;
+                sut.UserTextBrush.Should().Be(brush);
+                monitor.Should().RaisePropertyChangeFor(x => x.UserTextBrush);
+            }
+
+            using (var monitor = sut.Monitor())
+            {
+                sut.PositionBrush = brush;
+                sut.PositionBrush.Should().Be(brush);
+                monitor.Should().RaisePropertyChangeFor(x => x.PositionBrush);
+            }
+
+            using (var monitor = sut.Monitor())
+            {
+                sut.SelectionBrush = brush;
+                sut.SelectionBrush.Should().Be(brush);
+                monitor.Should().RaisePropertyChangeFor(x => x.SelectionBrush);
+            }
+
+            using (var monitor = sut.Monitor())
+            {
+                sut.SeparationRightBrush = brush;
+                sut.SeparationRightBrush.Should().Be(brush);
+                monitor.Should().RaisePropertyChangeFor(x => x.SeparationRightBrush);
+            }
+
+            using (var monitor = sut.Monitor())
+            {
+                sut.UserChannel = points;
+                sut.UserChannel.Should().BeEquivalentTo(points);
+                monitor.Should().RaisePropertyChangeFor(x => x.UserChannel);
+            }
+
+            using (var monitor = sut.Monitor())
+            {
+                sut.SeparationLeftChannel = points;
+                sut.SeparationLeftChannel.Should().BeEquivalentTo(points);
+                monitor.Should().RaisePropertyChangeFor(x => x.SeparationLeftChannel);
+            }
+
+            using (var monitor = sut.Monitor())
+            {
+                sut.SeparationRightChannel = points;
+                sut.SeparationRightChannel.Should().BeEquivalentTo(points);
+                monitor.Should().RaisePropertyChangeFor(x => x.SeparationRightChannel);
+            }
         }
 
         [Test]

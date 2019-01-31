@@ -51,7 +51,7 @@ namespace NWaveform.App
             {
                 new MenuItemViewModel
                 {
-                    Icon = IconChar.Pencil,
+                    Icon = IconChar.Edit,
                     Command = new DelegateCommand<ILabelVievModel>(EditLabel, l => false)
                     {
                         Title = "Edit...",
@@ -82,7 +82,7 @@ namespace NWaveform.App
                 },
                 new MenuItemViewModel
                 {
-                    Icon = IconChar.Scissors,
+                    Icon = IconChar.Crop,
                     Command = new DelegateCommand<IAudioSelectionViewModel>(CropToFile, CanCropToFile)
                     {
                         Title = "Crop to file...",
