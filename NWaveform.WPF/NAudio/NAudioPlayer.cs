@@ -175,7 +175,7 @@ namespace NWaveform.NAudio
             }
             catch (Exception ex)
             {
-                Error.Exception = new AudioException("Could not open audio", ex);
+                HandleError(ex);
             }
         }
 
