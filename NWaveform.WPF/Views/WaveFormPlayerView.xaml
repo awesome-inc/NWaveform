@@ -154,7 +154,7 @@
                     Content="{fa:ToText Stop}" ToolTip="Stop" />
 
                 <ToggleButton cal:Message.Attach="ToggleLoop" Visibility="{Binding CanLoop, Converter={StaticResource BoolToVisible}}"
-                    Content="{fa:ToText Repeat}" ToolTip="Toggle Loop" IsThreeState="False" IsChecked="{Binding IsLooping,Mode=OneWay}" />
+                    Content="{fa:ToText Redo}" ToolTip="Toggle Loop" IsThreeState="False" IsChecked="{Binding IsLooping,Mode=OneWay}" />
 
                 <Button cal:Message.Attach="Slower" 
                         Visibility="{Binding SupportsRate, Converter={StaticResource BoolToVisible}}"
