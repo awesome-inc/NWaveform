@@ -36,12 +36,16 @@
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
             <Button cal:Message.Attach="Play"
-                    Content="{fa:ToText Play}" ToolTip="Play" Style="{StaticResource ProminentButton}"
-                    Visibility="{Binding IsPlaying, Converter={StaticResource InverseBoolToVisible}}" />
+                    ToolTip="Play" Style="{StaticResource ProminentButton}"
+                    Visibility="{Binding IsPlaying, Converter={StaticResource InverseBoolToVisible}}" >
+                <fa:IconImage Icon="Play"/>
+            </Button>
 
             <Button cal:Message.Attach="Pause"
-                    Content="{fa:ToText Pause}" ToolTip="Pause" Style="{StaticResource ProminentButton}"
-                    Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisible}}" />
+                    ToolTip="Pause" Style="{StaticResource ProminentButton}"
+                    Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisible}}" >
+                <fa:IconImage Icon="Pause"/>
+            </Button>
         </StackPanel>
 
         <ListBox Grid.Row="1" x:Name="Channels" HorizontalContentAlignment="Stretch" IsTabStop="False">

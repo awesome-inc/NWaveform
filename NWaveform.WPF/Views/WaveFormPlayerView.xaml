@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="NWaveform.Views.WaveformPlayerView"
+<UserControl x:Class="NWaveform.Views.WaveformPlayerView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -151,33 +151,50 @@
                 </Label>
 
                 <Button cal:Message.Attach="Stop"
-                    Content="{fa:ToText Stop}" ToolTip="Stop" />
+                    ToolTip="Stop" >
+                    <fa:IconImage Icon="Stop"/>
+                </Button>
 
                 <ToggleButton cal:Message.Attach="ToggleLoop" Visibility="{Binding CanLoop, Converter={StaticResource BoolToVisible}}"
-                    Content="{fa:ToText Repeat}" ToolTip="Toggle Loop" IsThreeState="False" IsChecked="{Binding IsLooping,Mode=OneWay}" />
+                    ToolTip="Toggle Loop" IsThreeState="False" IsChecked="{Binding IsLooping,Mode=OneWay}" >
+                    <fa:IconImage Icon="Redo"/>
+                </ToggleButton>
 
                 <Button cal:Message.Attach="Slower" 
                         Visibility="{Binding SupportsRate, Converter={StaticResource BoolToVisible}}"
-                        Content="{fa:ToText AngleDoubleLeft}" ToolTip="Slower" />
+                        ToolTip="Slower" >
+                    <fa:IconImage Icon="AngleDoubleLeft"/>
+                </Button>
 
                 <Button cal:Message.Attach="Play"
-                        Content="{fa:ToText Play}" ToolTip="Play" Style="{StaticResource ProminentButton}"
-                        Visibility="{Binding IsPlaying, Converter={StaticResource InverseBoolToVisible}}" />
+                        ToolTip="Play" Style="{StaticResource ProminentButton}"
+                        Visibility="{Binding IsPlaying, Converter={StaticResource InverseBoolToVisible}}" >
+                    <fa:IconImage Icon="Play"/>
+                </Button>
 
                 <Button cal:Message.Attach="Pause"
-                        Content="{fa:ToText Pause}" ToolTip="Pause" Style="{StaticResource ProminentButton}"
-                        Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisible}}" />
+                        ToolTip="Pause" Style="{StaticResource ProminentButton}"
+                        Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVisible}}" >
+                    <fa:IconImage Icon="Pause"/>
+                </Button>
 
                 <Button cal:Message.Attach="Faster"
                         Visibility="{Binding SupportsRate, Converter={StaticResource BoolToVisible}}"
-                        Content="{fa:ToText AngleDoubleRight}" ToolTip="Faster" />
+                        ToolTip="Faster" >
+                    <fa:IconImage Icon="AngleDoubleRight"/>
+                </Button>
 
                 <Button cal:Message.Attach="Mute"
-                        Content="{fa:ToText VolumeOff}" ToolTip="Mute" 
-                        Visibility="{Binding CanMute, Converter={StaticResource BoolToVisible}}" />
+                        ToolTip="Mute" 
+                        Visibility="{Binding CanMute, Converter={StaticResource BoolToVisible}}" >
+                    <fa:IconImage Icon="VolumeOff"/>
+                </Button>
+
                 <Button cal:Message.Attach="UnMute"
-                        Content="{fa:ToText VolumeUp}" ToolTip="Unmute"
-                        Visibility="{Binding CanMute, Converter={StaticResource InverseBoolToVisible}}" />
+                        ToolTip="Unmute"
+                        Visibility="{Binding CanMute, Converter={StaticResource InverseBoolToVisible}}" >
+                    <fa:IconImage Icon="VolumeUp"/>
+                </Button>
 
                 <nWaveform:FormattedSlider VerticalAlignment="Center" MinWidth="95"
                     Value="{Binding Volume}" Minimum="0" Maximum="1" 
